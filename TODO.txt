@@ -1,0 +1,53 @@
+﻿URGENT : faut faire les classes définitives Formula, Clause, Variable en regardant ce que dpll a besoin
+	ensuite je pourrai adapter ton tseitin.
+	=> Je commence à faire des trucs propres.
+
+Je pense que le mieux pour concevoir une API c'est d'abord de programmer un exemple.
+
+Optionnel : ce serait cool que tes variables puissent déjà contenir l'information comme quoi on prend l'opposé (genre -2, voire même ~~-2), ça facilitera la tâche (mais c'est optionnel, te concentre pas là-dessus, on aura le temps d'y revenir)
+	=> faudra voir ça effectivement
+
+IL faut traiter l'entrée pour que 1 \/ 1000 devienne 0 \/ 1 une fois stocké
+et garder l'association inverse 0 -> 1; 1 -> 1000.
+
+Faut utiliser des enum class avec des noms appropriés
+
+Si tu as le temps jettes un coup d'oeil à Clean Code dans /doc/
+
+J'ai commencé l'algo DPLL, voir dpll.hpp, dpll.cpp
+
+Il faut renommer les .h en .hpp (si c'est bien un fichier C++)
+
+Il faut trouver des noms pour les Fomula (entrée) et (données utilisée DPLL)
+
+Il faut que tu ranges ce bordel de fichiers et de dossiers.
+	L'arborescence sera src/parser src/tseitin src/solver
+	avec un bon gros Makefile (en racine) ???? permettant de compiler (seulement le parser ou le solveur ou bien tout, faire des tests, ...)
+
+Il faut créer un fichier conventions de codage ?
+	#HirshkoffVaAdorer
+
+Faut pas oublier de faire des tests.
+
+Faut trouver le type d'include à faire : "" ou <>, doit on include subdir/header.h ou juste header.h et préciser dans le Makefile (si c'est possible)
+	=> Pour moi les includes c'est <> pour la lib standard, et "" pour les header personnel. C'est comme ça que j'ai appris, je ne sais pas quelle liberté on a. 
+
+Heuristique : on pourrait compter le nombre de littéraux 1 -1 1 donne 2 * 1, 1 * -1 puis trier les clauses selon cet ordre
+
+Faut nettoyer le makefile
+
+Un gros Makefile à la racine ou bien un makefile dans chaque répertoire ? ça se discutte
+	=> Au pire, un makefile dans chaque répertoire ET un makefile à la racine qui permet de compiler via les autres makefile
+
+Coder des générateurs d'instance SAT
+	- aléatoire
+	- combinatoire: issue d'une réduction d'un problème (exemple: coloration d'un graphe choisi au hasard pusi codé en CNF)
+
+Les conventions utilisées par ls
+
+   Exit status:
+       0      if OK,
+
+       1      if minor problems (e.g., cannot access subdirectory),
+
+       2      if serious trouble (e.g., cannot access command-line argument).

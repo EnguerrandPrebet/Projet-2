@@ -1,19 +1,14 @@
 void dpll()
 {
-	pretreatment(f,os,option);
+
+	bool sat_unk = (pretreatment(f,os,option) == UNKNOWN);
 
 	stack<Decision> decisions({});
-	bool sat_unk = true;
-	truc action_result;
 
-	var x = get_next_var(f,os,option);
-	decisions.push((x,GUESS));
-	do
+	truc action_result = NOTHING; //On commence dans un état stable (-> pari)
+
+	while(sat_unk)
 	{
-		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
-		{
-			action_result = update(f,decisions,os,option);
-		}while(action_result==NEW)
 
 		switch(action_result)
 		{
@@ -27,13 +22,13 @@ void dpll()
 				x = get_next_var(f,os,option); //x = littéral
 				decisions.push((x,GUESS));
 		}
-		else if(action_result == SUCCESS)
+
+		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
 		{
-			sat_unk = false;
-		}
+			action_result = update(f,decisions,os,option);
+		}while(action_result==NEW)
 
-
-	}while(sat_unk)
+	}
 
 	//Peut être hors de la fonction DPLL (même si je ne vois pas pourquoi)
 	switch(test(f))

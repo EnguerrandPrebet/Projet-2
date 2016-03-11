@@ -1,14 +1,21 @@
+enum Res {NEW,NOTHING,ERROR,SUCCESS};
+
 void dpll()
 {
 
-	bool sat_unk = (pretreatment(f,os,option) == UNKNOWN);
+	pretreatment(f,os,option);
 
 	stack<Decision> decisions({});
 
-	truc action_result = NOTHING; //On commence dans un état stable (-> pari)
-
+	bool sat_unk = true;
 	while(sat_unk)
 	{
+		Res action_result; //On commence dans un état stable (-> pari)
+
+		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
+		{
+			action_result = update(f,decisions,os,option);
+		}while(action_result==NEW)
 
 		switch(action_result)
 		{
@@ -23,15 +30,12 @@ void dpll()
 				decisions.push((x,GUESS));
 		}
 
-		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
-		{
-			action_result = update(f,decisions,os,option);
-		}while(action_result==NEW)
+
 
 	}
 
 	//Peut être hors de la fonction DPLL (même si je ne vois pas pourquoi)
-	switch(test(f))
+	switch(f.test())
 	{
 		case TRUE:
 			cout << "s SATISFIABLE" << "blabla";
@@ -54,4 +58,58 @@ bool backtrack(f,decisions,os,option)
 
 	}while(decisions.top().choice == INFER)
 
+}
+
+State Formule::test()
+{
+	State sol = TRUE;
+	for(auto c:clauses)
+	{
+		State sol_c = FALSE;
+		for(auto i:c)
+		{
+			if(assignment[i] == UNKNOWN && sol_c != TRUE)
+				sol_c = UNKNOWN;
+			if(assignment[i] == TRUE)
+				sol_c = TRUE;
+				//break
+		}
+		if(sol_c == UNKNOWN && sol != FALSE)
+			sol = UNKNOWN;
+		if(sol_c == FALSE)
+			sol == FALSE;
+			//break
+	}
+	return sol;
+}
+void pretreatment(f,os,option)
+{
+	/**Redondance / Renommage  = avant ?**/
+    f.supprTauto(os,option);
+}
+
+void Formule::supprTauto(os,option)
+{
+	map<int,bool> truc; //true : x, false : x bar
+	struct new_clauses({});
+	for(auto c:clauses)
+	{
+		bool tauto = false;
+		for(auto j = c.begin(),j!=c.end() && !tauto; j++)
+		{
+			if(truc[j] == (j<0)) // l'opposé est présent
+			{
+				tauto = true;
+			}
+			else
+			{
+				truc[j] = (j>0);
+			}
+		}
+		if(!tauto)
+		{
+			new_clauses.add(c);
+		}
+	}
+	f.new_c(new_clauses);
 }

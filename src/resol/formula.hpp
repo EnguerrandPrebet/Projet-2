@@ -1,28 +1,37 @@
 #ifndef FORMULA_HPP
 #define FORMULA_HPP
 
-#include <vector>
-#include <set>
 #include <iostream>
+#include <stack>
+#include <list>
+
+#include "clause.hpp"
+
+#define NO_DEBUG 0
+
+using namespace std;
 
 
 class Formula
 {
-    public:
-        Formula();
-        Formula(unsigned int v);
+	public:
+		Formula();
+		void update_var(int& x,ostream& os,Option& option);
+		State test();
+		void revive(int var = 0, ostream& os = cout, int debug = 0);
+		void supprTauto(ostream& os, Option& option);
+		void clear_c(list<Clause> clauses);
+		void apply_modification(ostream& os, Option& option);
+		Res propagation_unitary(stack<Decision>& decisions, ostream& os, Option& option);
+		Res propagation_unique_polarity(stack<Decision>& decisions, ostream& os, Option& option);
+		int get_fst_var(){return var_alive.front();}; //Choix par défaut
 
-        unsigned int v() { return _v; }
-
-        unsigned int c() { return clauses.size(); }
-
-			void set_v(unsigned int v) { _v = v;}
-        std::vector<std::set<int>> clauses;
-
-		friend std::ostream& operator<<(std::ostream& os, const Formula& f);
-
-    private:
-        unsigned int _v;//Nombre de variables
+	private:
+		unsigned int size; //Nb de variable (assignment [NULL,x1,...,xn])
+		list<Clause> clauses_alive;
+		stack<Decision> stack_delete;
+		vector<State> assignment;
+		list<unsigned int> var_alive;
 
 };
 

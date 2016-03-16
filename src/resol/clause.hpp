@@ -40,7 +40,9 @@ class Clause
 		list<int> vars;
 };
 
-struct Decision{int var;Choix choice;Clause clause = Clause();Decision(int n_var, Choix n_choice)
+struct Decision_var{int var;Choix choice;Decision(int n_var, Choix n_choice)
 {var = n_var; choice = n_choice;}};
+struct Decision_cla{Choix choice;Clause clause;Decision(Choix n_choice,Clause n_clause  = Clause())
+{choice = n_choice;clause = n_clause}};
 
 #endif // CLAUSE_HPP

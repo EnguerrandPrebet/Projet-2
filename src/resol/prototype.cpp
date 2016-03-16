@@ -18,19 +18,19 @@ Dépend de l'implémentation :
 */
 void dpll(Formula& f, ostream& os, Option& option)
 {
-
+	int time = 0;
 	pretreatment(f,os,option);
 
-	stack<Decision> decisions;
+	stack<Decision_var> decisions;
 
 	bool sat_unk = true;
 	while(sat_unk)
 	{
 		Res action_result;
-
+		int x;
 		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
 		{
-			action_result = update(f,decisions,os,option);
+			action_result = update(f,decisions,x,os,option);
 		}while(action_result==NEW);
 
 		switch(action_result)
@@ -42,9 +42,9 @@ void dpll(Formula& f, ostream& os, Option& option)
 				sat_unk = false;
 				break;
 			case NOTHING: //default
-				int x = get_next_var(f,os,option); //x = littéral
+				x = get_next_var(f,os,option); //x = littéral
 				f.update_var(x,os,option); // met à jour assignment et vars_alive
-				decisions.push(Decision(x,GUESS));
+				decisions.push(Decision_var(x,GUESS));
 		}
 
 
@@ -122,6 +122,7 @@ void Formula::supprTauto(ostream& os, Option& option)
 			if(truc.find(abs(*j)) != truc.end() && truc[abs(*j)] == (*j<0)) // l'opposé est présent
 			{
 				tauto = true;
+				//break
 			}
 			else
 			{
@@ -136,9 +137,9 @@ void Formula::supprTauto(ostream& os, Option& option)
 	clear_c(new_clauses);
 }
 
-Res update(Formula& f, stack<Decision>& decisions, ostream& os, Option& option)
+Res update(Formula& f, stack<Decision>& decisions,int& x, ostream& os, Option& option)
 {
-	f.apply_modification(os,option);//On met à jour les clauses ici
+	f.apply_modification(x,os,option);//On met à jour les clauses ici
 
 	Res act = f.propagation_unitary(decisions,os,option); //On teste le résultat des modifications au passage
 	if(act == ERROR || act == SUCCESS)
@@ -187,7 +188,7 @@ Res Formula::propagation_unique_polarity(stack<Decision>& decisions, ostream& os
 	for(auto c:clauses_alive)
 	{
 		bool tauto = false;
-		for(auto j = c.get_vars().begin(); j!=c.get_vars().end() && !tauto; j++)
+		for(auto j = c.get_vars().begin(); j!=c.get_vars().end(); j++)
 		{
 			if(seen[abs(*j)] == 2)
 				continue;

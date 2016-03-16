@@ -51,3 +51,6 @@ Les conventions utilisées par ls
        1      if minor problems (e.g., cannot access subdirectory),
 
        2      if serious trouble (e.g., cannot access command-line argument).
+
+Commande pour stocker le projet dans le dossier courant sans créer de sous dossier :
+	git clone git@github.com:EnguerrandPrebet/Projet-2.git .

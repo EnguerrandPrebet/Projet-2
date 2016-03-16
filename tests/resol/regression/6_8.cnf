@@ -1,0 +1,5 @@
+cSATISFIABLE
+c test minimal échappant au prétraitement
+p cnf 2 2
+-2 -1 0
+2 1 0

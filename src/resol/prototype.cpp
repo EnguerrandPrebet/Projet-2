@@ -65,11 +65,11 @@ void dpll(Formula& f, ostream& os, Option& option)
 	}
 }
 
-bool backtrack(Formula& f, stack<Decision>& decisions, ostream& os, Option& option)
+bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
 	do
 	{
-		const Decision dec = decisions.top();
+		const Decision_var dec = decisions.top();
 		decisions.pop();
 		f.revive(dec.var,os,option.debug);
 
@@ -79,7 +79,7 @@ bool backtrack(Formula& f, stack<Decision>& decisions, ostream& os, Option& opti
 		return ERROR;
 	}
 
-	Decision change_of_mind = decisions.top();
+	Decision_var change_of_mind = decisions.top();
 	change_of_mind.choice = INFER;
 	change_of_mind.var *= -1;
 
@@ -137,7 +137,7 @@ void Formula::supprTauto(ostream& os, Option& option)
 	clear_c(new_clauses);
 }
 
-Res update(Formula& f, stack<Decision>& decisions,int& x, ostream& os, Option& option)
+Res update(Formula& f, stack<Decision_var>& decisions,int& x, ostream& os, Option& option)
 {
 	f.apply_modification(x,os,option);//On met à jour les clauses ici
 
@@ -155,7 +155,7 @@ Res update(Formula& f, stack<Decision>& decisions,int& x, ostream& os, Option& o
 	return act;
 }
 
-Res Formula::propagation_unitary(stack<Decision>& decisions, ostream& os, Option& option)
+Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Option& option)
 {
 	Res act = SUCCESS;
 
@@ -170,7 +170,7 @@ Res Formula::propagation_unitary(stack<Decision>& decisions, ostream& os, Option
 					act = NEW;
 					int x = c.get(); /**Depend de l'implémentation**/
 					update_var(x,os,option);
-					decisions.push(Decision(x,INFER));
+					decisions.push(Decision_var(x,INFER));
 				}break;
 			default:
 				if(act != NEW)
@@ -181,9 +181,9 @@ Res Formula::propagation_unitary(stack<Decision>& decisions, ostream& os, Option
 	return act;
 }
 
-Res Formula::propagation_unique_polarity(stack<Decision>& decisions, ostream& os, Option& option)
+Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, Option& option)
 {
-	vector<int> seen(nbVar+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
+	vector<int> seen(nb_Var+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
 	for(auto c:clauses_alive)
 	{
@@ -206,13 +206,13 @@ Res Formula::propagation_unique_polarity(stack<Decision>& decisions, ostream& os
 
 	Res act = NOTHING;
 
-	for(int i = 1; i <= nbVar; i++)
+	for(int i = 1; i <= nb_Var; i++)
 	{
 		if(abs(seen[i]) == 1)
 		{
 			int x = i*seen[i];
 			update_var(x,os,option);
-			decisions.push(Decision(x,INFER));
+			decisions.push(Decision_var(x,INFER));
 			act = NEW;
 		}
 	}

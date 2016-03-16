@@ -1,8 +1,10 @@
 #include "formula.hpp"
-#include "dpll_solver.hpp"
+#include "clause.hpp"
+#include "prototype.hpp"
+/*#include "dpll_solver.hpp"
 #include "../parser/formula_input.hpp"
 #include "../tseitin/tseitin.hpp"
-
+*/
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -13,6 +15,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
+#include <map>
 
 #define XSTR(s) STR(s)
 #define STR(s) #s
@@ -22,13 +25,14 @@ using namespace std;
 #define MAX_DEBUG 3
 #define NO_DEBUG 0
 
+/*
 struct Option
 {
 	bool tseitin = false;
 	int debug = NO_DEBUG;
 	bool cnf_found = false;
 	bool for_found = false;
-};
+};*/
 
 const static char help_output[] =
 "Utilisation: resol [OPTION]... [FILE(.cnf|.for)]\n"
@@ -48,8 +52,8 @@ const static char help_output[] =
 "Input file name must ends with .cnf or .for.\n";
 
 Formula treat_cnf(istream& is, int debug, ostream& os);
-Formula treat_tseitin(string file, int debug, ostream& os);
-Formula_input* parser(int debug, ostream& os);
+//Formula treat_tseitin(string file, int debug, ostream& os);
+//Formula_input* parser(int debug, ostream& os);
 
 int main(int argc, char* argv[])
 {
@@ -123,7 +127,7 @@ int main(int argc, char* argv[])
 	if (opt.cnf_found)
 		f = treat_cnf(file, opt.debug, cout);
 	else if (opt.tseitin)
-		f = treat_tseitin(file_name, opt.debug, cout);
+		f = Formula();//treat_tseitin(file_name, opt.debug, cout);
 	else
 	{
 		cout << "Error: no file specified" << endl;
@@ -131,9 +135,9 @@ int main(int argc, char* argv[])
 	}
 
 	/* Solving SAT */
-	pair< choice, vector<choice> > result = dpll_solver(f, cout, opt.debug);
+	dpll(f, cout, opt);
 
-    if (result.first == TRUE)
+    /*if (result.first == TRUE)
     {
         cout << "s SATISFIABLE" << endl;
         for (int i = 1; (unsigned int)i < result.second.size(); i++)
@@ -151,7 +155,7 @@ int main(int argc, char* argv[])
         cout << "s UNSATISFIABLE" << endl;
     else
         cout << "s ???" << endl;
-
+	*/
     return 0;
 }
 
@@ -191,7 +195,10 @@ Formula treat_cnf(istream& is, int debug, ostream& os)
 
     unsigned int actual_v = 0, actual_c = 0;
 
-    Formula f(v);
+	list<Clause> clauses;
+	map<unsigned int,int> vars;
+	unsigned int rename_var = 1;
+
     set<int> clause;
     /**TODO : à simplifier while cin doit suffire**/
     while (getline(is, line))
@@ -207,16 +214,22 @@ Formula treat_cnf(istream& is, int debug, ostream& os)
             if (x == 0)
 				break;
 			clause.insert(x);
-
+			if(vars.find(abs(x) == vars.end()))
+			{
+				vars[rename_var] = abs(x);
+				rename_var++;
+			}
             actual_v = max(actual_v, (unsigned int)abs(x));
         }
         if (x == 0)
         {
-            f.clauses.push_back(clause);
+            clauses.push_back(list<int>(clause.begin(),clause.end()));
             clause.clear();
             actual_c++;
         }
     }
+	Formula f(vars);
+	f.clear_c(clauses);
 
     if (actual_v != v)
     {
@@ -230,11 +243,9 @@ Formula treat_cnf(istream& is, int debug, ostream& os)
 
     if (debug)
         os << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
-
-	f.set_v(actual_v);
 	return f;
 }
-
+/*
 Formula treat_tseitin(string filename, int debug, ostream& os)
 {
 	int fd = open(filename.c_str(), O_RDONLY);
@@ -243,3 +254,4 @@ Formula treat_tseitin(string filename, int debug, ostream& os)
 
 	return f;
 }
+*/

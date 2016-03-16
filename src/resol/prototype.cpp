@@ -10,7 +10,7 @@ using namespace std;
 /*
 Dépend de l'implémentation :
 - f.update_var()
-- f.size
+- f.nbVar
 - "list clauses"
 - add(list clauses, Clause clause);
 - clause.get()
@@ -106,8 +106,7 @@ State Formula::test()
 }
 void pretreatment(Formula& f, ostream& os, Option& option)
 {
-	/**Redondance / Renommage  = avant ?**/
-	/**Pour le cnf, suffit de créer un vector**/
+	/**Redondance = avant ?**/
     f.supprTauto(os,option);
 }
 
@@ -183,7 +182,7 @@ Res Formula::propagation_unitary(stack<Decision>& decisions, ostream& os, Option
 
 Res Formula::propagation_unique_polarity(stack<Decision>& decisions, ostream& os, Option& option)
 {
-	vector<int> seen(size+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
+	vector<int> seen(nbVar+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
 	for(auto c:clauses_alive)
 	{
@@ -206,7 +205,7 @@ Res Formula::propagation_unique_polarity(stack<Decision>& decisions, ostream& os
 
 	Res act = NOTHING;
 
-	for(int i = 1; i <= size; i++)
+	for(int i = 1; i <= nbVar; i++)
 	{
 		if(abs(seen[i]) == 1)
 		{

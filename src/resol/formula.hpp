@@ -27,9 +27,11 @@ class Formula
 		int get_fst_var(){return var_alive.front();}; //Choix par défaut
 
 	private:
-		unsigned int size; //Nb de variable (assignment [NULL,x1,...,xn])
+		unsigned int nbVar; //Nb de variable (assignment [NULL,x1,...,xn])
+
 		list<Clause> clauses_alive;
 		stack<Decision> stack_delete;
+
 		vector<State> assignment;
 		list<unsigned int> var_alive;
 

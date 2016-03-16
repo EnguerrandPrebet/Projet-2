@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <map>
+#include <algorithm>
 
 #define XSTR(s) STR(s)
 #define STR(s) #s
@@ -57,8 +58,9 @@ Formula treat_cnf(istream& is, int debug, ostream& os);
 
 int main(int argc, char* argv[])
 {
-    Option opt;
+    Option option;
     string file_name;
+    ostream& os = cout;
     for(int i = 1; i < argc; i++)
     {
 		/* Options en ligne commande */
@@ -67,15 +69,15 @@ int main(int argc, char* argv[])
             string argument(argv[i] + 1);
 
             if (argument == "-debug")
-                opt.debug = MAX_DEBUG;
+                option.debug = MAX_DEBUG;
 
             else if (argument[0] == 'd' && argument.size() == 2) // -d1 à -dMAX_DEBUG
             {
-            	opt.debug = argument[1] - '0';
+            	option.debug = argument[1] - '0';
             }
             else if (argument == "-tseitin" || argument == "tseitin" || argument == "t")
             {
-                opt.tseitin = true;
+                option.tseitin = true;
 
                 if (argument == "tseitin")
 					cout << "Warning: -tseitin is obsolete, please use --tseitin or -t instead" << endl;
@@ -94,13 +96,13 @@ int main(int argc, char* argv[])
             if (string(argv[i]).find(".cnf") != string::npos)
             {
 				file_name = argv[i];
-                opt.cnf_found = true;
+                option.cnf_found = true;
 			}
 
             else if (string(argv[i]).find(".for") != string::npos)
             {
 				file_name = argv[i];
-                opt.for_found = true;
+                option.for_found = true;
 				}
 
             else
@@ -110,7 +112,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    if(opt.cnf_found == false && opt.tseitin == false)
+    if(option.cnf_found == false && option.tseitin == false)
     {
         cout << "Expected input file (.cnf or .for)" << endl;
         return 0;
@@ -124,18 +126,25 @@ int main(int argc, char* argv[])
 	}
 
 	Formula f;
-	if (opt.cnf_found)
-		f = treat_cnf(file, opt.debug, cout);
-	else if (opt.tseitin)
-		f = Formula();//treat_tseitin(file_name, opt.debug, cout);
+
+	if (option.cnf_found)
+		f = treat_cnf(file, option.debug, os);
+	else if (option.tseitin)
+		f = Formula();//treat_tseitin(file_name, option.debug, cout);
 	else
 	{
 		cout << "Error: no file specified" << endl;
 		return 0;
 	}
 
+	DEBUG(1) << "Launching DPLL, f is ";
+	f.check(os,option,true);
+	DEBUG(1) << "Above, litterals were sorted in a different way in clauses" << endl << endl;
+	DEBUG(1) << "And now renamed :";
+	f.check(os,option);
 	/* Solving SAT */
-	dpll(f, cout, opt);
+	dpll(f, os, option);
+	DEBUG(1)  << "End of DPLL" << endl;
 
     /*if (result.first == TRUE)
     {
@@ -144,7 +153,7 @@ int main(int argc, char* argv[])
         {
             if (result.second[i] == FALSE)
                 cout << -i << " ";
-            else if (result.second[i] == UNKNOWN  &&  opt.debug)
+            else if (result.second[i] == UNKNOWN  &&  option.debug)
                 cout << "?" << i << " ";
             else
                 cout << i << " ";
@@ -195,15 +204,15 @@ Formula treat_cnf(istream& is, int debug, ostream& os)
 
     unsigned int actual_v = 0, actual_c = 0;
 
-	list<Clause> clauses;
-	map<unsigned int,int> vars;
+	list<Clause> clauses({});
+	vector<unsigned int> vars_aux({0});
 	unsigned int rename_var = 1;
+	map<int, unsigned int> vars({});
 
     set<int> clause;
     /**TODO : à simplifier while cin doit suffire**/
     while (getline(is, line))
     {
-        cout << "ligne : " << line << endl;
         if (line[0] == 'c')
             continue;
 
@@ -213,12 +222,16 @@ Formula treat_cnf(istream& is, int debug, ostream& os)
         {
             if (x == 0)
 				break;
-			clause.insert(x);
-			if(vars.find(abs(x) == vars.end()))
+
+			if(vars.find(abs(x)) == vars.end())
 			{
-				vars[rename_var] = abs(x);
+				vars_aux.push_back(abs(x));
+				vars[abs(x)] = rename_var;
 				rename_var++;
 			}
+			int new_x = vars[abs(x)];
+			new_x *= 1-2*(x<0);
+			clause.insert(new_x);
             actual_v = max(actual_v, (unsigned int)abs(x));
         }
         if (x == 0)

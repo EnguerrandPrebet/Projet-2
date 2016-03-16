@@ -10,6 +10,8 @@
 #include <stack>
 
 #define abs(X) (X>0)?X:-X
+#define DEBUG(X) if(option.debug >= X)\
+					os
 using namespace std;
 
 enum State{TRUE,FALSE,UNKNOWN};
@@ -31,6 +33,7 @@ struct Option
 	bool for_found = false;
 	bool lw = false;
 	Heuristique get = NONE;
+	bool redirect_os = false;
 };
 
 class Clause
@@ -41,10 +44,10 @@ class Clause
 		int get(){return vars.front();};
 		unsigned int size(){return vars.size();};
 		State test(vector<State>& assignment);
-		void get_up(int var);
+		void get_up(int var,ostream& os,Option& option);
 		void get_up_all();
-		list<int> get_vars(){return vars;};
-		bool apply_modification(int& x,ostream& os,Option& option); //Renvoie true si la clause est validé par les modifs
+		list<int>& get_vars(){return vars;};
+		bool apply_modification(vector<State>& assignment,ostream& os,Option& option); //Renvoie true si la clause est validé par les modifs
 	private:
 		list<int> vars;
 		stack<int> stack_delete;

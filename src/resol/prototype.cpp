@@ -18,16 +18,15 @@ Dépend de l'implémentation :
 */
 void dpll(Formula& f, ostream& os, Option& option)
 {
-	int time = 0;
 	pretreatment(f,os,option);
 
 	stack<Decision_var> decisions;
 
 	bool sat_unk = true;
+	int x = 0;
 	while(sat_unk)
 	{
 		Res action_result;
-		int x;
 		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
 		{
 			action_result = update(f,decisions,x,os,option);
@@ -36,6 +35,7 @@ void dpll(Formula& f, ostream& os, Option& option)
 		switch(action_result)
 		{
 			case ERROR:
+				DEBUG(1) << "Backtrack" << endl;
 				sat_unk = backtrack(f,decisions,os,option);
 				break;
 			case SUCCESS:
@@ -43,43 +43,53 @@ void dpll(Formula& f, ostream& os, Option& option)
 				break;
 			case NOTHING: //default
 				x = get_next_var(f,os,option); //x = littéral
+				DEBUG(1) << "x :" << x << endl;
 				f.update_var(x,os,option); // met à jour assignment et vars_alive
 				decisions.push(Decision_var(x,GUESS));
+			default:
+				break;
 		}
 
+		DEBUG(1) << "Stable state with";
+		f.check(os,option);
 
 
 	}
 
 	//Peut être hors de la fonction DPLL (même si je ne vois pas pourquoi)
-	switch(f.test())
+	switch(f.test(os,option))
 	{
 		case TRUE:
-			cout << "s SATISFIABLE" << "blabla";
+			cout << "s SATISFIABLE" << endl;
+			f.print(option);
 			break;
 		case FALSE:
-			cout << "s UNSATISFIABLE";
+			cout << "s UNSATISFIABLE" << endl;
 			break;
 		case UNKNOWN:
-			cout << "s ???";
+			cout << "s ???" << endl;
 	}
 }
 
 bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
-	do
+	while(!decisions.empty() && decisions.top().choice == INFER)
 	{
-		const Decision_var dec = decisions.top();
+		Decision_var dec = decisions.top();
 		decisions.pop();
-		f.revive(dec.var,os,option.debug);
+		DEBUG(1) << "Forget infer " << dec.var << endl;
+		f.revive(os,option,dec.var);
 
-	}while(!decisions.empty() && decisions.top().choice == INFER);
+	}
 	if(decisions.empty())
 	{
-		return ERROR;
+		DEBUG(1) << "Nothing to backtrack" << endl;
+		return false;
 	}
 
 	Decision_var change_of_mind = decisions.top();
+	DEBUG(1) << "Forget guess " << change_of_mind.var << endl;
+	f.revive(os,option,change_of_mind.var);
 	change_of_mind.choice = INFER;
 	change_of_mind.var *= -1;
 
@@ -87,134 +97,31 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	decisions.push(change_of_mind);
 	f.update_var(change_of_mind.var,os,option);
 
-	return NOTHING;
+	return true;
 }
 
-State Formula::test()
-{
-	revive(); //Remet toutes les clauses vivantes
-	State sol = TRUE;
-	for(auto c:clauses_alive)
-	{
-		State sol_c = c.test(assignment);
-		if(sol_c == UNKNOWN)
-			return UNKNOWN;
-		if(sol_c == FALSE)
-			sol = FALSE;
-	}
-	return sol;
-}
+
 void pretreatment(Formula& f, ostream& os, Option& option)
 {
 	/**Redondance = avant ?**/
     f.supprTauto(os,option);
 }
 
-void Formula::supprTauto(ostream& os, Option& option)
-{
-	list<Clause> new_clauses({});
-	for(auto c:clauses_alive)
-	{
-		map<int,bool> truc;/**réinitialisation ?**/ //true : x, false : x bar
-		bool tauto = false;
-		for(auto j = c.get_vars().begin(); j != c.get_vars().end() && !tauto; j++)
-		{
-			if(truc.find(abs(*j)) != truc.end() && truc[abs(*j)] == (*j<0)) // l'opposé est présent
-			{
-				tauto = true;
-				//break
-			}
-			else
-			{
-				truc[abs(*j)] = (*j>0);
-			}
-		}
-		if(!tauto)
-		{
-			new_clauses.push_back(c);
-		}
-	}
-	clear_c(new_clauses);
-}
-
 Res update(Formula& f, stack<Decision_var>& decisions,int& x, ostream& os, Option& option)
 {
+	DEBUG(1) << endl << "Update time !" << endl;
 	f.apply_modification(x,os,option);//On met à jour les clauses ici
-
+	DEBUG(1) << "End modif" << endl;
+	f.check(os,option);
 	Res act = f.propagation_unitary(decisions,os,option); //On teste le résultat des modifications au passage
+	DEBUG(1) << "After unitaire, act = " << act << endl;
 	if(act == ERROR || act == SUCCESS)
 		return act;
-
 	if(!option.lw)
 	{
 		Res act_aux = f.propagation_unique_polarity(decisions,os,option);
 		if(act_aux != NOTHING)
 			act = act_aux;
-	}
-
-	return act;
-}
-
-Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Option& option)
-{
-	Res act = SUCCESS;
-
-	for(auto c:clauses_alive)
-	{
-		switch(c.size())
-		{
-			case 0:
-				return ERROR;
-			case 1:
-				{
-					act = NEW;
-					int x = c.get(); /**Depend de l'implémentation**/
-					update_var(x,os,option);
-					decisions.push(Decision_var(x,INFER));
-				}break;
-			default:
-				if(act != NEW)
-					act = NOTHING;
-		}
-	}
-
-	return act;
-}
-
-Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, Option& option)
-{
-	vector<int> seen(nb_Var+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
-
-	for(auto c:clauses_alive)
-	{
-		bool tauto = false;
-		for(auto j = c.get_vars().begin(); j!=c.get_vars().end(); j++)
-		{
-			if(seen[abs(*j)] == 2)
-				continue;
-
-			if(!seen[abs(*j)])
-			{
-				seen[abs(*j)] = (*j)/(abs(*j)); // +/- 1
-			}
-			else if((seen[abs(*j)] < 0) != ((*j) < 0)) //Different signs
-			{
-				seen[abs(*j)] = 2;
-			}
-		}
-	}
-
-	Res act = NOTHING;
-
-	for(int i = 1; i <= nb_Var; i++)
-	{
-		if(abs(seen[i]) == 1)
-		{
-			int x = i*seen[i];
-			update_var(x,os,option);
-			decisions.push(Decision_var(x,INFER));
-			act = NEW;
-		}
 	}
 
 	return act;
@@ -229,18 +136,4 @@ int get_next_var(Formula& f, ostream& os, Option& option)
 			x = f.get_fst_var();
 	}
 	return x;
-}
-
-void Formula::revive(int var, ostream& os, int debug)
-{
-	while((var == 0 && !stack_delete.empty()) || stack_delete.top().var == var)
-	{
-		stack_delete.top().clause.get_up(var);
-		stack_delete.pop();
-	}
-}
-
-void Formula::clear_c(list<Clause> clauses)
-{
-	clauses_alive = clauses;
 }

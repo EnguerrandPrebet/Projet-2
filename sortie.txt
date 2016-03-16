@@ -1,0 +1,88 @@
+Launching DPLL, f is 
+Check :
+1 2 
+-2 -1 
+END
+
+And now renamed :
+Check :
+1 2 
+-2 -1 
+END
+
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : 1
+	Test var : 2
+Modifying Clause :
+	Test var : -2
+	Test var : -1
+After modif
+
+Check :
+1 2 
+-2 -1 
+END
+
+After unitaire, act = 1
+x :1
+1 set to 1
+Var 1 is in list = 1
+1 vars left
+Stable state with
+Check :
+1 2 
+-2 -1 
+END
+
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : 1
+1 make a clause true
+Clause deleted while x = 1
+Modifying Clause :
+	Test var : -2
+	Test var : -1
+-1 deleted from clause
+After modif
+
+Check :
+-2 
+END
+
+Unitaire avec : -2
+2 set to 0
+Var -2 is in list = 1
+0 vars left
+After unitaire, act = 0
+Polarité unique avec : -2
+2 set to 0
+Var -2 is in list = 0
+This should be already taken in account by another deduction
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : -2
+-2 make a clause true
+Clause deleted while x = 1
+Il y a plus rien !
+After modif
+
+Check :
+END
+
+After unitaire, act = 3
+Stable state with
+Check :
+END
+
+Retour sur 0
+Retour sur 0
+s SATISFIABLE
+1 -2 
+End of DPLL

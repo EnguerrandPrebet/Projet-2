@@ -22,7 +22,7 @@ class Formula
 		Formula();
 		void update_var(int& x,ostream& os,Option& option);
 		State test(ostream& os,Option& option);
-		void revive(ostream& os,  Option& option, int var = 0);
+		void revive(ostream& os,  Option& option, vector<bool> be_cancelled = vector<bool>({false}));
 		void supprTauto(ostream& os, Option& option);
 		void clear_c(list<Clause> clauses);
 		void apply_modification(int& x,ostream& os, Option& option);
@@ -30,6 +30,7 @@ class Formula
 		Res propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, Option& option);
 		void print(Option& option); //Affiche assignment
 		int get_fst_var(){return var_alive.front();}; //Choix par défaut
+		unsigned int get_nb_Var(){return nb_Var;};
 
 	private:
 		unsigned int nb_Var; //Nb de variable (assignment [NULL,x1,...,xn])

@@ -30,7 +30,7 @@ using namespace std;
 struct Option
 {
 	bool tseitin = false;
-	int debug = NO_DEBUG;
+	int debug = NO_//DEBUG;
 	bool cnf_found = false;
 	bool for_found = false;
 };*/
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
             if (argument == "-debug")
                 option.debug = MAX_DEBUG;
 
-            else if (argument[0] == 'd' && argument.size() == 2) // -d1 à -dMAX_DEBUG
+            else if (argument[0] == 'd' && argument.size() == 2) // -d1 à -dMAX_//DEBUG
             {
             	option.debug = argument[1] - '0';
             }
@@ -137,14 +137,14 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	DEBUG(1) << "Launching DPLL, f is ";
-	f.check(os,option,true);
-	DEBUG(1) << "Above, litterals were sorted in a different way in clauses" << endl << endl;
-	DEBUG(1) << "And now renamed :";
-	f.check(os,option);
+	//DEBUG(3) << "f is ";
+	//f.check(os,option,true);
+	//DEBUG(3) << "Above, litterals may be sorted in a different way inside clauses" << endl << endl;
+	//DEBUG(3) << "And now renamed :";
+	//f.check(os,option);
 	/* Solving SAT */
 	dpll(f, os, option);
-	DEBUG(1)  << "End of DPLL" << endl;
+	//DEBUG(1)  << "End of DPLL" << endl;
 
     /*if (result.first == TRUE)
     {

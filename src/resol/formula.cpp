@@ -24,34 +24,27 @@ void Formula::update_var(int& x,ostream& os,Option& option)
 		assignment[x] = TRUE;
 	else
 		assignment[-x] = FALSE;
-	DEBUG(1) << abs(x) << " set to " << (x>0) << endl;
+	//DEBUG(1) << abs(x) << " set to " << (x>0) << endl;
 
 	auto it = find(var_alive.begin(),var_alive.end(),abs(x));
-	DEBUG(1) << "Var " << x << " is in list = " << (it != var_alive.end()) << endl;
-	if(it != var_alive.end())
-	{
-		var_alive.erase(it);
-		DEBUG(1) << var_alive.size() << " vars left" << endl;
-	}
-	else
-	{
-		DEBUG(1) << "This should be already taken in account by another deduction" << endl;
-	}
+	var_alive.erase(it);
+	//DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
 void Formula::apply_modification(int& x,ostream& os,Option& option)
 {
-	DEBUG(1) << "Modifying f" << endl;
+	//DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
 	{
-		if(it->apply_modification(assignment,os,option))
+		int cause;
+		if((cause = it->apply_modification(assignment,os,option)))
 		{
-			DEBUG(1) << "Clause deleted while x = " << x << endl;
-			stack_delete.push(Decision_cla(*it,x));
+			//DEBUG(1) << "Clause deleted while x = " << x << endl;
+			stack_delete.push(Decision_cla(*it,cause));
 			clauses_alive.erase(it);
 			if(clauses_alive.empty())
 			{
-				DEBUG(1) << "Il y a plus rien !" << endl;
+				//DEBUG(1) << "Il y a plus rien !" << endl;
 				break;
 			}
 			it = clauses_alive.begin(); //erase de it fait des trucs chelou
@@ -105,7 +98,7 @@ void Formula::supprTauto(ostream& os, Option& option)
 		}
 		else
 		{
-			DEBUG(1) << "Tautologie found" << endl;
+			//DEBUG(1) << "Tautologie found" << endl;
 		}
 	}
 	clear_c(new_clauses);
@@ -125,9 +118,12 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Op
 				{
 					act = NEW;
 					int x = c.get(); /**Depend de l'implémentation**/
-					DEBUG(1) << "Unitaire avec : " << x << endl;
-					update_var(x,os,option);
-					decisions.push(Decision_var(x,INFER));
+					//DEBUG(1) << "Unitaire avec : " << x << endl;
+					if(assignment[abs(x)] == UNKNOWN)
+					{
+						update_var(x,os,option);
+						decisions.push(Decision_var(x,INFER));
+					}
 				}break;
 			default:
 				if(act != NEW)
@@ -167,25 +163,52 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 		if(abs(seen[i]) == 1)
 		{
 			int x = i*seen[i];
-			DEBUG(1) << "Polarité unique avec : " << x << endl;
-			update_var(x,os,option);
-			decisions.push(Decision_var(x,INFER));
 			act = NEW;
+
+			//DEBUG(1) << "Polarité unique avec : " << x << endl;
+			if(assignment[abs(x)] == UNKNOWN)
+			{
+				update_var(x,os,option);
+				decisions.push(Decision_var(x,INFER));
+			}
 		}
 	}
 	return act;
 }
 
-void Formula::revive(ostream& os,  Option& option, int var)
+void Formula::revive(ostream& os,  Option& option, vector<bool> be_cancelled)
 {
-	while(!stack_delete.empty() && (var == 0 || stack_delete.top().var == var))
+
+	unsigned int taille = be_cancelled.size();
+
+	for(unsigned int i = 1; i < taille; i++)
 	{
-		DEBUG(1) << "Retour sur " << var << endl;
-		if(var != 0)
-			stack_delete.top().clause.get_up(var,os,option);
+		if(be_cancelled[i])
+		{
+			var_alive.push_back(i);
+			assignment[i] = UNKNOWN;
+		}
+	}
+
+
+	while(!stack_delete.empty() && (taille == 1 || be_cancelled[abs(stack_delete.top().var)]))
+	{
+		//DEBUG(1) << "Clause revived" << endl;
 		clauses_alive.push_back(stack_delete.top().clause);
 		stack_delete.pop();
 	}
+
+	//check(os,option);
+
+	if(taille != 1)
+	{
+		for(auto it = clauses_alive.begin(); it != clauses_alive.end(); it++)
+		{
+			it->get_up(be_cancelled,os,option);
+		}
+		check(os,option);
+	}
+
 }
 
 void Formula::clear_c(list<Clause> clauses)
@@ -195,16 +218,16 @@ void Formula::clear_c(list<Clause> clauses)
 
 void Formula::check(ostream& os,Option& option,bool true_name)
 {
-	DEBUG(1) << endl << "Check :" << endl;
+	DEBUG(3) << endl << "Check :" << endl;
 	for(auto c:clauses_alive)
 	{
 		for(auto it = c.get_vars().begin(); it != c.get_vars().end(); it++)
 		{
-			DEBUG(1) << ((true_name)?(int)var_true_name[abs(*it)]*(1-2*(*it<0)):(*it)) << " ";
+			DEBUG(3) << *it /*((true_name)?(int)var_true_name[abs(*it)]*(1-2*(*it<0)):(*it))*/ << " ";
 		}
-		DEBUG(1) << endl;
+		DEBUG(3) << endl;
 	}
-	DEBUG(1) << "END" << endl << endl;
+	DEBUG(3) << "END" ;//<< endl << endl;
 }
 
 void Formula::print(Option& option)

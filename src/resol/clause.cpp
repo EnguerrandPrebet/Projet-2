@@ -19,57 +19,66 @@ State Clause::test(vector<State>& assignment)
 	return sol_c;
 }
 
-bool Clause::apply_modification(vector<State>& assignment,ostream& os,Option& option)
+int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& option)
 {
-	DEBUG(1) << "Modifying Clause :" << endl;
-	for(auto it = vars.begin(); it != vars.end(); it++)
+	//DEBUG(3) << "Modifying Clause :" << endl;
+	for(auto it = vars.begin(); it != vars.end();)
 	{
-		DEBUG(1) << "	Test var : " << (*it) << endl;
+		//DEBUG(3) << "	Test var : " << (*it) << endl;
 		switch(assignment[abs(*it)])
 		{
 			case FALSE:
 				if(*it > 0)
 				{
-					DEBUG(1) << *it << " deleted from clause" << endl;
+					//DEBUG(2) << *it << " deleted from clause" << endl;
 					stack_delete.push(*it);
 					vars.erase(it);
-					return false;
+					it = vars.begin();
 				}
 				else
 				{
-					DEBUG(1) << *it << " make a clause true" << endl;
-					return true;
+					//DEBUG(2) << "A clause is true because of " <<  *it << endl;
+					return *it;
 				}
+				break;
 			case TRUE:
 				if(*it < 0)
 				{
-					DEBUG(1) << *it << " deleted from clause" << endl;
+					//DEBUG(2) << *it << " deleted from clause" << endl;
 					stack_delete.push(*it);
 					vars.erase(it);
-					return false;
+					it = vars.begin();
 				}
 				else
 				{
-					DEBUG(1) << *it << " make a clause true" << endl;
-					return true;
+					//DEBUG(2) << "A clause is true because of " <<  *it << endl;
+					return *it;
 				}
+				break;
 			default:
+				it++;
 				break;
 		}
 	}
-	return false;
+	return 0;
 }
 
-void Clause::get_up(int var,ostream& os,Option& option)
+void Clause::get_up(vector<bool>& be_cancelled,ostream& os,Option& option)
 {
-	if(stack_delete.top() == -var)
+	while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
 	{
-		DEBUG(1) << "Revived " << -var << endl;
-		vars.push_back(-var);
+		//DEBUG(1) << "Revived " << stack_delete.top() << endl;
+		vars.push_back(stack_delete.top());
 		stack_delete.pop();
 	}
 }
-
+void Clause::print()
+{
+	cout << "c";
+	for(int i:vars)
+		cout << " " << i;
+	cout << endl;
+}
 void Clause::get_up_all()
 {
 	while(!stack_delete.empty())

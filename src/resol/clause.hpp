@@ -41,13 +41,14 @@ class Clause
 	public:
 		Clause();
 		Clause(list<int> n_vars){vars = n_vars;};
+		void print();
 		int get(){return vars.front();};
 		unsigned int size(){return vars.size();};
 		State test(vector<State>& assignment);
-		void get_up(int var,ostream& os,Option& option);
+		void get_up(vector<bool>& be_cancelled,ostream& os,Option& option);
 		void get_up_all();
 		list<int>& get_vars(){return vars;};
-		bool apply_modification(vector<State>& assignment,ostream& os,Option& option); //Renvoie true si la clause est validé par les modifs
+		int apply_modification(vector<State>& assignment,ostream& os,Option& option); //Renvoie true si la clause est validé par les modifs
 	private:
 		list<int> vars;
 		stack<int> stack_delete;

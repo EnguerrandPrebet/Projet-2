@@ -37,6 +37,7 @@ void dpll(Formula& f, ostream& os, Option& option)
 			case ERROR:
 				DEBUG(1) << "Backtrack" << endl;
 				sat_unk = backtrack(f,decisions,os,option);
+				f.check(os,option);
 				break;
 			case SUCCESS:
 				sat_unk = false;
@@ -44,14 +45,15 @@ void dpll(Formula& f, ostream& os, Option& option)
 			case NOTHING: //default
 				x = get_next_var(f,os,option); //x = littéral
 				DEBUG(1) << "x :" << x << endl;
+				f.check(os,option);
 				f.update_var(x,os,option); // met à jour assignment et vars_alive
 				decisions.push(Decision_var(x,GUESS));
 			default:
 				break;
 		}
 
-		DEBUG(1) << "Stable state with";
-		f.check(os,option);
+		//DEBUG(3) << "Stable state with";
+		//f.check(os,option);
 
 
 	}
@@ -73,23 +75,25 @@ void dpll(Formula& f, ostream& os, Option& option)
 
 bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
+	vector<bool> be_cancelled(f.get_nb_Var()+1,false);
 	while(!decisions.empty() && decisions.top().choice == INFER)
 	{
 		Decision_var dec = decisions.top();
 		decisions.pop();
 		DEBUG(1) << "Forget infer " << dec.var << endl;
-		f.revive(os,option,dec.var);
+		be_cancelled[abs(dec.var)] = true;
 
 	}
 	if(decisions.empty())
 	{
-		DEBUG(1) << "Nothing to backtrack" << endl;
+		//DEBUG(1) << "Nothing to backtrack" << endl;
 		return false;
 	}
 
 	Decision_var change_of_mind = decisions.top();
 	DEBUG(1) << "Forget guess " << change_of_mind.var << endl;
-	f.revive(os,option,change_of_mind.var);
+	be_cancelled[abs(change_of_mind.var)] = true;
+	f.revive(os,option,be_cancelled);
 	change_of_mind.choice = INFER;
 	change_of_mind.var *= -1;
 
@@ -109,12 +113,12 @@ void pretreatment(Formula& f, ostream& os, Option& option)
 
 Res update(Formula& f, stack<Decision_var>& decisions,int& x, ostream& os, Option& option)
 {
-	DEBUG(1) << endl << "Update time !" << endl;
+	//DEBUG(1) << endl << "Update time !" << endl;
 	f.apply_modification(x,os,option);//On met à jour les clauses ici
-	DEBUG(1) << "End modif" << endl;
-	f.check(os,option);
+	//DEBUG(1) << "End modif" << endl;
+	//f.check(os,option);
 	Res act = f.propagation_unitary(decisions,os,option); //On teste le résultat des modifications au passage
-	DEBUG(1) << "After unitaire, act = " << act << endl;
+	//DEBUG(1) << "After unitaire, act = " << act << endl;
 	if(act == ERROR || act == SUCCESS)
 		return act;
 	if(!option.lw)

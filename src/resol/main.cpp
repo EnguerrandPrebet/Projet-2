@@ -1,20 +1,22 @@
 #include "formula.hpp"
 #include "clause.hpp"
 #include "prototype.hpp"
-/*#include "dpll_solver.hpp"
+/*
+#include "dpll_solver.hpp" //à virer dans un futur proche logiquement
 #include "../parser/formula_input.hpp"
 #include "../tseitin/tseitin.hpp"
 */
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <vector>
 #include <set>
 #include <utility>
-#include <cmath>
-#include <cstdlib>
-#include <unistd.h>
-#include <fcntl.h>
+#include <cmath> // pour l'abs à la base. à virer
+#include <cstdlib> // sais pas
+#include <unistd.h> // dup2 dans treat_tseitin
+#include <fcntl.h> // open(2) dans treat_tseitin
 #include <map>
 #include <algorithm>
 
@@ -23,19 +25,7 @@
 
 using namespace std;
 
-#define MAX_DEBUG 3
-#define NO_DEBUG 0
-
-/*
-struct Option
-{
-	bool tseitin = false;
-	int debug = NO_//DEBUG;
-	bool cnf_found = false;
-	bool for_found = false;
-};*/
-
-const static char help_output[] =
+const static char HELP_OUTPUT[] =
 "Utilisation: resol [OPTION]... [FILE(.cnf|.for)]\n"
 "\n"
 "  -t  --tseitin        use tseitin transform to accept user-friendly .for file\n"
@@ -56,6 +46,13 @@ Formula treat_cnf(istream& is, int debug, ostream& os);
 //Formula treat_tseitin(string file, int debug, ostream& os);
 //Formula_input* parser(int debug, ostream& os);
 
+/**Si tu le mets dans un .hpp il va être recopié PARTOUT, et pas le droit au définition multiple**/
+void layered_debug(Option& option, std::ostream& os, const std::string& s, unsigned int X)
+{
+    if(option.debug >= X)
+        os << s <<std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     Option option;
@@ -71,9 +68,14 @@ int main(int argc, char* argv[])
             if (argument == "-debug")
                 option.debug = MAX_DEBUG;
 
-            else if (argument[0] == 'd' && argument.size() == 2) // -d1 à -dMAX_//DEBUG
+            else if (argument[0] == 'd' && argument.size() == 2) // -d1 à -dMAX_DEBUG
             {
             	option.debug = argument[1] - '0';
+                if (option.debug > MAX_DEBUG)
+                {
+                    cout << "Error: debug level set to inappropriate value: " << option.debug << ", debug level set to MAX_DEBUG" << endl;
+                    option.debug = MAX_DEBUG;
+                }
             }
             else if (argument == "-tseitin" || argument == "tseitin" || argument == "t")
             {
@@ -84,7 +86,7 @@ int main(int argc, char* argv[])
 			}
             else if (argument == "-help" || argument == "h")
             {
-				cout << help_output;
+                cout << HELP_OUTPUT;
 				return 0;
 			}
 
@@ -129,42 +131,39 @@ int main(int argc, char* argv[])
 
 	if (option.cnf_found)
 		f = treat_cnf(file, option.debug, os);
+
 	else if (option.tseitin)
-		f = Formula();//treat_tseitin(file_name, option.debug, cout);
+        f = Formula(); //treat_tseitin(file_name, option.debug, cout);
+
 	else
 	{
 		cout << "Error: no file specified" << endl;
 		return 0;
 	}
 
-	//DEBUG(3) << "f is ";
-	//f.check(os,option,true);
-	//DEBUG(3) << "Above, litterals may be sorted in a different way inside clauses" << endl << endl;
-	//DEBUG(3) << "And now renamed :";
-	//f.check(os,option);
-	/* Solving SAT */
-	dpll(f, os, option);
-	//DEBUG(1)  << "End of DPLL" << endl;
+	DEBUG(1) << "Launching DPLL, f is ";
+    f.check(os, option, true);
+	DEBUG(1) << "Above, litterals were sorted in a different way in clauses" << endl << endl;
+	DEBUG(1) << "And now renamed :";
+    f.check(os, option);
 
-    /*if (result.first == TRUE)
+    switch(dpll(f, os, option))
     {
-        cout << "s SATISFIABLE" << endl;
-        for (int i = 1; (unsigned int)i < result.second.size(); i++)
-        {
-            if (result.second[i] == FALSE)
-                cout << -i << " ";
-            else if (result.second[i] == UNKNOWN  &&  option.debug)
-                cout << "?" << i << " ";
-            else
-                cout << i << " ";
-        }
-        cout << "0" << endl;
+        case TRUE:
+            cout << "s SATISFIABLE" << endl;
+            f.print(option, os);
+            break;
+
+        case FALSE:
+            cout << "s UNSATISFIABLE" << endl;
+            break;
+
+        case UNKNOWN:
+            cout << "s ???" << endl;
     }
-    else if (result.first == FALSE)
-        cout << "s UNSATISFIABLE" << endl;
-    else
-        cout << "s ???" << endl;
-	*/
+
+    layered_debug(option, os, "End of main", 1);
+
     return 0;
 }
 

@@ -1,30 +1,22 @@
-#include <iostream>
-#include "formula.hpp"
 #include "prototype.hpp"
+#include "formula.hpp"
+
 #include <list>
 #include <map>
 #include <vector>
 #include <stack>
+
 using namespace std;
 
-/*
-Dépend de l'implémentation :
-- f.update_var()
-- f.nbVar
-- "list clauses"
-- add(list clauses, Clause clause);
-- clause.get()
-- clause.size()
-*/
-void dpll(Formula& f, ostream& os, Option& option)
+State dpll(Formula& f, ostream& os, Option& option)
 {
-	pretreatment(f,os,option);
+    pretreatment(f, os, option);
 
 	stack<Decision_var> decisions;
 
-	bool sat_unk = true;
+    bool sat_unknown = true;
 	int x = 0;
-	while(sat_unk)
+    while(sat_unknown)
 	{
 		Res action_result;
 		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
@@ -36,57 +28,41 @@ void dpll(Formula& f, ostream& os, Option& option)
 		{
 			case ERROR:
 				DEBUG(1) << "Backtrack" << endl;
-				sat_unk = backtrack(f,decisions,os,option);
-				f.check(os,option);
+                sat_unknown = backtrack(f,decisions,os,option);
 				break;
 			case SUCCESS:
-				sat_unk = false;
+                sat_unknown = false;
 				break;
 			case NOTHING: //default
 				x = get_next_var(f,os,option); //x = littéral
 				DEBUG(1) << "x :" << x << endl;
-				f.check(os,option);
 				f.update_var(x,os,option); // met à jour assignment et vars_alive
 				decisions.push(Decision_var(x,GUESS));
+				break;
 			default:
 				break;
 		}
 
-		//DEBUG(3) << "Stable state with";
-		//f.check(os,option);
-
-
+		DEBUG(3) << "Stable state with";
+        f.check(os, option);
 	}
 
-	//Peut être hors de la fonction DPLL (même si je ne vois pas pourquoi)
-	switch(f.test(os,option))
-	{
-		case TRUE:
-			cout << "s SATISFIABLE" << endl;
-			f.print(option);
-			break;
-		case FALSE:
-			cout << "s UNSATISFIABLE" << endl;
-			break;
-		case UNKNOWN:
-			cout << "s ???" << endl;
-	}
+    return f.test(os,option);
 }
 
 bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
-	vector<bool> be_cancelled(f.get_nb_Var()+1,false);
+	vector<bool> be_cancelled(f.get_nb_Var()+1,false); //Variable à annuler
 	while(!decisions.empty() && decisions.top().choice == INFER)
 	{
 		Decision_var dec = decisions.top();
 		decisions.pop();
 		DEBUG(1) << "Forget infer " << dec.var << endl;
 		be_cancelled[abs(dec.var)] = true;
-
 	}
 	if(decisions.empty())
 	{
-		//DEBUG(1) << "Nothing to backtrack" << endl;
+		DEBUG(1) << "Nothing to backtrack" << endl;
 		return false;
 	}
 
@@ -94,9 +70,10 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	DEBUG(1) << "Forget guess " << change_of_mind.var << endl;
 	be_cancelled[abs(change_of_mind.var)] = true;
 	f.revive(os,option,be_cancelled);
+
+	//Guess vers Infer
 	change_of_mind.choice = INFER;
 	change_of_mind.var *= -1;
-
 	decisions.pop();
 	decisions.push(change_of_mind);
 	f.update_var(change_of_mind.var,os,option);
@@ -107,21 +84,23 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 
 void pretreatment(Formula& f, ostream& os, Option& option)
 {
-	/**Redondance = avant ?**/
     f.supprTauto(os,option);
 }
 
-Res update(Formula& f, stack<Decision_var>& decisions,int& x, ostream& os, Option& option)
+Res update(Formula& f, stack<Decision_var>& decisions, int& x, ostream& os, Option& option)
 {
-	//DEBUG(1) << endl << "Update time !" << endl;
+	DEBUG(1) << endl << "Update time !" << endl;
 	f.apply_modification(x,os,option);//On met à jour les clauses ici
-	//DEBUG(1) << "End modif" << endl;
-	//f.check(os,option);
+	DEBUG(1) << "End modif" << endl;
+
+	f.check(os,option);
+
 	Res act = f.propagation_unitary(decisions,os,option); //On teste le résultat des modifications au passage
-	//DEBUG(1) << "After unitaire, act = " << act << endl;
-	if(act == ERROR || act == SUCCESS)
+	DEBUG(1) << "After unitaire, act = " << act << endl;
+	if(act == ERROR || act == SUCCESS)//Inutile d'aller plus loin
 		return act;
-	if(!option.lw)
+
+    if(!option.watched_litterals)
 	{
 		Res act_aux = f.propagation_unique_polarity(decisions,os,option);
 		if(act_aux != NOTHING)

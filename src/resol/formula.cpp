@@ -1,13 +1,15 @@
 #include "formula.hpp"
 
-#include <iostream>
 #include <algorithm>
+#include <iostream> //Ne compile pas sans
+
 using namespace std;
 
 Formula::Formula()
 {
 
 }
+
 Formula::Formula(map<int,unsigned int> n_vars)
 {
 	var_true_name = n_vars;
@@ -24,36 +26,35 @@ void Formula::update_var(int& x,ostream& os,Option& option)
 		assignment[x] = TRUE;
 	else
 		assignment[-x] = FALSE;
-	//DEBUG(1) << abs(x) << " set to " << (x>0) << endl;
+	DEBUG(1) << abs(x) << " set to " << (x>0) << endl;
 
 	auto it = find(var_alive.begin(),var_alive.end(),abs(x));
 	var_alive.erase(it);
-	//DEBUG(1) << var_alive.size() << " vars left" << endl;
+	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
 void Formula::apply_modification(int& x,ostream& os,Option& option)
 {
-	//DEBUG(1) << "Modifying f" << endl;
+	DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
 	{
 		int cause;
 		if((cause = it->apply_modification(assignment,os,option)))
 		{
-			//DEBUG(1) << "Clause deleted while x = " << x << endl;
+			DEBUG(1) << "Clause deleted while x = " << x << endl;
 			stack_delete.push(Decision_cla(*it,cause));
 			clauses_alive.erase(it);
 			if(clauses_alive.empty())
 			{
-				//DEBUG(1) << "Il y a plus rien !" << endl;
+				DEBUG(1) << "Il y a plus rien !" << endl;
 				break;
 			}
-			it = clauses_alive.begin(); //erase de it fait des trucs chelou
+			it = clauses_alive.begin(); //erase fait des choses bizarres à it, on remet au début par sécurité
 		}
 		else
 		{
 			it++;
 		}
-
 	}
 }
 
@@ -98,7 +99,7 @@ void Formula::supprTauto(ostream& os, Option& option)
 		}
 		else
 		{
-			//DEBUG(1) << "Tautologie found" << endl;
+			DEBUG(1) << "Tautologie found" << endl;
 		}
 	}
 	clear_c(new_clauses);
@@ -117,9 +118,9 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Op
 			case 1:
 				{
 					act = NEW;
-					int x = c.get(); /**Depend de l'implémentation**/
-					//DEBUG(1) << "Unitaire avec : " << x << endl;
-					if(assignment[abs(x)] == UNKNOWN)
+					int x = c.get();
+					DEBUG(1) << "Unitaire avec : " << x << endl;
+					if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 					{
 						update_var(x,os,option);
 						decisions.push(Decision_var(x,INFER));
@@ -165,7 +166,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			int x = i*seen[i];
 			act = NEW;
 
-			//DEBUG(1) << "Polarité unique avec : " << x << endl;
+			DEBUG(1) << "Polarité unique avec : " << x << endl;
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x,os,option);
@@ -178,10 +179,9 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 
 void Formula::revive(ostream& os,  Option& option, vector<bool> be_cancelled)
 {
+	unsigned int taille = be_cancelled.size();// = nombre de déduction annulé + 1 (= 1 pour le dépilage total de fin)
 
-	unsigned int taille = be_cancelled.size();
-
-	for(unsigned int i = 1; i < taille; i++)
+	for(unsigned int i = 1; i < taille; i++)//On remet les variables
 	{
 		if(be_cancelled[i])
 		{
@@ -190,25 +190,20 @@ void Formula::revive(ostream& os,  Option& option, vector<bool> be_cancelled)
 		}
 	}
 
-
-	while(!stack_delete.empty() && (taille == 1 || be_cancelled[abs(stack_delete.top().var)]))
+	while(!stack_delete.empty() && (taille == 1 || be_cancelled[abs(stack_delete.top().var)]))//Puis les clauses
 	{
-		//DEBUG(1) << "Clause revived" << endl;
+		DEBUG(1) << "Clause revived" << endl;
 		clauses_alive.push_back(stack_delete.top().clause);
 		stack_delete.pop();
 	}
 
-	//check(os,option);
-
 	if(taille != 1)
 	{
-		for(auto it = clauses_alive.begin(); it != clauses_alive.end(); it++)
+		for(auto it = clauses_alive.begin(); it != clauses_alive.end(); it++)//Puis les variables dans les clauses
 		{
 			it->get_up(be_cancelled,os,option);
 		}
-		check(os,option);
 	}
-
 }
 
 void Formula::clear_c(list<Clause> clauses)
@@ -216,37 +211,41 @@ void Formula::clear_c(list<Clause> clauses)
 	clauses_alive = clauses;
 }
 
-void Formula::check(ostream& os,Option& option,bool true_name)
+void Formula::check(ostream& os, Option& option,bool true_name)
 {
 	DEBUG(3) << endl << "Check :" << endl;
-	for(auto c:clauses_alive)
-	{
+    for(auto c : clauses_alive)
+    {
 		for(auto it = c.get_vars().begin(); it != c.get_vars().end(); it++)
 		{
-			DEBUG(3) << *it /*((true_name)?(int)var_true_name[abs(*it)]*(1-2*(*it<0)):(*it))*/ << " ";
+			DEBUG(3) << ((true_name)?(int)var_true_name[abs(*it)]*(1-2*(*it<0)):(*it)) << " ";
 		}
 		DEBUG(3) << endl;
 	}
-	DEBUG(3) << "END" ;//<< endl << endl;
+	DEBUG(3) << "END" << endl << endl;
 }
 
-void Formula::print(Option& option)
+void Formula::print(Option& option, ostream& os)
 {
-	for(auto v:var_true_name)
+    for(auto v : var_true_name)
 	{
 		switch(assignment[v.second])
 		{
 			case FALSE:
 				cout << -1*v.first;
 				break;
+
 			case UNKNOWN:
 				if(option.debug)
 				cout << "?";
+				/**Pas de break et dans cet ordre, il faut quand même affiché le nom de la variable (ex : "?1")**/
 			case TRUE:
 				cout << v.first;
 				break;
 		}
-			cout << " ";
+
+        cout << ' ';
 	}
+
 	cout << endl;
 }

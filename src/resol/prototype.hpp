@@ -1,9 +1,19 @@
-#include <iostream>
+#ifndef PROTOTYPE_HPP
+#define PROTOTYPE_HPP
 
-using namespace std;
+#include "option.hpp"
+#include "formula.hpp" // pour state,on peut mieux faire
 
-void dpll(Formula& f, ostream& os, Option& option);
-bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option);
-void pretreatment(Formula& f, ostream& os, Option& option);
-Res update(Formula& f, stack<Decision_var>& decisions, int& x,ostream& os, Option& option);
-int get_next_var(Formula& f, ostream& os, Option& option);
+#include <ostream>
+
+State dpll(Formula&, std::ostream&, Option&);
+
+bool backtrack(Formula&, std::stack<Decision_var>& decisions, std::ostream&, Option&);
+
+void pretreatment(Formula&, std::ostream&, Option& option);
+
+Res update(Formula&, std::stack<Decision_var>& decisions, int& x, std::ostream&, Option&);
+
+int get_next_var(Formula& f, std::ostream&, Option&);
+
+#endif // PROTOTYPE_HPP

@@ -95,7 +95,11 @@ Res update(Formula& f, stack<Decision_var>& decisions, int& x, ostream& os, Opti
 
 	f.check(os,option);
 
-	Res act = f.propagation_unitary(decisions,os,option); //On teste le résultat des modifications au passage
+	Res act;
+	if(option.watched_litterals == true)
+		act = f.propagation_unitary_wl(decisions,os,option);
+	else
+		act = f.propagation_unitary(decisions,os,option);//On teste le résultat des modifications au passage
 	DEBUG(1) << "After unitaire, act = " << act << endl;
 	if(act == ERROR || act == SUCCESS)//Inutile d'aller plus loin
 		return act;

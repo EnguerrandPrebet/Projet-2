@@ -40,10 +40,20 @@ class Clause
 		void print();
 		State test(std::vector<State>& assignment);
         void get_up(std::vector<bool>& be_cancelled,std::ostream& os, Option& option);
+		void get_up_wl();
 		void get_up_all();
+        State litteral_status(std::vector<State>& assignment, int& x);
         int apply_modification(std::vector<State>& assignment,std::ostream& os, Option& option); //Renvoie true si la clause est validé par les modifs
+		int apply_modification_wl(std::vector<State>& assignment,std::ostream& os, Option& option); //Renvoie true si la clause est validé par les modifs
+		Res propagation_unitary_wl(std::vector<State>& assignment, std::ostream& os, Option& option, int& x);
 
 	private:
+		//WL only
+		std::vector<int> vars_tab;
+		unsigned int wl1,wl2;
+		bool nothing_before_wl;
+		bool nothing_after_wl;
+
 		std::list<int> vars;
 		std::stack<int> stack_delete;
 };

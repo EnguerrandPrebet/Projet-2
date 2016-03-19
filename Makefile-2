@@ -3,5 +3,8 @@ SRC=$(wildcard ./src/resol/*.cpp)
 all:
 	g++ -O2 -std=c++11 -Wall $(SRC) -o ./bin/resol
 	
-d:
+clang:
 	clang-3.5 -g -std=c++11 -Wall $(SRC) -o ./bin/resol
+	
+debug:
+	g++ -g -std=c++11 -Wall $(SRC) -o ./bin/resol

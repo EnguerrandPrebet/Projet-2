@@ -89,7 +89,10 @@ int main(int argc, char* argv[])
                 cout << HELP_OUTPUT;
 				return 0;
 			}
-
+			else if (argument == "wl")
+			{
+				option.watched_litterals = true;
+			}
             else
 				cout << "Unrecognized command line option: " << argv[i] << endl;
         }
@@ -141,10 +144,10 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	DEBUG(1) << "Launching DPLL, f is ";
+	DEBUG(3) << "Launching DPLL, f is ";
     f.check(os, option, true);
-	DEBUG(1) << "Above, litterals were sorted in a different way in clauses" << endl << endl;
-	DEBUG(1) << "And now renamed :";
+	DEBUG(3) << "Above, litterals were sorted in a different way in clauses" << endl << endl;
+	DEBUG(3) << "And now renamed :";
     f.check(os, option);
 
     switch(dpll(f, os, option))

@@ -28,23 +28,24 @@ class Formula
 
 		void update_var(int& x,ostream& os,Option& option);
 		State test(ostream& os,Option& option);
+        void print(Option& option, ostream& os); //Affiche assignment
 		void revive(ostream& os,  Option& option, std::vector<bool> be_cancelled = std::vector<bool>({false}));
 		void supprTauto(ostream& os, Option& option);
 		void apply_modification(int& x,ostream& os, Option& option);
 		Res propagation_unitary(std::stack<Decision_var>& decisions, ostream& os, Option& option);
+		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, ostream& os, Option& option);
 		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, ostream& os, Option& option);
-        void print(Option& option, ostream& os); //Affiche assignment
 
 	private:
 		unsigned int nb_Var; //Nb de variable (assignment [NULL,x1,...,xn])
 
 		std::list<Clause> clauses_alive;
-		std::stack<Decision_cla> stack_delete;
+		std::vector<std::list<Clause>> tab_stack_delete; //Clause peut devenir Decision_cla si on veut plus d'info
+		//On utilise des list pour un backtrack rapide
 
 		std::map<int,unsigned int> var_true_name;
 		std::vector<State> assignment;
 		std::list<unsigned int> var_alive;
-
 };
 
 #endif // FORMULA_HPP

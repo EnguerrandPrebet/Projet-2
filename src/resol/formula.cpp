@@ -18,6 +18,8 @@ Formula::Formula(map<int,unsigned int> n_vars)
 	for(unsigned int i = 1; i <= nb_Var; i++)
 		var_alive.push_back(i);
 	assignment = vector<State>(nb_Var+1,UNKNOWN);
+
+	tab_stack_delete = vector<list<Clause>>(nb_Var+1,list<Clause>{});
 }
 
 void Formula::update_var(int& x,ostream& os,Option& option)
@@ -39,10 +41,10 @@ void Formula::apply_modification(int& x,ostream& os,Option& option)
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
 	{
 		int cause;
-		if((cause = it->apply_modification(assignment,os,option)))
+		if((option.watched_litterals == false && (cause = it->apply_modification(assignment,os,option))) || (option.watched_litterals == true && (cause = it->apply_modification_wl(assignment,os,option))))
 		{
-			DEBUG(1) << "Clause deleted while x = " << x << endl;
-			stack_delete.push(Decision_cla(*it,cause));
+			DEBUG(1) << "Clause deleted while x = " << x << " because of " << cause <<  endl;
+			tab_stack_delete[abs(cause)].push_back(*it);
 			clauses_alive.erase(it);
 			if(clauses_alive.empty())
 			{
@@ -135,6 +137,34 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Op
 	return act;
 }
 
+Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os, Option& option)
+{
+	Res act = SUCCESS;
+
+	for(auto c:clauses_alive)
+	{
+		int x;
+		Res act_aux = c.propagation_unitary_wl(assignment,os,option,x);
+		if(act_aux == NEW)
+		{
+			DEBUG(1) << "Unitaire avec : " << x << endl;
+			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
+			{
+				update_var(x,os,option);
+				decisions.push(Decision_var(x,INFER));
+			}
+			act = NEW;
+		}
+		else if(act_aux == ERROR)
+			return ERROR;
+
+		if(act != NEW)
+			act = NOTHING;
+	}
+
+	return act;
+}
+
 Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, Option& option)
 {
 	vector<int> seen(nb_Var+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
@@ -190,18 +220,22 @@ void Formula::revive(ostream& os,  Option& option, vector<bool> be_cancelled)
 		}
 	}
 
-	while(!stack_delete.empty() && (taille == 1 || be_cancelled[abs(stack_delete.top().var)]))//Puis les clauses
+	for(unsigned int i = 1;i<taille;i++)
 	{
-		DEBUG(1) << "Clause revived" << endl;
-		clauses_alive.push_back(stack_delete.top().clause);
-		stack_delete.pop();
+		if(be_cancelled[i])
+		{
+			clauses_alive.splice(clauses_alive.end(),tab_stack_delete[i]);
+		}
 	}
 
 	if(taille != 1)
 	{
 		for(auto it = clauses_alive.begin(); it != clauses_alive.end(); it++)//Puis les variables dans les clauses
 		{
-			it->get_up(be_cancelled,os,option);
+			if(option.watched_litterals == false)
+				it->get_up(be_cancelled,os,option);
+			else
+				it->get_up_wl();
 		}
 	}
 }
@@ -238,7 +272,7 @@ void Formula::print(Option& option, ostream& os)
 			case UNKNOWN:
 				if(option.debug)
 				cout << "?";
-				/**Pas de break et dans cet ordre, il faut quand même affiché le nom de la variable (ex : "?1")**/
+				/**Pas de break et dans cet ordre, il faut quand même afficher le nom de la variable (ex : "?1")**/
 			case TRUE:
 				cout << v.first;
 				break;

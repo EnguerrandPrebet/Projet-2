@@ -9,6 +9,9 @@
 #include <list>
 #include <map>
 
+#define INPUT_NAMES false
+#define INTERNAL_NAMES true
+
 using namespace std;
 
 class Formula
@@ -19,16 +22,17 @@ class Formula
 
 		//Set
 		void clear_c(std::list<Clause> clauses);
+
 		//Get
 		unsigned int get_nb_Var(){return nb_Var;};
 		int get_fst_var(){return var_alive.front();}; //Choix par défaut
 
 		//Debug
-        void check(ostream& os, Option& option,bool true_name = false);
+		void print_formula(ostream& os, const Option& option, bool true_name = false); // check
+		void print_assignment(const Option& option, ostream& os); // print
 
 		void update_var(int& x,ostream& os,Option& option);
 		State test(ostream& os,Option& option);
-        void print(Option& option, ostream& os); //Affiche assignment
 		void revive(ostream& os,  Option& option, std::vector<bool> be_cancelled = std::vector<bool>({false}));
 		void supprTauto(ostream& os, Option& option);
 		void apply_modification(int& x,ostream& os, Option& option);

@@ -209,7 +209,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 
 void Formula::revive(ostream& os,  Option& option, vector<bool> be_cancelled)
 {
-	unsigned int taille = be_cancelled.size();// = nombre de déduction annulé + 1 (= 1 pour le dépilage total de fin)
+	unsigned int taille = be_cancelled.size();
 
 	for(unsigned int i = 1; i < taille; i++)//On remet les variables
 	{
@@ -245,7 +245,7 @@ void Formula::clear_c(list<Clause> clauses)
 	clauses_alive = clauses;
 }
 
-void Formula::check(ostream& os, Option& option,bool true_name)
+void Formula::print_formula(ostream& os, const Option& option, bool true_name)
 {
 	DEBUG(3) << endl << "Check :" << endl;
     for(auto c : clauses_alive)
@@ -259,7 +259,7 @@ void Formula::check(ostream& os, Option& option,bool true_name)
 	DEBUG(3) << "END" << endl << endl;
 }
 
-void Formula::print(Option& option, ostream& os)
+void Formula::print_assignment(const Option& option, ostream& os)
 {
     for(auto v : var_true_name)
 	{

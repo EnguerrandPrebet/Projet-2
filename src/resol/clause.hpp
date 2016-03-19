@@ -29,12 +29,12 @@ class Clause
 {
     public:
 		Clause();
-        Clause(std::list<int> n_vars);
+		Clause(std::list<int>);
 
 		//Get
-		int get(){return vars.front();};
-		unsigned int size(){return vars.size();};
-		std::list<int>& get_vars(){return vars;};
+		int get(){return literals_dyn.front();};
+		unsigned int size(){return literals_dyn.size();};
+		std::list<int>& get_vars(){return literals_dyn;};
 
 		//DPLL
 		void print();
@@ -48,13 +48,14 @@ class Clause
 		Res propagation_unitary_wl(std::vector<State>& assignment, std::ostream& os, Option& option, int& x);
 
 	private:
-		//WL only
-		std::vector<int> vars_tab;
-		unsigned int wl1,wl2;
+		// option watched litterals
+		std::vector<int> literals_fixed;
+		unsigned int wl1, wl2;
 		bool nothing_before_wl;
 		bool nothing_after_wl;
 
-		std::list<int> vars;
+		// non watched litterals
+		std::list<int> literals_dyn;
 		std::stack<int> stack_delete;
 };
 

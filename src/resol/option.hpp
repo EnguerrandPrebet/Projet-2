@@ -27,4 +27,6 @@ struct Option
 
 typedef const Option& OptionChoisie;
 
+void layered_debug(Option&, std::ostream& os, const std::string& s, unsigned int X);
+
 #endif // OPTION_HPP

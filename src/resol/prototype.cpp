@@ -44,7 +44,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 		}
 
 		DEBUG(3) << "Stable state with";
-        f.check(os, option);
+		f.print_formula(os, option);
 	}
 
     return f.test(os,option);
@@ -93,7 +93,7 @@ Res update(Formula& f, stack<Decision_var>& decisions, int& x, ostream& os, Opti
 	f.apply_modification(x,os,option);//On met à jour les clauses ici
 	DEBUG(1) << "End modif" << endl;
 
-	f.check(os,option);
+	f.print_formula(os, option);
 
 	Res act;
 	if(option.watched_litterals == true)

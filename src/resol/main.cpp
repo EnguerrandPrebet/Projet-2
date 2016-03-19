@@ -46,18 +46,12 @@ Formula treat_cnf(istream& is, int debug, ostream& os);
 //Formula treat_tseitin(string file, int debug, ostream& os);
 //Formula_input* parser(int debug, ostream& os);
 
-/**Si tu le mets dans un .hpp il va être recopié PARTOUT, et pas le droit au définition multiple**/
-void layered_debug(Option& option, std::ostream& os, const std::string& s, unsigned int X)
-{
-    if(option.debug >= X)
-        os << s <<std::endl;
-}
-
 int main(int argc, char* argv[])
 {
     Option option;
+	ostream& os = cout;
+
     string file_name;
-    ostream& os = cout;
     for(int i = 1; i < argc; i++)
     {
 		/* Options en ligne commande */
@@ -144,30 +138,32 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	DEBUG(3) << "Launching DPLL, f is ";
-    f.check(os, option, true);
-	DEBUG(3) << "Above, litterals were sorted in a different way in clauses" << endl << endl;
-	DEBUG(3) << "And now renamed :";
-    f.check(os, option);
+	layered_debug(option, os, "Input read, f is ", 3);
+	f.print_formula(os, option, INPUT_NAMES);
 
-    switch(dpll(f, os, option))
-    {
-        case TRUE:
-            cout << "s SATISFIABLE" << endl;
-            f.print(option, os);
-            break;
+	layered_debug(option, os, "Above, litterals were sorted in a different way in clauses\n", 3);
 
-        case FALSE:
-            cout << "s UNSATISFIABLE" << endl;
-            break;
+	layered_debug(option, os, "And now renamed :", 3);
+	f.print_formula(os, option, INTERNAL_NAMES);
 
-        case UNKNOWN:
-            cout << "s ???" << endl;
-    }
+	switch(dpll(f, os, option))
+	{
+		case TRUE:
+			cout << "s SATISFIABLE" << endl;
+			f.print_assignment(option, os);
+			break;
 
-    layered_debug(option, os, "End of main", 1);
+		case FALSE:
+			cout << "s UNSATISFIABLE" << endl;
+			break;
 
-    return 0;
+		case UNKNOWN:
+			cout << "s ???" << endl;
+	}
+
+	layered_debug(option, os, "End of main", 1);
+
+	return 0;
 }
 
 /***********************************/
@@ -260,6 +256,7 @@ Formula treat_cnf(istream& is, int debug, ostream& os)
         os << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
 	return f;
 }
+
 /*
 Formula treat_tseitin(string filename, int debug, ostream& os)
 {

@@ -1,7 +1,10 @@
 #include "formula.hpp"
 
 #include <algorithm>
-#include <iostream> //Ne compile pas sans
+#include <iostream>
+#include <random>
+
+#include <climits> // pour initialisation des min / max
 
 using namespace std;
 
@@ -22,9 +25,73 @@ Formula::Formula(map<int,unsigned int> n_vars)
 	tab_stack_delete = vector<list<Clause>>(nb_Var+1,list<Clause>{});
 }
 
+int Formula::get_first_var() const
+{
+	return var_alive.front();
+}
+
+int Formula::get_random_var() const
+{
+	static default_random_engine rng;
+
+	/* Initialisation du générateur de nombres aléatoires */
+	static bool rng_initialise = false;
+	if (!rng_initialise)
+	{
+		rng.seed(random_device()());
+		rng_initialise = true;
+	}
+
+	/* On génère le choix */
+	unsigned int nb_unknown = var_alive.size();
+
+	uniform_int_distribution<default_random_engine::result_type> uni_dist(0, nb_unknown-1); // [| a; b |]
+
+	/* On trouve la variable correspondante */
+	unsigned int count = uni_dist(rng);
+	auto it = next(var_alive.begin(), count);
+	int x = *it;
+
+	/* On génère / trouve sa valeur */
+	uniform_int_distribution<default_random_engine::result_type> binary_dist(0, 1);
+	int sign = (binary_dist(rng) == 0) ? 1 : -1;
+
+	//cout << "RANDOM :" << sign * x << ' ' << var_alive.size() << endl;
+
+	return sign * x;
+}
+
+int Formula::get_moms_var() const
+{
+	/* On trouve la taille minimale des clauses */
+	unsigned int min_clause_size = UINT_MAX;
+	for (const Clause& clause : clauses_alive)
+		min_clause_size = min(min_clause_size, clause.size());
+
+	/* On cherche le littéral qui apparaît le plus souvent dans ces clauses */
+	int max_x = 1; // initialisation sans intérêt, pour enlever le warning
+	unsigned int max_freq = 0;
+
+	map<int, unsigned int> frequencies;
+	for (const Clause& clause : clauses_alive)
+		if (clause.size() == min_clause_size)
+			for (int x : clause.get_vars())
+			{
+				unsigned int new_freq_x = (++frequencies[x]); // si frequencies[x] n'est pas présent, il est initialisé à 0
+
+				if (new_freq_x > max_freq)
+				{
+					max_x = x;
+					max_freq = new_freq_x;
+				}
+			}
+
+	return max_x;
+}
+
 void Formula::update_var(int& x,ostream& os,Option& option)
 {
-	if(x>0)
+	if (x>0)
 		assignment[x] = TRUE;
 	else
 		assignment[-x] = FALSE;
@@ -104,7 +171,7 @@ void Formula::supprTauto(ostream& os, Option& option)
 			DEBUG(1) << "Tautologie found" << endl;
 		}
 	}
-	clear_c(new_clauses);
+	set_clauses_alive(new_clauses);
 }
 
 Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Option& option)
@@ -240,7 +307,7 @@ void Formula::revive(ostream& os,  Option& option, vector<bool> be_cancelled)
 	}
 }
 
-void Formula::clear_c(list<Clause> clauses)
+void Formula::set_clauses_alive(list<Clause> clauses)
 {
 	clauses_alive = clauses;
 }

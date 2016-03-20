@@ -54,3 +54,19 @@ Les conventions utilisées par ls
 
 Commande pour stocker le projet dans le dossier courant sans créer de sous dossier :
 	git clone git@github.com:EnguerrandPrebet/Projet-2.git .
+
+// NOUVELLLES REMARQUES !!!!!!
+
+Il me semble qu'il serait vraiment plus simple de mettre les options de debug dans un objet global (définit dans options.hpp ?) que main set et qui sera accessible facilement.
+Plutôt que de passer des const Option& aux classes qui le passent à leurs enfants qui le passent à leurs petits enfants, ... tel un lourd boulet :-D
+
+Il faut bien être const-correct, quand tu fournis un accesseur &, donne également un accesseur référence constant.
+De même si une méthode ne modifie pas un argument il faut bien utiliser const &.
+
+
+// DANS UN FUTUR LOINTAIN
+Il faudrait ajouter une option -io_only qui se contente de lire l'entrée et de construire la formule pour pouvoir faire des tests de performance
+
+Dans treat_cnf tu gères les clauses mal terminées mais dans ce cas tu ajoutes quand même les variables de ces clauses, il faudra choisir ce que l'on fait dans ce cas
+
+Tu pourrais jeter un coup d'oeil à Clean Code, ça donne une méthodologie solide.

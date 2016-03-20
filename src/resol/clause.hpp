@@ -33,8 +33,9 @@ class Clause
 
 		//Get
 		int get(){return literals_dyn.front();};
-		unsigned int size(){return literals_dyn.size();};
-		std::list<int>& get_vars(){return literals_dyn;};
+		unsigned int size() const {return literals_dyn.size();};
+		std::list<int>& get_vars() {return literals_dyn;};
+		const std::list<int>& get_vars() const {return literals_dyn;};
 
 		//DPLL
 		void print();
@@ -59,7 +60,16 @@ class Clause
 		std::stack<int> stack_delete;
 };
 
-struct Decision_cla{Clause clause;int var;Decision_cla(Clause n_clause,int n_var)
-{clause = n_clause;var = n_var;}};
+struct Decision_cla
+{
+	Clause clause;
+	int var;
+
+	Decision_cla(Clause n_clause,int n_var)
+	{
+		clause = n_clause;
+		var = n_var;
+	}
+};
 
 #endif // CLAUSE_HPP

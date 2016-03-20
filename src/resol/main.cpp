@@ -42,8 +42,9 @@ const static char HELP_OUTPUT[] =
 "\n"
 "Input file name must ends with .cnf or .for.\n";
 
-Formula treat_cnf(istream& is, int debug, ostream& os);
+Formula treat_cnf(istream& is, const Option& option, ostream& os);
 //Formula treat_tseitin(string file, int debug, ostream& os);
+
 //Formula_input* parser(int debug, ostream& os);
 
 int main(int argc, char* argv[])
@@ -87,6 +88,18 @@ int main(int argc, char* argv[])
 			{
 				option.watched_litterals = true;
 			}
+			else if (argument == "rand")
+			{
+				option.heuristique = RAND;
+			}
+			else if (argument == "moms")
+			{
+				option.heuristique = MOMS;
+			}
+			else if (argument == "dlis")
+			{
+				option.heuristique = DLIS;
+			}
             else
 				cout << "Unrecognized command line option: " << argv[i] << endl;
         }
@@ -127,7 +140,7 @@ int main(int argc, char* argv[])
 	Formula f;
 
 	if (option.cnf_found)
-		f = treat_cnf(file, option.debug, os);
+		f = treat_cnf(file, option, os);
 
 	else if (option.tseitin)
         f = Formula(); //treat_tseitin(file_name, option.debug, cout);
@@ -169,7 +182,21 @@ int main(int argc, char* argv[])
 /***********************************/
 /* Cas d'un fichier en forme cnf */
 /***********************************/
-Formula treat_cnf(istream& is, int debug, ostream& os)
+bool is_commentary(const string& s)
+{
+	return s[0] == 'c';
+}
+
+bool is_end_of_clause(int x)
+{
+	return x == 0;
+}
+
+template <typename T> int sign(T val) {
+	return (T(0) < val) - (val < T(0));
+}
+
+Formula treat_cnf(istream& is, const Option& option, ostream& os)
 {
     string line;
     do
@@ -203,56 +230,62 @@ Formula treat_cnf(istream& is, int debug, ostream& os)
     unsigned int actual_v = 0, actual_c = 0;
 
 	list<Clause> clauses({});
-	vector<unsigned int> vars_aux({0});
-	unsigned int rename_var = 1;
-	map<int, unsigned int> vars({});
+	vector<unsigned int> variables_inverse_mapping({0});
+	unsigned int next_available_var = 1;
+	map<int, unsigned int> variables_mapping({});
 
-    set<int> clause;
-    /**TODO : à simplifier while cin doit suffire**/
+	/* On récupère chaque ligne (c'est à dire chaque clause) */
     while (getline(is, line))
     {
-        if (line[0] == 'c')
+		if (is_commentary(line))
             continue;
 
         istringstream ss(line);
+		set<int> clause;
+		/* On récupère chaque littéral */
         int x;
         while (ss >> x)
         {
-            if (x == 0)
+			if (is_end_of_clause(x))
 				break;
 
-			if(vars.find(abs(x)) == vars.end())
+			/* variable non déjà vue */
+			if (variables_mapping.find(abs(x)) == variables_mapping.end())
 			{
-				vars_aux.push_back(abs(x));
-				vars[abs(x)] = rename_var;
-				rename_var++;
+				variables_inverse_mapping.push_back(abs(x));
+
+				variables_mapping[abs(x)] = next_available_var++;
 			}
-			int new_x = vars[abs(x)];
-			new_x *= 1-2*(x<0);
-			clause.insert(new_x);
-            actual_v = max(actual_v, (unsigned int)abs(x));
+
+			/* On ajoute le nouveau littéral à la clause */
+			int mapped_x = sign(x) * variables_mapping[abs(x)]; // on remet le signe de x
+			clause.insert(mapped_x);
+
+			actual_v = max(actual_v, (unsigned int) abs(x));
         }
+
+		/* On n'ajoute que les clauses bien terminées (terminées par 0) */
         if (x == 0)
         {
             clauses.push_back(list<int>(clause.begin(),clause.end()));
-            clause.clear();
             actual_c++;
         }
+		else
+		{
+			//!!!!!! affichage debug ici
+		}
     }
-	Formula f(vars);
-	f.clear_c(clauses);
+
+	Formula f(variables_mapping);
+	f.set_clauses_alive(clauses);
 
     if (actual_v != v)
-    {
         cout << "Expected " << v << " greatest variable (" << actual_v << " found)" << endl;
-    }
 
     if (actual_c != c)
-    {
         cout << "Expected " << c << " clauses (" << actual_c << " found)" << endl;
-    }
 
-    if (debug)
+	if (option.debug >= 1)
         os << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
 	return f;
 }

@@ -20,7 +20,7 @@ struct Option
 
     bool watched_litterals = false;
 
-	Heuristique get = NONE;
+	Heuristique heuristique = NONE;
 
     bool redirect_os = false;
 };

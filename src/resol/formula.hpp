@@ -18,20 +18,25 @@ class Formula
 {
 	public:
 		Formula();
-		Formula(std::map<int,unsigned int> n_vars);
 
-		//Set
-		void clear_c(std::list<Clause> clauses);
+		/* Les clés vont de 1 à variables_mapping.size() */
+		Formula(std::map<int, unsigned int> variables_mapping);
 
-		//Get
+		// Set
+		void set_clauses_alive(std::list<Clause>);
+
+		// Get
 		unsigned int get_nb_Var(){return nb_Var;};
-		int get_fst_var(){return var_alive.front();}; //Choix par défaut
+		int get_first_var() const; // choix par défaut
+		int get_random_var() const;
+		int get_moms_var() const;
 
-		//Debug
+		// Debug
 		void print_formula(ostream& os, const Option& option, bool true_name = false); // check
 		void print_assignment(const Option& option, ostream& os); // print
 
-		void update_var(int& x,ostream& os,Option& option);
+		// ? à trier
+		void update_var(int& x, ostream& os, Option& option);
 		State test(ostream& os,Option& option);
 		void revive(ostream& os,  Option& option, std::vector<bool> be_cancelled = std::vector<bool>({false}));
 		void supprTauto(ostream& os, Option& option);
@@ -47,7 +52,7 @@ class Formula
 		std::vector<std::list<Clause>> tab_stack_delete; //Clause peut devenir Decision_cla si on veut plus d'info
 		//On utilise des list pour un backtrack rapide
 
-		std::map<int,unsigned int> var_true_name;
+		std::map<int, unsigned int> var_true_name;
 		std::vector<State> assignment;
 		std::list<unsigned int> var_alive;
 };

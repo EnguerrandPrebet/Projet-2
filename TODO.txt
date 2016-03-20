@@ -55,7 +55,11 @@ Les conventions utilisées par ls
 Commande pour stocker le projet dans le dossier courant sans créer de sous dossier :
 	git clone git@github.com:EnguerrandPrebet/Projet-2.git .
 
-// NOUVELLLES REMARQUES !!!!!!
+// NOUVELLLES REMARQUES et CONVENTIONS !!!!!!
+
+Pour que QtCreator puisse intelligemment trouver en-tête / source ils faut que les fichiers soient ouverts dans l'éditeur.
+Refactoriser marche bien : il met en rouge la variable [var], on tape simplement le nouveau nom puis on clique à côté et c'est bon (il me semble).
+Pour que QtCreator indente toujours avec des tabs il faut le préciser dans options de "l'éditeur" et dans "c++" indenter avec tabs.
 
 Il me semble qu'il serait vraiment plus simple de mettre les options de debug dans un objet global (définit dans options.hpp ?) que main set et qui sera accessible facilement.
 Plutôt que de passer des const Option& aux classes qui le passent à leurs enfants qui le passent à leurs petits enfants, ... tel un lourd boulet :-D
@@ -63,6 +67,9 @@ Plutôt que de passer des const Option& aux classes qui le passent à leurs enfa
 Il faut bien être const-correct, quand tu fournis un accesseur &, donne également un accesseur référence constant.
 De même si une méthode ne modifie pas un argument il faut bien utiliser const &.
 
+Il faut respecter la convention names_with_underscores.
+
+Quand on fait #include <header_wtf_qui_sort_de_n_importe_ou>, on précise // pour f()
 
 // DANS UN FUTUR LOINTAIN
 Il faudrait ajouter une option -io_only qui se contente de lire l'entrée et de construire la formule pour pouvoir faire des tests de performance
@@ -70,3 +77,9 @@ Il faudrait ajouter une option -io_only qui se contente de lire l'entrée et de 
 Dans treat_cnf tu gères les clauses mal terminées mais dans ce cas tu ajoutes quand même les variables de ces clauses, il faudra choisir ce que l'on fait dans ce cas
 
 Tu pourrais jeter un coup d'oeil à Clean Code, ça donne une méthodologie solide.
+
+Trouver un outil qui check la minimalité des dépendances des headers
+
+Utiliser un outil d'analyse de propreté du code pour trouver quelles fonctions il faut "couper"
+
+Faire un profiling sérieux pour voir où sont les inefficacités.

@@ -13,17 +13,18 @@ extern int yyparse(void);
 
 extern Formula_input *res;
 
-Formula_input* parser(int debug, ostream& os)
+Formula_input* parser(const Option& option, ostream& os)
 {
     // parse through the input until there is no more:
     do
     {
         yyparse();
-        if(debug)
-	{
-		os << "Post-parser: " << endl;
+
+		if (option.debug >= 1)
+		{
+			os << "Post-parser: " << endl;
 	        os << res->to_string() << endl << endl;
-	}
+		}
 	
     } while (!feof(yyin));
 

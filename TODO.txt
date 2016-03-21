@@ -71,7 +71,12 @@ Il faut respecter la convention names_with_underscores.
 
 Quand on fait #include <header_wtf_qui_sort_de_n_importe_ou>, on précise // pour f()
 
+Dans les header et les prédéclarations de fonctions il faut mettre les noms des paramètres seulement lorsque ce n'est pas déjà clair sans
+	exemple : abs(int) convient, mais pour print_debug_msg(Debug_struct, string owner, string msg), le rôle des deux derniers arguments n'est pas clair d'après les types.
+
 // DANS UN FUTUR LOINTAIN
+A priori pas de utils.hpp, les petites fonctions restent dans les .cpp
+
 Il faudrait ajouter une option -io_only qui se contente de lire l'entrée et de construire la formule pour pouvoir faire des tests de performance
 
 Dans treat_cnf tu gères les clauses mal terminées mais dans ce cas tu ajoutes quand même les variables de ces clauses, il faudra choisir ce que l'on fait dans ce cas

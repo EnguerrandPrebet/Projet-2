@@ -13,7 +13,7 @@ Formula::Formula()
 
 }
 
-Formula::Formula(map<int,unsigned int> n_vars)
+Formula::Formula(map<int, unsigned int> n_vars)
 {
 	var_true_name = n_vars;
 	nb_Var = n_vars.size();
@@ -315,7 +315,7 @@ void Formula::set_clauses_alive(list<Clause> clauses)
 void Formula::print_formula(ostream& os, const Option& option, bool true_name)
 {
 	DEBUG(3) << endl << "Check :" << endl;
-    for(auto c : clauses_alive)
+	for(auto c : clauses_alive)
     {
 		for(auto it = c.get_vars().begin(); it != c.get_vars().end(); it++)
 		{

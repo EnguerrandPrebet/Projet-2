@@ -1,10 +1,24 @@
-SRC=$(wildcard ./src/resol/*.cpp)
+CXX=g++
+CPPFLAGS=-Wall -O2 -std=c++11 -Wno-write-strings
+LEX=flex
+LIBLEX=-lfl
+YACC=bison
 
-all:
-	g++ -O2 -std=c++11 -Wall $(SRC) -o ./bin/resol
-	
+RESOL_SRC=$(wildcard ./src/resol/*.cpp)
+PARSER_SRC=$(wildcard ./src/parser/*.cpp)
+TSEITIN_SRC=$(wildcard ./src/tseitin/*.cpp)
+
+all: src/parser/formula_input.yy.c $(PARSER_SRC) $(TSEITIN_SRC) $(RESOL_SRC)
+	$(CXX) $(CPPFLAGS) $(LIBLEX) src/parser/formula_input.yy.c src/parser/formula_input.tab.cpp $(RESOL_SRC) $(PARSER_SRC) $(TSEITIN_SRC) -o ./bin/resol
+
+src/parser/formula_input.yy.c: src/parser/formula_input.l
+	$(LEX)  -o $@ $^
+
+src/parser/formula_input.tab.cpp: src/parser/formula_input.ypp
+	$(YACC) --report=all -o $@ -d $^
+
 clang:
-	clang-3.5 -g -std=c++11 -Wall $(SRC) -o ./bin/resol
+	clang-3.5 -g -std=c++11 -Wall $(RESOL_SRC) -o ./bin/resol
 	
 debug:
-	g++ -g -std=c++11 -Wall $(SRC) -o ./bin/resol
+	g++ -g -std=c++11 -Wall $(RESOL_SRC) -o ./bin/resol

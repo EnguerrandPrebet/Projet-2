@@ -19,8 +19,7 @@ class Formula
 	public:
 		Formula();
 
-		/* Les clés vont de 1 à variables_mapping.size() */
-		Formula(std::map<int, unsigned int> variables_mapping);
+		Formula(std::map<int, unsigned int> variables_mapping); // Les clés vont de 1 à variables_mapping.size()
 
 		// Set
 		void set_clauses_alive(std::list<Clause>);

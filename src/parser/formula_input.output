@@ -49,7 +49,7 @@ formula (18)
     12
 
 
-État 0
+état 0
 
     0 $accept: . input $end
     1 input: . formula_completed
@@ -75,14 +75,14 @@ formula (18)
     formula            aller à l'état 7
 
 
-État 1
+état 1
 
     4 formula: TK_MINUS . TK_VAR
 
     TK_VAR  décalage et aller à l'état 8
 
 
-État 2
+état 2
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -104,7 +104,7 @@ formula (18)
     formula  aller à l'état 9
 
 
-État 3
+état 3
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -126,28 +126,28 @@ formula (18)
     formula  aller à l'état 10
 
 
-État 4
+état 4
 
     3 formula: TK_VAR .
 
     $défaut  réduction par utilisation de la règle 3 (formula)
 
 
-État 5
+état 5
 
     0 $accept: input . $end
 
     $end  décalage et aller à l'état 11
 
 
-État 6
+état 6
 
     1 input: formula_completed .
 
     $défaut  réduction par utilisation de la règle 1 (input)
 
 
-État 7
+état 7
 
     2 formula_completed: formula . TK_END
     6 formula: formula . TK_AND formula
@@ -166,14 +166,14 @@ formula (18)
     TK_END      décalage et aller à l'état 18
 
 
-État 8
+état 8
 
     4 formula: TK_MINUS TK_VAR .
 
     $défaut  réduction par utilisation de la règle 4 (formula)
 
 
-État 9
+état 9
 
     6 formula: formula . TK_AND formula
     7        | formula . TK_NEWLINE formula
@@ -193,7 +193,7 @@ formula (18)
     Conflit entre la règle 12 et le jeton TK_EQUIV résolu par réduction (TK_EQUIV < TK_NEGATE).
 
 
-État 10
+état 10
 
     5 formula: TK_LPAREN formula . TK_RPAREN
     6        | formula . TK_AND formula
@@ -212,14 +212,14 @@ formula (18)
     TK_RPAREN   décalage et aller à l'état 19
 
 
-État 11
+état 11
 
     0 $accept: input $end .
 
     $défaut  accepter
 
 
-État 12
+état 12
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -241,7 +241,7 @@ formula (18)
     formula  aller à l'état 20
 
 
-État 13
+état 13
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -263,7 +263,7 @@ formula (18)
     formula  aller à l'état 21
 
 
-État 14
+état 14
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -285,7 +285,7 @@ formula (18)
     formula  aller à l'état 22
 
 
-État 15
+état 15
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -307,7 +307,7 @@ formula (18)
     formula  aller à l'état 23
 
 
-État 16
+état 16
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -329,7 +329,7 @@ formula (18)
     formula  aller à l'état 24
 
 
-État 17
+état 17
 
     3 formula: . TK_VAR
     4        | . TK_MINUS TK_VAR
@@ -351,21 +351,21 @@ formula (18)
     formula  aller à l'état 25
 
 
-État 18
+état 18
 
     2 formula_completed: formula TK_END .
 
     $défaut  réduction par utilisation de la règle 2 (formula_completed)
 
 
-État 19
+état 19
 
     5 formula: TK_LPAREN formula TK_RPAREN .
 
     $défaut  réduction par utilisation de la règle 5 (formula)
 
 
-État 20
+état 20
 
     6 formula: formula . TK_AND formula
     6        | formula TK_AND formula .  [TK_AND, TK_NEWLINE, TK_OR, TK_XOR, TK_IMPLY, TK_EQUIV, TK_END, TK_RPAREN]
@@ -385,7 +385,7 @@ formula (18)
     Conflit entre la règle 6 et le jeton TK_EQUIV résolu par réduction (TK_EQUIV < TK_AND).
 
 
-État 21
+état 21
 
     6 formula: formula . TK_AND formula
     7        | formula . TK_NEWLINE formula
@@ -411,7 +411,7 @@ formula (18)
     Conflit entre la règle 7 et le jeton TK_EQUIV résolu par décalage (TK_NEWLINE < TK_EQUIV).
 
 
-État 22
+état 22
 
     6 formula: formula . TK_AND formula
     7        | formula . TK_NEWLINE formula
@@ -433,7 +433,7 @@ formula (18)
     Conflit entre la règle 8 et le jeton TK_EQUIV résolu par réduction (TK_EQUIV < TK_OR).
 
 
-État 23
+état 23
 
     6 formula: formula . TK_AND formula
     7        | formula . TK_NEWLINE formula
@@ -456,7 +456,7 @@ formula (18)
     Conflit entre la règle 9 et le jeton TK_EQUIV résolu par réduction (TK_EQUIV < TK_XOR).
 
 
-État 24
+état 24
 
     6 formula: formula . TK_AND formula
     7        | formula . TK_NEWLINE formula
@@ -480,7 +480,7 @@ formula (18)
     Conflit entre la règle 10 et le jeton TK_EQUIV résolu par réduction (TK_EQUIV < TK_IMPLY).
 
 
-État 25
+état 25
 
     6 formula: formula . TK_AND formula
     7        | formula . TK_NEWLINE formula

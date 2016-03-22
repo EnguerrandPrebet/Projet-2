@@ -1,5 +1,0 @@
-Temps  :		std		wl
-20-91(s)  :		3.2s 	2.9s
-50-218(s) :		2m31	2m46
-dubois :		51.2s	41.8s
-combinatorial :	12.4s	1m35

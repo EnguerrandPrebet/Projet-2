@@ -49,6 +49,10 @@ Formula tseitin(Formula_input& f_input, unsigned int& nb_input_variables, const 
 		os << endl << endl;
 	}
 
+<<<<<<< HEAD
+=======
+	clauses.push_back(list<int>({f_input.tseitin_x}));
+>>>>>>> 2afc151d98205c2b04b5010135ddf161ecb9a8f5
 	/* On construit la formule */
 	Formula f(Formula_input::variables_mapping);
 	f.set_clauses_alive(clauses);

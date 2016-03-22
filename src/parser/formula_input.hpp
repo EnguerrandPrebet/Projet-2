@@ -15,7 +15,7 @@
 class Formula_input
 {
 public:
-	Formula_input(){ tseitin_x = -1; } // pour tseitin
+	Formula_input(){ tseitin_x = 0; } // pour tseitin
 
 	virtual std::string to_string() const = 0;
 

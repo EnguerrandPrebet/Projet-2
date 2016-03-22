@@ -16,7 +16,7 @@ int Formula_input::rename_litteral(int l)
 
 	/* Variable déjà vue, déjà mappée */
 	if (variables_mapping.find(x) != variables_mapping.end())
-		return variables_mapping[x];
+		return sign(l) * variables_mapping[x];
 
 	/* Renommage */
 	int mapped_x = variables_mapping[x] = Formula_input::next_available_var++;
@@ -51,6 +51,7 @@ FVar_input::FVar_input(int new_l) :
 	input_l(new_l)
 {
 	tseitin_x = Formula_input::rename_litteral(new_l);
+
 }
 
 std::string FVar_input::to_string() const
@@ -119,8 +120,8 @@ void FOperation_input::tseitin_one_step(stack<Formula_input*>& jobs, list<Clause
 	{
 			case OR:
 			{
-				int i2 = Formula_input::new_variable();
-				int i3 = Formula_input::new_variable();
+				int i2 = (l->tseitin_x != 0)? l->tseitin_x : Formula_input::new_variable();
+				int i3 = (r->tseitin_x != 0)? r->tseitin_x : Formula_input::new_variable();
 
 				set<int> c1({-tseitin_x, i2, i3});
 				set<int> c2({tseitin_x, -i2});
@@ -138,8 +139,8 @@ void FOperation_input::tseitin_one_step(stack<Formula_input*>& jobs, list<Clause
 
 			case AND:
 			{
-				int i2 = Formula_input::new_variable();
-				int i3 = Formula_input::new_variable();
+				int i2 = (l->tseitin_x != 0)? l->tseitin_x : Formula_input::new_variable();
+				int i3 = (r->tseitin_x != 0)? r->tseitin_x : Formula_input::new_variable();
 
 				set<int> c1({tseitin_x, -i2, -i3});
 				set<int> c2({-tseitin_x, i2});
@@ -157,8 +158,8 @@ void FOperation_input::tseitin_one_step(stack<Formula_input*>& jobs, list<Clause
 
 			case XOR:
 			{
-				int i2 = Formula_input::new_variable();
-				int i3 = Formula_input::new_variable();
+				int i2 = (l->tseitin_x != 0)? l->tseitin_x : Formula_input::new_variable();
+				int i3 = (r->tseitin_x != 0)? r->tseitin_x : Formula_input::new_variable();
 
 				set<int> c1({-tseitin_x, i2, i3});
 				set<int> c2({-tseitin_x, -i2, -i3});
@@ -178,8 +179,8 @@ void FOperation_input::tseitin_one_step(stack<Formula_input*>& jobs, list<Clause
 
 			case IMPLY:
 			{
-				int i2 = Formula_input::new_variable();
-				int i3 = Formula_input::new_variable();
+				int i2 = (l->tseitin_x != 0)? l->tseitin_x : Formula_input::new_variable();
+				int i3 = (r->tseitin_x != 0)? r->tseitin_x : Formula_input::new_variable();
 
 				set<int> c1({-tseitin_x, -i2, i3});
 				set<int> c2({tseitin_x, i2});
@@ -197,8 +198,8 @@ void FOperation_input::tseitin_one_step(stack<Formula_input*>& jobs, list<Clause
 
 			case EQUIV:
 			{
-				int i2 = Formula_input::new_variable();
-				int i3 = Formula_input::new_variable();
+				int i2 = (l->tseitin_x != 0)? l->tseitin_x : Formula_input::new_variable();
+				int i3 = (r->tseitin_x != 0)? r->tseitin_x : Formula_input::new_variable();
 
 				set<int> c1({tseitin_x, -i2, -i3});
 				set<int> c2({tseitin_x, i2, i3});
@@ -218,7 +219,7 @@ void FOperation_input::tseitin_one_step(stack<Formula_input*>& jobs, list<Clause
 
 			case NEGATE:
 			{
-				int i2 = Formula_input::new_variable();
+				int i2 = (l->tseitin_x != 0)? l->tseitin_x : Formula_input::new_variable();
 
 				set<int> c1({tseitin_x, i2});
 				set<int> c2({-tseitin_x, -i2});

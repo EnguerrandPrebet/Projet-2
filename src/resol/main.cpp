@@ -144,12 +144,12 @@ int main(int argc, char* argv[])
 	}
 
 	layered_debug(option, os, "Input read, f is ", 3);
-	f.print_formula(os, option, INPUT_NAMES);
+	f.print_formula(os, option,true);
 
 	layered_debug(option, os, "Above, litterals were sorted in a different way in clauses\n", 3);
 
 	layered_debug(option, os, "And now renamed :", 3);
-	f.print_formula(os, option, INTERNAL_NAMES);
+	f.print_formula(os, option, false);
 
 	switch(dpll(f, os, option))
 	{

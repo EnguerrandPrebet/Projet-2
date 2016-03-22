@@ -11,4 +11,5 @@ unsatis_test.sh
 	De même pour les solutions UNSATISFIABLE (soit 50-218_u)
 	
 stats.sh
-	lance les tests sur Test_unitaire et 20-91 pour générer des statistiques
+	lance les tests sur Test_unitaire, 20-91 et 50-218 pour générer des statistiques
+	/!\ Cela peut prendre 5 min pour faire les tests nécessaires

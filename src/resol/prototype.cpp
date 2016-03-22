@@ -127,6 +127,9 @@ int get_next_var(Formula& f, ostream& os, Option& option)
 			return f.get_moms_var();
 			break;
 
+		case DLIS:
+			return f.get_dlis_var();
+
 		default: // NONE
 			return f.get_first_var();
 	}

@@ -29,6 +29,7 @@ class Formula
 		int get_first_var() const; // choix par défaut
 		int get_random_var() const;
 		int get_moms_var() const;
+		int get_dlis_var() const;
 
 		// Debug
 		void print_formula(ostream& os, const Option& option, bool true_name = false, unsigned int debug_lvl = 3); // check

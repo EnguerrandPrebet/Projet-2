@@ -312,18 +312,21 @@ void Formula::set_clauses_alive(list<Clause> clauses)
 	clauses_alive = clauses;
 }
 
-void Formula::print_formula(ostream& os, const Option& option, bool true_name)
+void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl)
 {
-	DEBUG(3) << endl << "Check :" << endl;
-	for(auto c : clauses_alive)
-    {
-		for(auto it = c.get_vars().begin(); it != c.get_vars().end(); it++)
+	if(option.debug > debug_lvl)/**Optimisation de fou**/ //Evite de parcourir les boucles inutilement
+	{
+		os << endl << "Check :" << endl;
+		for(auto c : clauses_alive)
 		{
-			DEBUG(3) << ((true_name)?(int)var_true_name[abs(*it)]*(1-2*(*it<0)):(*it)) << " ";
+			for(auto it = c.get_vars().begin(); it != c.get_vars().end(); it++)
+			{
+				os << ((true_name)?(int)var_true_name[abs(*it)]*(1-2*(*it<0)):(*it)) << " ";
+			}
+			os << endl;
 		}
-		DEBUG(3) << endl;
+		os << "END" << endl << endl;
 	}
-	DEBUG(3) << "END" << endl << endl;
 }
 
 void Formula::print_assignment(const Option& option, ostream& os)

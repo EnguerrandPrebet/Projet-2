@@ -31,7 +31,7 @@ class Formula
 		int get_moms_var() const;
 
 		// Debug
-		void print_formula(ostream& os, const Option& option, bool true_name = false); // check
+		void print_formula(ostream& os, const Option& option, bool true_name = false, unsigned int debug_lvl = 3); // check
 		void print_assignment(const Option& option, ostream& os); // print
 
 		// ? à trier

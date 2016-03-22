@@ -8,3 +8,6 @@ clang:
 	
 debug:
 	g++ -g -std=c++11 -Wall $(SRC) -o ./bin/resol
+
+gprof:
+	g++ -pg -std=c++11 -Wall $(SRC) -o ./bin/resol

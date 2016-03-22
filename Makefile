@@ -10,9 +10,13 @@ LEX=flex
 LIBLEX=-lfl
 YACC=bison
 
-all: $(TSEITIN) $(RESOL) $(PARSER)
+all: exec graph
+
+exec: $(TSEITIN) $(RESOL) $(PARSER)
 	$(CXX) $(CPPFLAGS) -O2 -o ./bin/resol $^ $(LIBLEX)
-	
+
+graph: ./src/stats/main.cpp
+	$(CXX) $(CPPFLAGS) -o ./tests/resol/graph $^
 gprof:$(TSEITIN) $(RESOL) $(PARSER)
 	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $^ $(LIBLEX)
 	 

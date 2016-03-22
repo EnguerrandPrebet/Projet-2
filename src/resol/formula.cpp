@@ -135,9 +135,9 @@ State Formula::test(ostream& os,Option& option)
 	{
 		State sol_c = c.test(assignment);
 		if(sol_c == UNKNOWN)
-			return UNKNOWN;
+			sol_c = UNKNOWN;
 		if(sol_c == FALSE)
-			sol = FALSE;
+			return FALSE;
 	}
 	return sol;
 }

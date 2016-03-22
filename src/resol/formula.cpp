@@ -89,6 +89,27 @@ int Formula::get_moms_var() const
 	return max_x;
 }
 
+int Formula::get_dlis_var() const
+{
+	/* On cherche l'assignation qui rend le plus de clauses valides */
+	map<int, unsigned int> variables_score;
+
+	for (const Clause& clause : clauses_alive)
+	{
+		for (int l : clause.get_vars()) // chaque littéral doit apparaître de façon unique dans une clause
+		{
+			variables_score[l]++; // 'l' satisfait 'clause'
+			/* remarque : si variables_score[l] n'existe pas encore il est initialisé à 0 */
+		}
+	}
+
+	/* On récupère le littéral de meilleur score */
+	const auto& max_score = max_element(variables_score.begin(), variables_score.end(),
+													[](const pair<int, unsigned int>& p1, const pair<int, unsigned int>& p2)
+													 { return p1.second < p2.second; });
+	return max_score->first;
+}
+
 void Formula::update_var(int& x,ostream& os,Option& option)
 {
 	if (x>0)

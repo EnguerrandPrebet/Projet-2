@@ -127,12 +127,13 @@ int main(int argc, char* argv[])
 	}
 
 	Formula f;
+	unsigned int tseitin_nb_input_variables = 0; // pour éviter le warning
 
 	if (option.cnf_found)
 		f = treat_cnf(file, option, os);
 
 	else if (option.tseitin)
-		f = treat_tseitin(file_name, option, cout);
+		f = treat_tseitin(file_name, tseitin_nb_input_variables, option, cout);
 
 	else
 	{
@@ -152,7 +153,7 @@ int main(int argc, char* argv[])
 	{
 		case TRUE:
 			cout << "s SATISFIABLE" << endl;
-			f.print_assignment(option, os);
+			f.print_assignment(option, os, (option.tseitin), tseitin_nb_input_variables);
 			break;
 
 		case FALSE:

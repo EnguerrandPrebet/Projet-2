@@ -25,7 +25,7 @@ Formula_input* parser(const Option& option, ostream& os)
 			os << "Post-parser: " << endl;
 	        os << res->to_string() << endl << endl;
 		}
-	
+
     } while (!feof(yyin));
 
     return res;

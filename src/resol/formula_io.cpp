@@ -71,29 +71,30 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 		istringstream ss(line);
 		set<int> clause;
 		/* On récupère chaque littéral */
-		int x;
-		while (ss >> x)
+		int l;
+		while (ss >> l)
 		{
-			if (is_end_of_clause(x))
+			if (is_end_of_clause(l))
 				break;
 
 			/* variable non déjà vue */
-			if (variables_mapping.find(abs(x)) == variables_mapping.end())
+			unsigned int x = abs(l);
+			if (variables_mapping.find(x) == variables_mapping.end())
 			{
-				variables_inverse_mapping.push_back(abs(x));
+				variables_inverse_mapping.push_back(x);
 
-				variables_mapping[abs(x)] = next_available_var++;
+				variables_mapping[x] = next_available_var++;
 			}
 
 			/* On ajoute le nouveau littéral à la clause */
-			int mapped_x = sign(x) * variables_mapping[abs(x)]; // on remet le signe de x
-			clause.insert(mapped_x);
+			int mapped_l = sign(l) * variables_mapping[abs(l)]; // on remet le signe de x
+			clause.insert(mapped_l);
 
-			actual_v = max(actual_v, (unsigned int) abs(x));
+			actual_v = max(actual_v, (unsigned int) abs(l));
 		}
 
 		/* On n'ajoute que les clauses bien terminées (terminées par 0) */
-		if (x == 0)
+		if (l == 0)
 		{
 			clauses.push_back(list<int>(clause.begin(), clause.end()));
 			actual_c++;
@@ -119,13 +120,13 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 	return f;
 }
 
-Formula treat_tseitin(const string& filename, const Option& option, ostream& os)
+Formula treat_tseitin(const string& filename, unsigned int& nb_input_variables, const Option& option, ostream& os)
 {
 	int fd = open(filename.c_str(), O_RDONLY);
 	dup2(fd, 0);
 	//!!!!!! traitement des erreurs ici
 
-	Formula f = tseitin(*parser(option, os), option, os);
+	Formula f = tseitin(*parser(option, os), nb_input_variables, option, os);
 
 	return f;
 }

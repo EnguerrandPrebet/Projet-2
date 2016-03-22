@@ -15,20 +15,22 @@
 class Formula_input
 {
 public:
-	Formula_input(){ x = -1; } // pour tseitin
+	Formula_input(){ tseitin_x = -1; } // pour tseitin
 
 	virtual std::string to_string() const = 0;
 
 	//int new_
 	virtual void tseitin_one_step(std::stack<Formula_input*>& jobs, list<Clause>& out){}
 
-	int rename_litteral(int l);
+	static int rename_litteral(int l);
+	static int new_variable();
 
-	int x;
+	int tseitin_x; // pour tseitin
 
 	/* Renaming of variables */
 	static unsigned int next_available_var;
 	static std::map<int, unsigned int> variables_mapping;
+	static unsigned int nb_input_variables;
 };
 
 /***********************************/
@@ -42,6 +44,8 @@ public:
 	virtual std::string to_string() const;
 
 	virtual void tseitin_one_step(std::stack<Formula_input*>& jobs, list<Clause>& out);
+
+	int input_l;
 };
 
 /***********************************/

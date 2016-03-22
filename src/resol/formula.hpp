@@ -32,7 +32,7 @@ class Formula
 
 		// Debug
 		void print_formula(ostream& os, const Option& option, bool true_name = false, unsigned int debug_lvl = 3); // check
-		void print_assignment(const Option& option, ostream& os); // print
+		void print_assignment(const Option&, ostream&, bool tseitin, unsigned int tseitin_nb_input_variables = 0); // print
 
 		// ? à trier
 		void update_var(int& x, ostream& os, Option& option);

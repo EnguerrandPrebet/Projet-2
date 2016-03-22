@@ -17,13 +17,16 @@ gprof:$(TSEITIN) $(RESOL) $(PARSER)
 	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $^ $(LIBLEX)
 	 
 debug:$(TSEITIN) $(RESOL) $(PARSER)
-	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $^ $(LIBLEX)
+	$(CXX) $(CPPFLAGS) -g -D_GLIBCXX_DEBUG -o ./bin/resol $^ $(LIBLEX)
 
 $(NAME).yy.c :  $(NAME).l
 	$(LEX)  -o $@ $^
 	
 $(NAME).tab.cpp : $(NAME).ypp
 	$(YACC) --report=all -o $@ -d $^
+
+regression: debug
+	cd tests/resol/; ./regression.sh
 
 clean:
 	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output

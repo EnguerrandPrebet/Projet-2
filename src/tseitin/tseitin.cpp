@@ -9,21 +9,21 @@
 
 using namespace std;
 
-Formula tseitin(Formula_input& f_input, const Option& option, ostream& os)
+Formula tseitin(Formula_input& f_input, unsigned int& nb_input_variables, const Option& option, ostream& os)
 {
 	if (option.debug >= 1)
 	{
-		os << "Variables in the input formula: " << endl;
+		os << "Mapping of the input formula variables is: " << endl;
 		for (pair<int, unsigned int> _ : f_input.variables_mapping)
 		{
 
-			os << "(" << _.first << ", " << _.second << ")" << " ";
+			os << "(" << _.first << " -> " << _.second << ")" << " ";
 		}
 		os << endl << endl;
 	}
 
-	/* On récupère les clauses */
-	f_input.x = Formula_input::next_available_var++;
+	/* TSEITIN */
+	f_input.tseitin_x = Formula_input::new_variable();
 
 	stack<Formula_input*> jobs;
 	jobs.push(&f_input);
@@ -37,13 +37,22 @@ Formula tseitin(Formula_input& f_input, const Option& option, ostream& os)
 		f_top->tseitin_one_step(jobs, clauses);
 	}
 
+
+	if (option.debug >= 1)
+	{
+		os << "Tseitin added the following variables to the mapping : " << endl;
+		for (pair<int, unsigned int> _ : f_input.variables_mapping)
+		{
+			//if (_.second >= Formula_input::nb_input_variables)
+				os << "(" << _.first << " -> " << _.second << ")" << " ";
+		}
+		os << endl << endl;
+	}
+
 	/* On construit la formule */
-	Formula f; //(variables_mapping)
+	Formula f(Formula_input::variables_mapping);
 	f.set_clauses_alive(clauses);
 
-	//set<int> c({f_input.x});
-	//final_formula.clauses.push_back(c);
-	//final_formula.set_v(next_available_var-1);
-
+	nb_input_variables = Formula_input::nb_input_variables;
 	return f;
 }

@@ -314,7 +314,7 @@ void Formula::set_clauses_alive(list<Clause> clauses)
 
 void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl)
 {
-	if(option.debug > debug_lvl)/**Optimisation de fou**/ //Evite de parcourir les boucles inutilement
+	if(option.debug > debug_lvl)
 	{
 		os << endl << "Check :" << endl;
 		for(auto c : clauses_alive)
@@ -329,22 +329,30 @@ void Formula::print_formula(ostream& os, const Option& option, bool true_name, u
 	}
 }
 
-void Formula::print_assignment(const Option& option, ostream& os)
+void Formula::print_assignment(const Option& option, ostream& os, bool tseitin, unsigned int tseitin_nb_input_variables)
 {
-    for(auto v : var_true_name)
+	for (const pair<int, unsigned int> _ : var_true_name)
 	{
-		switch(assignment[v.second])
+		int x = _.first;
+		unsigned int mapped_x = _.second;
+
+		/* Variable qui n'était pas dans l'input */
+		//if (tseitin && mapped_x > tseitin_nb_input_variables)
+		//	continue;
+
+		switch (assignment[mapped_x])
 		{
+			case TRUE:
+				cout << x;
+				break;
+
 			case FALSE:
-				cout << -1*v.first;
+				cout << (-x);
 				break;
 
 			case UNKNOWN:
-				if(option.debug)
-				cout << "?";
-				/**Pas de break et dans cet ordre, il faut quand même afficher le nom de la variable (ex : "?1")**/
-			case TRUE:
-				cout << v.first;
+				if(option.debug >= 1)
+					cout << "?" << x;
 				break;
 		}
 

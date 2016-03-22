@@ -3,7 +3,7 @@ Enguerrand PREBET et Clément CHOUTEAU
 22/03/16
 
 
-Le programme gère l'entrée standard .cnf ainsi que la version conviviale .for avec maintenant déductions, la possibilité d'utiliser des heuristiques (RAND,MOMS), ainsi que les littéraux surveillés.
+Le programme gère l'entrée standard .cnf ainsi que la version conviviale .for avec maintenant déductions, la possibilité d'utiliser des heuristiques (RAND,MOMS,DLIS), ainsi que les littéraux surveillés.
  
  
 //Structure du code
@@ -32,10 +32,17 @@ Actuellement, ce sont les modifications apportés par les paris et déductions a
 Il réussit les tests sur le pré-traitement de la polarité unique, les cas triviaux (formule vide, clause vide, un backtrack) ainsi que des tests plus conséquents trouvés sur le lien fourni via le site.
 L'option de débug --debug permet de suivre facilement ce que fait l'algorithme.
 L'algo est bien plus performant que pour le rendu 1 puisque combinatorial.cnf qui ne terminait pas après plus de 10 min, est maintenant une question de secondes.
+Plus d'informations dans tests/resol/README
 
 //Améliorations
-Dans l'avenir, on pense chercher des tests de performance plus conséquents, soit aléatoires, soit applicatifs. Une vérification automatique du programme avec les tests est envisagée (non régression).
-
+Dans l'avenir, on pense chercher des tests de performance plus conséquents, soit aléatoires, soit applicatifs.
+Analyser de façon précise (gprofs, valgrind) le temps d'exécution des différentes fonctions du programme.
+Utiliser des outils d'analyse de code pour trouver les fonctions / lignes trop longues pour rendre le code plus clair.
+Une vérification automatique du programme est mise en place avec regression.sh (non régression) et un message indiquant le type d'entrée, il contient encore peu de tests.
+Un Makefile plus propre et plus utile, et surtout effectue une compilation avec fichiers intermédiaires pour limiter le temps de compilation (3s-5s actuellement).
+Rendre les API des classes Formula, Clause, ... plus claires et plus robustes.
+	On a souvent des classes avec un rôle pas bien défini / des variables public / trop de setters, getters
+Un petite détail certes, mais gênant : const Option& se ballade dans tout le programme, on pense peut être faire un fichier pour le set en variable statique.
 
 /Répartition
 Nous avons essayé d'intervertir les rôles pour ce 2e rendu.

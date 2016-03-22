@@ -1,0 +1,987 @@
+Warning: -tseitin is obsolete, please use --tseitin or -t instead
+Post-parser: 
+(((((1=>2)/\(3=>4))/\(4=>6))/\(2=>3))/\-6)
+
+Mapping of the input formula variables is: 
+(1 -> 1) (2 -> 2) (3 -> 3) (4 -> 4) (6 -> 5) 
+
+Tseitin added the following variables to the mapping : 
+(1 -> 1) (2 -> 2) (3 -> 3) (4 -> 4) (5 -> 6) (6 -> 5) (7 -> 7) (8 -> 8) (9 -> 9) (10 -> 10) (11 -> 11) (12 -> 12) (13 -> 13) 
+
+Input read, f is 
+Check :
+-7 6 5 
+-5 7 
+-5 -6 
+-9 -8 7 
+-7 8 
+-7 9 
+-11 -10 8 
+-8 10 
+-8 11 
+-13 -12 10 
+-10 12 
+-10 13 
+-12 -1 2 
+1 12 
+-2 12 
+-13 -3 4 
+3 13 
+-4 13 
+-11 -4 6 
+4 11 
+-6 11 
+-9 -2 3 
+2 9 
+-3 9 
+5 
+END
+
+Above, litterals were sorted in a different way in clauses
+And now renamed :
+Check :
+-7 5 6 
+-6 7 
+-6 -5 
+-9 -8 7 
+-7 8 
+-7 9 
+-11 -10 8 
+-8 10 
+-8 11 
+-13 -12 10 
+-10 12 
+-10 13 
+-12 -1 2 
+1 12 
+-2 12 
+-13 -3 4 
+3 13 
+-4 13 
+-11 -4 5 
+4 11 
+-5 11 
+-9 -2 3 
+2 9 
+-3 9 
+6 
+END
+
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : -7
+	Test var : 5
+	Test var : 6
+Modifying Clause :
+	Test var : -6
+	Test var : 7
+Modifying Clause :
+	Test var : -6
+	Test var : -5
+Modifying Clause :
+	Test var : -9
+	Test var : -8
+	Test var : 7
+Modifying Clause :
+	Test var : -7
+	Test var : 8
+Modifying Clause :
+	Test var : -7
+	Test var : 9
+Modifying Clause :
+	Test var : -11
+	Test var : -10
+	Test var : 8
+Modifying Clause :
+	Test var : -8
+	Test var : 10
+Modifying Clause :
+	Test var : -8
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+	Test var : 5
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -5
+	Test var : 11
+Modifying Clause :
+	Test var : -9
+	Test var : -2
+	Test var : 3
+Modifying Clause :
+	Test var : 2
+	Test var : 9
+Modifying Clause :
+	Test var : -3
+	Test var : 9
+Modifying Clause :
+	Test var : 6
+End modif
+
+Check :
+-7 5 6 
+-6 7 
+-6 -5 
+-9 -8 7 
+-7 8 
+-7 9 
+-11 -10 8 
+-8 10 
+-8 11 
+-13 -12 10 
+-10 12 
+-10 13 
+-12 -1 2 
+1 12 
+-2 12 
+-13 -3 4 
+3 13 
+-4 13 
+-11 -4 5 
+4 11 
+-5 11 
+-9 -2 3 
+2 9 
+-3 9 
+6 
+END
+
+Unitaire avec : 6
+6 set to 1
+12 vars left
+After unitaire, act = 0
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : -7
+	Test var : 5
+	Test var : 6
+A clause is true because of 6
+Clause deleted while x = 0 because of 6
+Modifying Clause :
+	Test var : -6
+-6 deleted from clause
+	Test var : 7
+Modifying Clause :
+	Test var : -6
+-6 deleted from clause
+	Test var : -5
+Modifying Clause :
+	Test var : -9
+	Test var : -8
+	Test var : 7
+Modifying Clause :
+	Test var : -7
+	Test var : 8
+Modifying Clause :
+	Test var : -7
+	Test var : 9
+Modifying Clause :
+	Test var : -11
+	Test var : -10
+	Test var : 8
+Modifying Clause :
+	Test var : -8
+	Test var : 10
+Modifying Clause :
+	Test var : -8
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+	Test var : 5
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -5
+	Test var : 11
+Modifying Clause :
+	Test var : -9
+	Test var : -2
+	Test var : 3
+Modifying Clause :
+	Test var : 2
+	Test var : 9
+Modifying Clause :
+	Test var : -3
+	Test var : 9
+Modifying Clause :
+	Test var : 6
+A clause is true because of 6
+Clause deleted while x = 0 because of 6
+Modifying Clause :
+	Test var : 7
+Modifying Clause :
+	Test var : -5
+Modifying Clause :
+	Test var : -9
+	Test var : -8
+	Test var : 7
+Modifying Clause :
+	Test var : -7
+	Test var : 8
+Modifying Clause :
+	Test var : -7
+	Test var : 9
+Modifying Clause :
+	Test var : -11
+	Test var : -10
+	Test var : 8
+Modifying Clause :
+	Test var : -8
+	Test var : 10
+Modifying Clause :
+	Test var : -8
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+	Test var : 5
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -5
+	Test var : 11
+Modifying Clause :
+	Test var : -9
+	Test var : -2
+	Test var : 3
+Modifying Clause :
+	Test var : 2
+	Test var : 9
+Modifying Clause :
+	Test var : -3
+	Test var : 9
+End modif
+
+Check :
+7 
+-5 
+-9 -8 7 
+-7 8 
+-7 9 
+-11 -10 8 
+-8 10 
+-8 11 
+-13 -12 10 
+-10 12 
+-10 13 
+-12 -1 2 
+1 12 
+-2 12 
+-13 -3 4 
+3 13 
+-4 13 
+-11 -4 5 
+4 11 
+-5 11 
+-9 -2 3 
+2 9 
+-3 9 
+END
+
+Unitaire avec : 7
+7 set to 1
+11 vars left
+Unitaire avec : -5
+5 set to 0
+10 vars left
+After unitaire, act = 0
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : 7
+A clause is true because of 7
+Clause deleted while x = 0 because of 7
+Modifying Clause :
+	Test var : -5
+A clause is true because of -5
+Clause deleted while x = 0 because of -5
+Modifying Clause :
+	Test var : -9
+	Test var : -8
+	Test var : 7
+A clause is true because of 7
+Clause deleted while x = 0 because of 7
+Modifying Clause :
+	Test var : -7
+-7 deleted from clause
+	Test var : 8
+Modifying Clause :
+	Test var : -7
+-7 deleted from clause
+	Test var : 9
+Modifying Clause :
+	Test var : -11
+	Test var : -10
+	Test var : 8
+Modifying Clause :
+	Test var : -8
+	Test var : 10
+Modifying Clause :
+	Test var : -8
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+	Test var : 5
+5 deleted from clause
+	Test var : -11
+	Test var : -4
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -5
+A clause is true because of -5
+Clause deleted while x = 0 because of -5
+Modifying Clause :
+	Test var : 8
+Modifying Clause :
+	Test var : 9
+Modifying Clause :
+	Test var : -11
+	Test var : -10
+	Test var : 8
+Modifying Clause :
+	Test var : -8
+	Test var : 10
+Modifying Clause :
+	Test var : -8
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -9
+	Test var : -2
+	Test var : 3
+Modifying Clause :
+	Test var : 2
+	Test var : 9
+Modifying Clause :
+	Test var : -3
+	Test var : 9
+End modif
+
+Check :
+8 
+9 
+-11 -10 8 
+-8 10 
+-8 11 
+-13 -12 10 
+-10 12 
+-10 13 
+-12 -1 2 
+1 12 
+-2 12 
+-13 -3 4 
+3 13 
+-4 13 
+-11 -4 
+4 11 
+-9 -2 3 
+2 9 
+-3 9 
+END
+
+Unitaire avec : 8
+8 set to 1
+9 vars left
+Unitaire avec : 9
+9 set to 1
+8 vars left
+After unitaire, act = 0
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : 8
+A clause is true because of 8
+Clause deleted while x = 0 because of 8
+Modifying Clause :
+	Test var : 9
+A clause is true because of 9
+Clause deleted while x = 0 because of 9
+Modifying Clause :
+	Test var : -11
+	Test var : -10
+	Test var : 8
+A clause is true because of 8
+Clause deleted while x = 0 because of 8
+Modifying Clause :
+	Test var : -8
+-8 deleted from clause
+	Test var : 10
+Modifying Clause :
+	Test var : -8
+-8 deleted from clause
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -9
+-9 deleted from clause
+	Test var : -2
+	Test var : 3
+Modifying Clause :
+	Test var : 2
+	Test var : 9
+A clause is true because of 9
+Clause deleted while x = 0 because of 9
+Modifying Clause :
+	Test var : 10
+Modifying Clause :
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -2
+	Test var : 3
+Modifying Clause :
+	Test var : -3
+	Test var : 9
+A clause is true because of 9
+Clause deleted while x = 0 because of 9
+Modifying Clause :
+	Test var : 10
+Modifying Clause :
+	Test var : 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+Modifying Clause :
+	Test var : -10
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+	Test var : -4
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+Modifying Clause :
+	Test var : -2
+	Test var : 3
+End modif
+
+Check :
+10 
+11 
+-13 -12 10 
+-10 12 
+-10 13 
+-12 -1 2 
+1 12 
+-2 12 
+-13 -3 4 
+3 13 
+-4 13 
+-11 -4 
+4 11 
+-2 3 
+END
+
+Unitaire avec : 10
+10 set to 1
+7 vars left
+Unitaire avec : 11
+11 set to 1
+6 vars left
+After unitaire, act = 0
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : 10
+A clause is true because of 10
+Clause deleted while x = 0 because of 10
+Modifying Clause :
+	Test var : 11
+A clause is true because of 11
+Clause deleted while x = 0 because of 11
+Modifying Clause :
+	Test var : -13
+	Test var : -12
+	Test var : 10
+A clause is true because of 10
+Clause deleted while x = 0 because of 10
+Modifying Clause :
+	Test var : -10
+-10 deleted from clause
+	Test var : 12
+Modifying Clause :
+	Test var : -10
+-10 deleted from clause
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -11
+-11 deleted from clause
+	Test var : -4
+Modifying Clause :
+	Test var : 4
+	Test var : 11
+A clause is true because of 11
+Clause deleted while x = 0 because of 11
+Modifying Clause :
+	Test var : 12
+Modifying Clause :
+	Test var : 13
+Modifying Clause :
+	Test var : -12
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+Modifying Clause :
+	Test var : -13
+	Test var : -3
+	Test var : 4
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+	Test var : 13
+Modifying Clause :
+	Test var : -4
+Modifying Clause :
+	Test var : -2
+	Test var : 3
+End modif
+
+Check :
+12 
+13 
+-12 -1 2 
+1 12 
+-2 12 
+-13 -3 4 
+3 13 
+-4 13 
+-4 
+-2 3 
+END
+
+Unitaire avec : 12
+12 set to 1
+5 vars left
+Unitaire avec : 13
+13 set to 1
+4 vars left
+Unitaire avec : -4
+4 set to 0
+3 vars left
+After unitaire, act = 0
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : 12
+A clause is true because of 12
+Clause deleted while x = 0 because of 12
+Modifying Clause :
+	Test var : 13
+A clause is true because of 13
+Clause deleted while x = 0 because of 13
+Modifying Clause :
+	Test var : -12
+-12 deleted from clause
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : 1
+	Test var : 12
+A clause is true because of 12
+Clause deleted while x = 0 because of 12
+Modifying Clause :
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : -2
+	Test var : 12
+A clause is true because of 12
+Clause deleted while x = 0 because of 12
+Modifying Clause :
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : -13
+-13 deleted from clause
+	Test var : -3
+	Test var : 4
+4 deleted from clause
+	Test var : -3
+Modifying Clause :
+	Test var : 3
+	Test var : 13
+A clause is true because of 13
+Clause deleted while x = 0 because of 13
+Modifying Clause :
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : -3
+Modifying Clause :
+	Test var : -4
+A clause is true because of -4
+Clause deleted while x = 0 because of -4
+Modifying Clause :
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : -3
+Modifying Clause :
+	Test var : -4
+A clause is true because of -4
+Clause deleted while x = 0 because of -4
+Modifying Clause :
+	Test var : -1
+	Test var : 2
+Modifying Clause :
+	Test var : -3
+Modifying Clause :
+	Test var : -2
+	Test var : 3
+End modif
+
+Check :
+-1 2 
+-3 
+-2 3 
+END
+
+Unitaire avec : -3
+3 set to 0
+2 vars left
+After unitaire, act = 0
+Polarité unique avec : -1
+1 set to 0
+1 vars left
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : -1
+A clause is true because of -1
+Clause deleted while x = 0 because of -1
+Modifying Clause :
+	Test var : -3
+A clause is true because of -3
+Clause deleted while x = 0 because of -3
+Modifying Clause :
+	Test var : -2
+	Test var : 3
+3 deleted from clause
+	Test var : -2
+End modif
+
+Check :
+-2 
+END
+
+Unitaire avec : -2
+2 set to 0
+0 vars left
+After unitaire, act = 0
+Polarité unique avec : -2
+
+Update time !
+Modifying f
+Modifying Clause :
+	Test var : -2
+A clause is true because of -2
+Clause deleted while x = 0 because of -2
+Il y a plus rien !
+End modif
+
+Check :
+END
+
+After unitaire, act = 3
+Stable state with
+Check :
+END
+
+s SATISFIABLE
+-1 -2 -3 -4 5 -6 7 8 9 10 11 12 13 
+End of main

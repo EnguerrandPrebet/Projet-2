@@ -314,7 +314,7 @@ void Formula::set_clauses_alive(list<Clause> clauses)
 
 void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl)
 {
-	if(option.debug > debug_lvl)
+	if(option.debug >= debug_lvl)
 	{
 		os << endl << "Check :" << endl;
 		for(auto c : clauses_alive)

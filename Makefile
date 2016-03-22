@@ -13,7 +13,7 @@ YACC=bison
 all: $(TSEITIN) $(RESOL) $(PARSER)
 	$(CXX) $(CPPFLAGS) -O2 -o ./bin/resol $^ $(LIBLEX)
 	
-gprov:$(TSEITIN) $(RESOL) $(PARSER)
+gprof:$(TSEITIN) $(RESOL) $(PARSER)
 	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $^ $(LIBLEX)
 	 
 debug:$(TSEITIN) $(RESOL) $(PARSER)

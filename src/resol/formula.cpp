@@ -178,16 +178,16 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Op
 {
 	Res act = SUCCESS;
 
-	for(auto c:clauses_alive)
+	for(auto c = clauses_alive.begin(); c != clauses_alive.end(); c++)
 	{
-		switch(c.size())
+		switch(c->size())
 		{
 			case 0:
 				return ERROR;
 			case 1:
 				{
 					act = NEW;
-					int x = c.get();
+					int x = c->get();
 					DEBUG(1) << "Unitaire avec : " << x << endl;
 					if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 					{
@@ -208,10 +208,10 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 {
 	Res act = SUCCESS;
 
-	for(auto c:clauses_alive)
+	for(auto c = clauses_alive.begin(); c != clauses_alive.end(); c++)
 	{
 		int x;
-		Res act_aux = c.propagation_unitary_wl(assignment,os,option,x);
+		Res act_aux = c->propagation_unitary_wl(assignment,os,option,x);
 		if(act_aux == NEW)
 		{
 			DEBUG(1) << "Unitaire avec : " << x << endl;
@@ -236,9 +236,9 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 {
 	vector<int> seen(nb_Var+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
-	for(auto c:clauses_alive)
+	for(auto c = clauses_alive.begin(); c != clauses_alive.end(); c++)
 	{
-		for(auto j = c.get_vars().begin(); j!=c.get_vars().end(); j++)
+		for(auto j = c->get_vars().begin(); j!=c->get_vars().end(); j++)
 		{
 			if(seen[abs(*j)] == 2)
 				continue;

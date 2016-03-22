@@ -1,6 +1,6 @@
 #include "clause.hpp"
 
-#include <iostream> //Ne compile sans
+#include <iostream>
 
 using namespace std;
 
@@ -14,18 +14,18 @@ Clause::Clause()
 
 }
 
-Clause::Clause(list<int> n_vars)
+Clause::Clause(list<int> literals)
 {
-    vars = n_vars;
+	/* non WL */
+	literals_dyn = literals;
 
-
-	//WL
+	/* WL */
     nothing_before_wl = true;
     nothing_after_wl = true;
 
-	vars_tab = vector<int>(vars.begin(),vars.end());
+	literals_fixed = vector<int>(literals.begin(), literals.end());
 	wl1 = 0;
-    wl2 = max(0,(int)vars_tab.size()-1);
+	wl2 = max(0, (int)literals_fixed.size() - 1);
 }
 
 State Clause::litteral_status(vector<State>& assignment, int& x)
@@ -52,7 +52,7 @@ State Clause::test(vector<State>& assignment)
 {
 	get_up_all();
 	State sol_c = FALSE;
-	for(auto x:vars)
+	for(int x : literals_dyn)
 	{
 		if(litteral_status(assignment,x) == TRUE)
 			return TRUE;
@@ -65,7 +65,7 @@ State Clause::test(vector<State>& assignment)
 int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& option)
 {
 	DEBUG(3) << "Modifying Clause :" << endl;
-	for(auto it = vars.begin(); it != vars.end();)
+	for(auto it = literals_dyn.begin(); it != literals_dyn.end();)
 	{
 		DEBUG(3) << "	Test var : " << (*it) << endl;
 		switch(litteral_status(assignment,*it))
@@ -73,8 +73,8 @@ int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& opt
 			case FALSE:
 				DEBUG(2) << *it << " deleted from clause" << endl;
 				stack_delete.push(*it);
-				vars.erase(it);
-				it = vars.begin(); //erase a boulversé le pointeur it, on le remet au début par précaution
+				literals_dyn.erase(it);
+				it = literals_dyn.begin(); //erase a boulversé le pointeur it, on le remet au début par précaution
 				break;
 			case TRUE:
 				DEBUG(2) << "A clause is true because of " <<  *it << endl;
@@ -90,26 +90,26 @@ int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& opt
 
 int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, Option& option)
 {
-	if(vars.empty())//CLause vide
+	if(literals_fixed.empty())//CLause vide
 		return 0;
 	if(nothing_before_wl == false)
 	{
 		wl1 = 0;
 		nothing_before_wl = true;
 	}
-	switch(litteral_status(assignment,vars_tab[wl1]))
+	switch(litteral_status(assignment,literals_fixed[wl1]))
 	{
 		case FALSE:
-			DEBUG(2) << vars_tab[wl1] << " \"deleted\" from clause" << endl;
+			DEBUG(2) << literals_fixed[wl1] << " \"deleted\" from clause" << endl;
 
-			while(litteral_status(assignment,vars_tab[wl1]) == FALSE && wl1 != wl2)
+			while(litteral_status(assignment, literals_fixed[wl1]) == FALSE && wl1 != wl2)
 			{
 				wl1++;
 			}
 			break;
 		case TRUE:
-			DEBUG(2) << "A clause is true because of " <<  vars_tab[wl1] << endl;
-			return vars_tab[wl1];
+			DEBUG(2) << "A clause is true because of " <<  literals_fixed[wl1] << endl;
+			return literals_fixed[wl1];
 			break;
 		default:
 			break;
@@ -117,43 +117,43 @@ int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, Option&
 
 	if(nothing_after_wl == false)
 	{
-		wl2 = max(0,(int)vars.size()-1);
+		wl2 = max(0, (int)literals_fixed.size() - 1);
 		nothing_after_wl = true;
 	}
-	switch(litteral_status(assignment,vars_tab[wl2]))
+	switch(litteral_status(assignment, literals_fixed[wl2]))
 	{
 		case FALSE:
-			DEBUG(2) << vars_tab[wl2] << " \"deleted\" from clause" << endl;
+			DEBUG(2) << literals_fixed[wl2] << " \"deleted\" from clause" << endl;
 
-			while(litteral_status(assignment,vars_tab[wl2]) == FALSE && wl1 != wl2)
+			while(litteral_status(assignment, literals_fixed[wl2]) == FALSE && wl1 != wl2)
 			{
 				wl2--;
 			}
 			break;
 		case TRUE:
-			DEBUG(2) << "A clause is true because of " <<  vars_tab[wl2] << endl;
-			return vars_tab[wl2];
+			DEBUG(2) << "A clause is true because of " <<  literals_fixed[wl2] << endl;
+			return literals_fixed[wl2];
 			break;
 		default:
 			break;
 	}
-	DEBUG(2) << "c: " << vars_tab[wl1] << " " << vars_tab[wl2] << endl;
+	DEBUG(2) << "c: " << literals_fixed[wl1] << " " << literals_fixed[wl2] << endl;
 	return 0;
 }
 
 Res Clause::propagation_unitary_wl(vector<State>& assignment, ostream& os, Option& option, int& x)
 {
-	if(wl1 == vars_tab.size())
+	if(wl1 == literals_fixed.size())
 		return ERROR;
-	DEBUG(2) << "c pu: " << vars_tab[wl1] << " " << vars_tab[wl2] << endl;
+	DEBUG(2) << "c pu: " << literals_fixed[wl1] << " " << literals_fixed[wl2] << endl;
 
 	if(wl1 == wl2)
 	{
-		if(litteral_status(assignment,vars_tab[wl2]) == FALSE)
+		if(litteral_status(assignment, literals_fixed[wl2]) == FALSE)
 			return ERROR;
 		else
 		{
-			x = vars_tab[wl1]; //On met à jour x pour affecter sa valeur tranquillement
+			x = literals_fixed[wl1]; // On met à jour x pour affecter sa valeur tranquillement
 			return NEW;
 		}
 	}
@@ -164,7 +164,7 @@ void Clause::get_up(vector<bool>& be_cancelled,ostream& os,Option& option)
 	while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
 	{
 		DEBUG(1) << "Revived " << stack_delete.top() << endl;
-		vars.push_back(stack_delete.top());
+		literals_dyn.push_back(stack_delete.top());
 		stack_delete.pop();
 	}
 }
@@ -178,7 +178,7 @@ void Clause::get_up_wl()
 void Clause::print()
 {
 	cout << "c";
-	for(int i:vars)
+	for(int i : literals_dyn)
 		cout << " " << i;
 	cout << endl;
 }
@@ -187,7 +187,7 @@ void Clause::get_up_all()
 {
 	while(!stack_delete.empty())
 	{
-		vars.push_back(stack_delete.top());
+		literals_dyn.push_back(stack_delete.top());
 		stack_delete.pop();
 	}
 }

@@ -4,3 +4,10 @@ git pull
 
 git status
 git diff
+
+/*Utilisation des branches*/
+git branch : affiche le branche ( * pour celle en cours)
+git branch name : crée la branche locale "name"
+git checkout name : changer vers la branche name
+/!\Tout changement non commit sera perdu lors d'une telle manip (ça permet aussi de revenir en arrière du coup)
+git merge name : fusionne la branche actuelle avec name (-> name disparaît)

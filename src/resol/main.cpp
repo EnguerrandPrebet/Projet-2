@@ -1,11 +1,7 @@
 #include "formula.hpp"
 #include "clause.hpp"
 #include "prototype.hpp"
-/*
-#include "dpll_solver.hpp" //à virer dans un futur proche logiquement
-#include "../parser/formula_input.hpp"
-#include "../tseitin/tseitin.hpp"
-*/
+#include "formula_io.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -15,8 +11,6 @@
 #include <utility>
 #include <cmath> // pour l'abs à la base. à virer
 #include <cstdlib> // sais pas
-#include <unistd.h> // dup2 dans treat_tseitin
-#include <fcntl.h> // open(2) dans treat_tseitin
 #include <map>
 #include <algorithm>
 
@@ -42,22 +36,12 @@ const static char HELP_OUTPUT[] =
 "\n"
 "Input file name must ends with .cnf or .for.\n";
 
-Formula treat_cnf(istream& is, int debug, ostream& os);
-//Formula treat_tseitin(string file, int debug, ostream& os);
-//Formula_input* parser(int debug, ostream& os);
-
-/**Si tu le mets dans un .hpp il va être recopié PARTOUT, et pas le droit au définition multiple**/
-void layered_debug(Option& option, std::ostream& os, const std::string& s, unsigned int X)
-{
-    if(option.debug >= X)
-        os << s <<std::endl;
-}
-
 int main(int argc, char* argv[])
 {
     Option option;
+	ostream& os = cout;
+
     string file_name;
-    ostream& os = cout;
     for(int i = 1; i < argc; i++)
     {
 		/* Options en ligne commande */
@@ -92,6 +76,18 @@ int main(int argc, char* argv[])
 			else if (argument == "wl")
 			{
 				option.watched_litterals = true;
+			}
+			else if (argument == "rand")
+			{
+				option.heuristique = RAND;
+			}
+			else if (argument == "moms")
+			{
+				option.heuristique = MOMS;
+			}
+			else if (argument == "dlis")
+			{
+				option.heuristique = DLIS;
 			}
             else
 				cout << "Unrecognized command line option: " << argv[i] << endl;
@@ -133,10 +129,10 @@ int main(int argc, char* argv[])
 	Formula f;
 
 	if (option.cnf_found)
-		f = treat_cnf(file, option.debug, os);
+		f = treat_cnf(file, option, os);
 
 	else if (option.tseitin)
-        f = Formula(); //treat_tseitin(file_name, option.debug, cout);
+		f = treat_tseitin(file_name, option, cout);
 
 	else
 	{
@@ -144,129 +140,30 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	DEBUG(3) << "Launching DPLL, f is ";
-    f.check(os, option, true);
-	DEBUG(3) << "Above, litterals were sorted in a different way in clauses" << endl << endl;
-	DEBUG(3) << "And now renamed :";
-    f.check(os, option);
+	layered_debug(option, os, "Input read, f is ", 3);
+	f.print_formula(os, option, INPUT_NAMES);
 
-    switch(dpll(f, os, option))
-    {
-        case TRUE:
-            cout << "s SATISFIABLE" << endl;
-            f.print(option, os);
-            break;
+	layered_debug(option, os, "Above, litterals were sorted in a different way in clauses\n", 3);
 
-        case FALSE:
-            cout << "s UNSATISFIABLE" << endl;
-            break;
+	layered_debug(option, os, "And now renamed :", 3);
+	f.print_formula(os, option, INTERNAL_NAMES);
 
-        case UNKNOWN:
-            cout << "s ???" << endl;
-    }
-
-    layered_debug(option, os, "End of main", 1);
-
-    return 0;
-}
-
-/***********************************/
-/* Cas d'un fichier en forme cnf */
-/***********************************/
-Formula treat_cnf(istream& is, int debug, ostream& os)
-{
-    string line;
-    do
-    {	getline(is, line);	}
-    while (line[0] == 'c');
-    istringstream iss(line);
-
-	string p;
-    iss >> p;
-    if(p != "p")
-    {
-        cout << "Expected \"p\" on first line (" << p << " given)" << endl;
-        exit(0);
-    }
-
-    string cnf;
-    iss >> cnf;
-    if(cnf != "cnf")
-    {
-        cout << "Expected \"cnf\" after \"p\" (" << cnf << " given)" << endl;
-        exit(0);
-    }
-
-    unsigned int v,c;
-    if (!(iss >> v >> c))
+	switch(dpll(f, os, option))
 	{
-        cout << "Unable to get V and C" << endl;
-        exit(0);
+		case TRUE:
+			cout << "s SATISFIABLE" << endl;
+			f.print_assignment(option, os);
+			break;
+
+		case FALSE:
+			cout << "s UNSATISFIABLE" << endl;
+			break;
+
+		case UNKNOWN:
+			cout << "s ???" << endl;
 	}
 
-    unsigned int actual_v = 0, actual_c = 0;
+	layered_debug(option, os, "End of main", 1);
 
-	list<Clause> clauses({});
-	vector<unsigned int> vars_aux({0});
-	unsigned int rename_var = 1;
-	map<int, unsigned int> vars({});
-
-    set<int> clause;
-    /**TODO : à simplifier while cin doit suffire**/
-    while (getline(is, line))
-    {
-        if (line[0] == 'c')
-            continue;
-
-        istringstream ss(line);
-        int x;
-        while (ss >> x)
-        {
-            if (x == 0)
-				break;
-
-			if(vars.find(abs(x)) == vars.end())
-			{
-				vars_aux.push_back(abs(x));
-				vars[abs(x)] = rename_var;
-				rename_var++;
-			}
-			int new_x = vars[abs(x)];
-			new_x *= 1-2*(x<0);
-			clause.insert(new_x);
-            actual_v = max(actual_v, (unsigned int)abs(x));
-        }
-        if (x == 0)
-        {
-            clauses.push_back(list<int>(clause.begin(),clause.end()));
-            clause.clear();
-            actual_c++;
-        }
-    }
-	Formula f(vars);
-	f.clear_c(clauses);
-
-    if (actual_v != v)
-    {
-        cout << "Expected " << v << " greatest variable (" << actual_v << " found)" << endl;
-    }
-
-    if (actual_c != c)
-    {
-        cout << "Expected " << c << " clauses (" << actual_c << " found)" << endl;
-    }
-
-    if (debug)
-        os << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
-	return f;
+	return 0;
 }
-/*
-Formula treat_tseitin(string filename, int debug, ostream& os)
-{
-	int fd = open(filename.c_str(), O_RDONLY);
-	dup2(fd, 0);
-	Formula f = tseitin(*parser(debug, os), debug, os);
-
-	return f;
-}
-*/

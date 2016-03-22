@@ -9,54 +9,41 @@
 
 using namespace std;
 
-Formula tseitin(Formula_input& f_input,int debug, ostream& os)
+Formula tseitin(Formula_input& f_input, const Option& option, ostream& os)
 {
-    int next_var = 1;
-    set<int> real_var(f_input.var_appeared.begin(),f_input.var_appeared.end());
-	if(debug)
+	if (option.debug >= 1)
 	{
-		os << "Real variables in the formula: " << endl;
-		for(auto var:real_var)
+		os << "Variables in the input formula: " << endl;
+		for (pair<int, unsigned int> _ : f_input.variables_mapping)
 		{
-			os << var << "  ";
+
+			os << "(" << _.first << ", " << _.second << ")" << " ";
 		}
 		os << endl << endl;
 	}
-	
-    f_input.x = get_next_var(real_var,next_var,f_input);
 
-    stack<Formula_input*> pile;
-    pile.push(&f_input);
-    Formula final_formula;
+	/* On récupère les clauses */
+	f_input.x = Formula_input::next_available_var++;
 
+	stack<Formula_input*> jobs;
+	jobs.push(&f_input);
 
-    while(!pile.empty())
-    {
-        Formula_input* aux = pile.top();
-        pile.pop();
-        aux->iterate(real_var,next_var,pile,final_formula);
-    }
+	list<Clause> clauses({});
 
-    set<int> c({f_input.x});
-    final_formula.clauses.push_back(c);
-    final_formula.set_v(next_var-1);
-    return final_formula;
-}
+	while(!jobs.empty())
+	{
+		Formula_input* f_top = jobs.top(); jobs.pop();
 
-int get_next_var(set<int>& real_var,int& next_var,Formula_input& f_input)
-{
-    if(f_input.x == -1)
-    {
-        while(real_var.find(next_var)!=real_var.end())
-        {
-            next_var++;
-        }
-        next_var++;
+		f_top->tseitin_one_step(jobs, clauses);
+	}
 
-        return next_var-1;
-    }
-    else
-    {
-        return f_input.x;
-    }
+	/* On construit la formule */
+	Formula f; //(variables_mapping)
+	f.set_clauses_alive(clauses);
+
+	//set<int> c({f_input.x});
+	//final_formula.clauses.push_back(c);
+	//final_formula.set_v(next_available_var-1);
+
+	return f;
 }

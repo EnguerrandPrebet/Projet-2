@@ -20,11 +20,13 @@ struct Option
 
     bool watched_litterals = false;
 
-	Heuristique get = NONE;
+	Heuristique heuristique = NONE;
 
     bool redirect_os = false;
 };
 
 typedef const Option& OptionChoisie;
+
+void layered_debug(Option&, std::ostream& os, const std::string& s, unsigned int X);
 
 #endif // OPTION_HPP

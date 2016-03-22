@@ -34,9 +34,9 @@ State dpll(Formula& f, ostream& os, Option& option)
                 sat_unknown = false;
 				break;
 			case NOTHING: //default
-				x = get_next_var(f,os,option); //x = littéral
+				x = get_next_var(f, os, option); // x = variable + assignment
 				DEBUG(1) << "x :" << x << endl;
-				f.update_var(x,os,option); // met à jour assignment et vars_alive
+				f.update_var(x, os, option); // met à jour assignment et vars_alive
 				decisions.push(Decision_var(x,GUESS));
 				break;
 			default:
@@ -44,7 +44,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 		}
 
 		DEBUG(3) << "Stable state with";
-        f.check(os, option);
+		f.print_formula(os, option);
 	}
 
     return f.test(os,option);
@@ -84,7 +84,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 
 void pretreatment(Formula& f, ostream& os, Option& option)
 {
-    f.supprTauto(os,option);
+	f.supprTauto(os, option);
 }
 
 Res update(Formula& f, stack<Decision_var>& decisions, int& x, ostream& os, Option& option)
@@ -93,13 +93,14 @@ Res update(Formula& f, stack<Decision_var>& decisions, int& x, ostream& os, Opti
 	f.apply_modification(x,os,option);//On met à jour les clauses ici
 	DEBUG(1) << "End modif" << endl;
 
-	f.check(os,option);
+	f.print_formula(os, option);
 
 	Res act;
 	if(option.watched_litterals == true)
 		act = f.propagation_unitary_wl(decisions,os,option);
 	else
 		act = f.propagation_unitary(decisions,os,option);//On teste le résultat des modifications au passage
+
 	DEBUG(1) << "After unitaire, act = " << act << endl;
 	if(act == ERROR || act == SUCCESS)//Inutile d'aller plus loin
 		return act;
@@ -116,11 +117,17 @@ Res update(Formula& f, stack<Decision_var>& decisions, int& x, ostream& os, Opti
 
 int get_next_var(Formula& f, ostream& os, Option& option)
 {
-	int x;
-	switch(option.get)
+	switch (option.heuristique)
 	{
-		default:
-			x = f.get_fst_var();
+		case RAND:
+			return f.get_random_var();
+			break;
+
+		case MOMS:
+			return f.get_moms_var();
+			break;
+
+		default: // NONE
+			return f.get_first_var();
 	}
-	return x;
 }

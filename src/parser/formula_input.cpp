@@ -6,21 +6,47 @@
 
 using namespace std;
 
+template <typename T> int sign(T val) {
+	return (T(0) < val) - (val < T(0));
+}
+
+int Formula_input::rename_litteral(int l)
+{
+	unsigned int x = abs(l);
+
+	/* Variable déjà mappée */
+	if (variables_mapping.find(x) != variables_mapping.end())
+		return variables_mapping[x];
+
+	/* Renommage */
+	int new_x = variables_mapping[x] = Formula_input::next_available_var++;
+
+	return sign(l) * new_x;
+}
+
+unsigned int Formula_input::next_available_var = 1;
+
+map<int, unsigned int> Formula_input::variables_mapping;
+
 /***********************************/
 /* Variables */
 /***********************************/
 FVar_input::FVar_input(int new_x)
 {
 	x = new_x;
-	var_appeared = {abs(x)};
 }
 
-std::string FVar_input::to_string()
+std::string FVar_input::to_string() const
 {
-    stringstream ss;
-    ss << x;
-    return ss.str();
+	stringstream ss;
+	ss << x;
+	return ss.str();
 }
+
+void FVar_input::tseitin_one_step(std::stack<Formula_input*>& jobs, list<Clause>& out)
+{
+}
+
 
 /***********************************/
 /* Opération de Formules */
@@ -34,17 +60,11 @@ FOperation_input::FOperation_input(Formula_input* new_l, Formula_input* new_r, e
 	if (new_t == NEGATE)
 	{
 		r = NULL;
-		var_appeared = l->var_appeared;
 	}
-	else
-	{
-		var_appeared.resize(l->var_appeared.size()+r->var_appeared.size());
-		var_appeared = l->var_appeared;
-		var_appeared.insert(var_appeared.end(),r->var_appeared.begin(),r->var_appeared.end());
-	}
+
 }
 
-std::string FOperation_input::to_string()
+std::string FOperation_input::to_string() const
 {
 	if (t == NEGATE)
 	{
@@ -78,113 +98,122 @@ std::string FOperation_input::to_string()
 	}
 }
 
-void FOperation_input::iterate(set<int>& real_var, int& next_var, stack<Formula_input*>& pile,Formula& final_formula)
+void FOperation_input::tseitin_one_step(stack<Formula_input*>& jobs, list<Clause>& out)
 {
 	switch(t)
-        {
-            case OR:
-            {
-                int i2 = get_next_var(real_var,next_var,*l), i3 = get_next_var(real_var,next_var,*r);
+	{
+			case OR:
+			{
+				int i2 = Formula_input::next_available_var++;
+				int i3 = Formula_input::next_available_var++;
 
-                set<int> c1({-x,i2,i3});
-                set<int> c2({x,-i2});
-                set<int> c3({x,-i3});
-                final_formula.clauses.push_back(c1);
-                final_formula.clauses.push_back(c2);
-                final_formula.clauses.push_back(c3);
+				set<int> c1({-x, i2, i3});
+				set<int> c2({x, -i2});
+				set<int> c3({x, -i3});
+				out.push_back(list<int>(c1.begin(), c1.end()));
+				out.push_back(list<int>(c2.begin(), c2.end()));
+				out.push_back(list<int>(c3.begin(), c3.end()));
 
-                l->x = i2;
-                r->x = i3;
-                pile.push(r);
-                pile.push(l);
+				l->x = i2;
+				r->x = i3;
+				jobs.push(r);
+				jobs.push(l);
 
-            }   break;
+			}   break;
 
-            case AND:
-           {
-                int i2 = get_next_var(real_var,next_var,*l), i3 = get_next_var(real_var,next_var,*r);
+			case AND:
+			{
+				int i2 = Formula_input::next_available_var++;
+				int i3 = Formula_input::next_available_var++;
 
-                set<int> c1({x,-i2,-i3});
-                set<int> c2({-x,i2});
-                set<int> c3({-x,i3});
-                final_formula.clauses.push_back(c1);
-                final_formula.clauses.push_back(c2);
-                final_formula.clauses.push_back(c3);
+				set<int> c1({x, -i2, -i3});
+				set<int> c2({-x, i2});
+				set<int> c3({-x, i3});
+				out.push_back(list<int>(c1.begin(), c1.end()));
+				out.push_back(list<int>(c2.begin(), c2.end()));
+				out.push_back(list<int>(c3.begin(), c3.end()));
 
-                l->x = i2;
-                r->x = i3;
-                pile.push(r);
-                pile.push(l);
+				l->x = i2;
+				r->x = i3;
+				jobs.push(r);
+				jobs.push(l);
 
-            }   break;
-            case XOR:
-            {
-                int i2 = get_next_var(real_var,next_var,*l), i3 = get_next_var(real_var,next_var,*r);
+			}   break;
 
-                set<int> c1({-x,i2,i3});
-                set<int> c2({-x,-i2,-i3});
-                set<int> c3({x,i2,-i3});
-                set<int> c4({x,-i2,i3});
-                final_formula.clauses.push_back(c1);
-                final_formula.clauses.push_back(c2);
-                final_formula.clauses.push_back(c3);
-                final_formula.clauses.push_back(c4);
+			case XOR:
+			{
+				int i2 = Formula_input::next_available_var++;
+				int i3 = Formula_input::next_available_var++;
 
-                l->x = i2;
-                r->x = i3;
-                pile.push(r);
-                pile.push(l);
+				set<int> c1({-x, i2, i3});
+				set<int> c2({-x, -i2, -i3});
+				set<int> c3({x, i2, -i3});
+				set<int> c4({x, -i2, i3});
+				out.push_back(list<int>(c1.begin(), c1.end()));
+				out.push_back(list<int>(c2.begin(), c2.end()));
+				out.push_back(list<int>(c3.begin(), c3.end()));
+				out.push_back(list<int>(c4.begin(), c4.end()));
 
-            }   break;
-            case IMPLY:
-            {
-                int i2 = get_next_var(real_var,next_var,*l), i3 = get_next_var(real_var,next_var,*r);
+				l->x = i2;
+				r->x = i3;
+				jobs.push(r);
+				jobs.push(l);
 
-                set<int> c1({-x,-i2,i3});
-                set<int> c2({x,i2});
-                set<int> c3({x,-i3});
-                final_formula.clauses.push_back(c1);
-                final_formula.clauses.push_back(c2);
-                final_formula.clauses.push_back(c3);
+			}   break;
 
-                l->x = i2;
-                r->x = i3;
-                pile.push(r);
-                pile.push(l);
+			case IMPLY:
+			{
+				int i2 = Formula_input::next_available_var++;
+				int i3 = Formula_input::next_available_var++;
 
-            }   break;
-            case EQUIV:
-            {
-                int i2 = get_next_var(real_var,next_var,*l), i3 = get_next_var(real_var,next_var,*r);
+				set<int> c1({-x, -i2, i3});
+				set<int> c2({x, i2});
+				set<int> c3({x, -i3});
+				out.push_back(list<int>(c1.begin(), c1.end()));
+				out.push_back(list<int>(c2.begin(), c2.end()));
+				out.push_back(list<int>(c3.begin(), c3.end()));
 
-                set<int> c1({x,-i2,-i3});
-                set<int> c2({x,i2,i3});
-                set<int> c3({-x,-i2,i3});
-                set<int> c4({-x,i2,-i3});
-                final_formula.clauses.push_back(c1);
-                final_formula.clauses.push_back(c2);
-                final_formula.clauses.push_back(c3);
-                final_formula.clauses.push_back(c4);
+				l->x = i2;
+				r->x = i3;
+				jobs.push(r);
+				jobs.push(l);
 
-                l->x = i2;
-                r->x = i3;
-                pile.push(r);
-                pile.push(l);
+			}   break;
 
-            }   break;
-            case NEGATE:
-            {
-                int i2 = get_next_var(real_var,next_var,*l);
+			case EQUIV:
+			{
+				int i2 = Formula_input::next_available_var++;
+				int i3 = Formula_input::next_available_var++;
 
-                set<int> c1({x,i2});
-                set<int> c2({-x,-i2});
-                final_formula.clauses.push_back(c1);
-                final_formula.clauses.push_back(c2);
+				set<int> c1({x, -i2, -i3});
+				set<int> c2({x, i2, i3});
+				set<int> c3({-x, -i2, i3});
+				set<int> c4({-x, i2, -i3});
+				out.push_back(list<int>(c1.begin(), c1.end()));
+				out.push_back(list<int>(c2.begin(), c2.end()));
+				out.push_back(list<int>(c3.begin(), c3.end()));
+				out.push_back(list<int>(c4.begin(), c4.end()));
 
-                l->x = i2;
-                pile.push(l);
+				l->x = i2;
+				r->x = i3;
+				jobs.push(r);
+				jobs.push(l);
 
-            }   break;
+			}   break;
 
-		}
+			case NEGATE:
+			{
+				int i2 = Formula_input::next_available_var++;
+
+				set<int> c1({x, i2});
+				set<int> c2({-x, -i2});
+				out.push_back(list<int>(c1.begin(), c1.end()));
+				out.push_back(list<int>(c2.begin(), c2.end()));
+
+				l->x = i2;
+				jobs.push(l);
+
+			}   break;
+
+	}
 }

@@ -13,10 +13,15 @@ Formula::Formula()
 
 }
 
-Formula::Formula(map<int, unsigned int> n_vars)
+Formula::Formula(map<int, unsigned int> n_vars, int input_nb_var)
 {
 	var_true_name = n_vars;
-	nb_Var = n_vars.size();
+
+	if(input_nb_var == -1) //.cnf
+		nb_Var = n_vars.size();
+	else
+		nb_Var = input_nb_var;
+
 	var_alive = list<unsigned int>({});
 	for(unsigned int i = 1; i <= nb_Var; i++)
 		var_alive.push_back(i);

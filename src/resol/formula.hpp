@@ -8,6 +8,7 @@
 #include <stack>
 #include <list>
 #include <map>
+#include <vector>
 
 #define INPUT_NAMES false
 #define INTERNAL_NAMES true
@@ -19,7 +20,7 @@ class Formula
 	public:
 		Formula();
 
-		Formula(std::map<int, unsigned int> variables_mapping); // Les clés vont de 1 à variables_mapping.size()
+		Formula(std::map<int, unsigned int> variables_mapping, int input_nb_var = -1); // Les clés vont de 1 à variables_mapping.size()
 
 		// Set
 		void set_clauses_alive(std::list<Clause>);

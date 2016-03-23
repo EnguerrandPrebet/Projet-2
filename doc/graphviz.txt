@@ -1,0 +1,3 @@
+installer graphviz
+
+dot -Tps filename.dot -o outfile.ps

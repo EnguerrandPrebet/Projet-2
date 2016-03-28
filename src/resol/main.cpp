@@ -77,6 +77,15 @@ int main(int argc, char* argv[])
 			{
 				option.watched_litterals = true;
 			}
+			else if (argument == "cl-interac")
+			{
+				option.cl_interactive = true;
+				option.cl = true;
+			}
+			else if (argument == "cl")
+			{
+				option.cl = true;
+			}
 			else if (argument == "rand")
 			{
 				option.heuristique = RAND;
@@ -141,10 +150,13 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	layered_debug(option, os, "Input read, f is ", 3);
-	f.print_formula(os, option,true);
+	if(option.cnf_found)
+	{
+		layered_debug(option, os, "Input read, f is ", 3);
+		f.print_formula(os, option,true);
 
-	layered_debug(option, os, "Above, litterals were sorted in a different way in clauses\n", 3);
+		layered_debug(option, os, "Above, litterals were sorted in a different way in clauses\n", 3);
+	}
 
 	layered_debug(option, os, "And now renamed :", 3);
 	f.print_formula(os, option, false);

@@ -29,12 +29,6 @@ int Formula_input::new_variable()
 {
 	int mapped_x = next_available_var++;
 
-	/* On cherhce le prochain nom de variable disponible (input) */
-	//!!!! pas efficace, code temporaire
-	unsigned int x;
-	for (x = 1; variables_mapping.find(x) != variables_mapping.end(); x++);
-	variables_mapping[x] = mapped_x;
-
 	return mapped_x;
 }
 

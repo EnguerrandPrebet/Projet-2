@@ -21,5 +21,5 @@ for i in "" -wl -rand -moms -dlis
 		(time ./satis_test.sh ./50-218  $i) 2>&1 | grep real | sed -e "s/real\t\([0-9]\)/\1/" -e "s/[ms]/\t/g" >> stats.dat
 		echo "$i done"
 	done
-./graph
+./../../bin/graph
 gnuplot -p script-plot.p

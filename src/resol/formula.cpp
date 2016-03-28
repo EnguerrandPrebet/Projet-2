@@ -13,10 +13,15 @@ Formula::Formula()
 
 }
 
-Formula::Formula(map<int, unsigned int> n_vars)
+Formula::Formula(map<int, unsigned int> n_vars, int input_nb_var)
 {
 	var_true_name = n_vars;
-	nb_Var = n_vars.size();
+
+	if(input_nb_var == -1) //.cnf
+		nb_Var = n_vars.size();
+	else
+		nb_Var = input_nb_var;
+
 	var_alive = list<unsigned int>({});
 	for(unsigned int i = 1; i <= nb_Var; i++)
 		var_alive.push_back(i);
@@ -95,13 +100,9 @@ int Formula::get_dlis_var() const
 	map<int, unsigned int> variables_score;
 
 	for (const Clause& clause : clauses_alive)
-	{
 		for (int l : clause.get_vars()) // chaque littéral doit apparaître de façon unique dans une clause
-		{
 			variables_score[l]++; // 'l' satisfait 'clause'
 			/* remarque : si variables_score[l] n'existe pas encore il est initialisé à 0 */
-		}
-	}
 
 	/* On récupère le littéral de meilleur score */
 	const auto& max_score = max_element(variables_score.begin(), variables_score.end(),
@@ -123,7 +124,7 @@ void Formula::update_var(int& x,ostream& os,Option& option)
 	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
-void Formula::apply_modification(int& x,ostream& os,Option& option)
+void Formula::apply_modification(int& t,ostream& os,Option& option)
 {
 	DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
@@ -131,7 +132,7 @@ void Formula::apply_modification(int& x,ostream& os,Option& option)
 		int cause;
 		if((option.watched_litterals == false && (cause = it->apply_modification(assignment,os,option))) || (option.watched_litterals == true && (cause = it->apply_modification_wl(assignment,os,option))))
 		{
-			DEBUG(1) << "Clause deleted while x = " << x << " because of " << cause <<  endl;
+			DEBUG(1) << "Clause deleted at t = " << t << ", because of " << cause <<  endl;
 			tab_stack_delete[abs(cause)].push_back(*it);
 			clauses_alive.erase(it);
 			if(clauses_alive.empty())
@@ -213,7 +214,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Op
 					if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 					{
 						update_var(x,os,option);
-						decisions.push(Decision_var(x,INFER));
+						decisions.push(Decision_var(x,INFER,decisions.top().time));
 					}
 				}break;
 			default:
@@ -239,7 +240,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER));
+				decisions.push(Decision_var(x,INFER,decisions.top().time));
 			}
 			act = NEW;
 		}
@@ -288,7 +289,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER));
+				decisions.push(Decision_var(x,INFER,decisions.top().time));
 			}
 		}
 	}
@@ -355,6 +356,7 @@ void Formula::print_assignment(const Option& option, ostream& os, bool tseitin, 
 	for (const pair<int, unsigned int> _ : var_true_name)
 	{
 		int x = _.first;
+
 		unsigned int mapped_x = _.second;
 
 		/* Variable qui n'était pas dans l'input */
@@ -373,7 +375,8 @@ void Formula::print_assignment(const Option& option, ostream& os, bool tseitin, 
 
 			case UNKNOWN:
 				if(option.debug >= 1)
-					cout << "?" << x;
+					cout << "?";
+				cout << x;
 				break;
 		}
 

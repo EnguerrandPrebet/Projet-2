@@ -57,15 +57,24 @@ Commande pour stocker le projet dans le dossier courant sans créer de sous doss
 
 // NOUVELLLES REMARQUES et CONVENTIONS !!!!!!
 
+/**??? (au moins 3 ? (pour être repérable juste avec ???) pour les questions sur un endroit fixé du code)
+//!!! (de même >=3 pour les remarques : code incomplet, prise en compte dans un point de vue, etc)
+
 Pour que QtCreator puisse intelligemment trouver en-tête / source ils faut que les fichiers soient ouverts dans l'éditeur.
 Refactoriser marche bien : il met en rouge la variable [var], on tape simplement le nouveau nom puis on clique à côté et c'est bon (il me semble).
 Pour que QtCreator indente toujours avec des tabs il faut le préciser dans options de "l'éditeur" et dans "c++" indenter avec tabs.
 
 Il me semble qu'il serait vraiment plus simple de mettre les options de debug dans un objet global (définit dans options.hpp ?) que main set et qui sera accessible facilement.
 Plutôt que de passer des const Option& aux classes qui le passent à leurs enfants qui le passent à leurs petits enfants, ... tel un lourd boulet :-D
+//???? Autre solution, faire une classe DPLL comme tu avais pensé, et mettre option comme membre de la classe donc accessible de partout. Les deux me conviennent, fais comme tu le sens.
+P.S : dans ce cas, rajoute moi la variable time comme option, vu que je rajoute des decisions un peu partout (ou alors on n'utilise pas time vu que je peux accéder à la dernière décision prise et que pour l'instant, ça marche bien comme ça)
 
+	
 Il faut bien être const-correct, quand tu fournis un accesseur &, donne également un accesseur référence constant.
 De même si une méthode ne modifie pas un argument il faut bien utiliser const &.
+
+//????Pour le clause learning, nouveau dossier ou au sein de resol ? (pour l'instant je les ai mis dans le même)
+
 
 Il faut respecter la convention names_with_underscores.
 

@@ -19,9 +19,10 @@ enum Choix {INFER, GUESS};
 
 struct Decision_var
 {
-    Decision_var(int n_var, Choix n_choice) {var = n_var; choice = n_choice;} // pas un struct ?????? on peut créer un constructeur pour un struct, plus facile à initialiser
+    Decision_var(int n_var, Choix n_choice, int n_time) {var = n_var; choice = n_choice; time = n_time;} //! Clem à gérer
 
     int var;
+    int time = 0;
     Choix choice;
 };
 

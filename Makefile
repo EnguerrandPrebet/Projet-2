@@ -21,6 +21,7 @@ $(FOLDER):
 	cd $@ && make
 
 ./bin/resol: $(FOLDER)
+	mkdir -p ./obj
 	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
 
 ./bin/graph: ./src/stats/main.cpp

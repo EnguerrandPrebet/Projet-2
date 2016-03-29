@@ -121,7 +121,7 @@ void Formula::update_var(int& x,ostream& os,Option& option)
 	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
-void Formula::apply_modification(int& x,ostream& os,Option& option)
+void Formula::apply_modification(int& t,ostream& os,Option& option)
 {
 	DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
@@ -129,7 +129,7 @@ void Formula::apply_modification(int& x,ostream& os,Option& option)
 		int cause;
 		if((option.watched_litterals == false && (cause = it->apply_modification(assignment,os,option))) || (option.watched_litterals == true && (cause = it->apply_modification_wl(assignment,os,option))))
 		{
-			DEBUG(1) << "Clause deleted while x = " << x << " because of " << cause <<  endl;
+			DEBUG(1) << "Clause deleted at t = " << t << ", because of " << cause <<  endl;
 			tab_stack_delete[abs(cause)].push_back(*it);
 			clauses_alive.erase(it);
 			if(clauses_alive.empty())
@@ -211,7 +211,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Op
 					if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 					{
 						update_var(x,os,option);
-						decisions.push(Decision_var(x,INFER));
+						decisions.push(Decision_var(x,INFER,decisions.top().time));
 					}
 				}break;
 			default:
@@ -237,7 +237,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER));
+				decisions.push(Decision_var(x,INFER,decisions.top().time));
 			}
 			act = NEW;
 		}
@@ -286,7 +286,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER));
+				decisions.push(Decision_var(x,INFER,decisions.top().time));
 			}
 		}
 	}
@@ -353,6 +353,7 @@ void Formula::print_assignment(const Option& option, ostream& os)
 	for (const pair<int, unsigned int> _ : renaming)
 	{
 		int x = _.first;
+
 		unsigned int mapped_x = _.second;
 
 		switch (assignment[mapped_x])
@@ -366,8 +367,9 @@ void Formula::print_assignment(const Option& option, ostream& os)
 				break;
 
 			case UNKNOWN:
-				if (option.debug >= 1)
-					os << "?" << x;
+				if(option.debug >= 1)
+					cout << "?";
+				cout << x; // affectation arbitraire
 				break;
 		}
 

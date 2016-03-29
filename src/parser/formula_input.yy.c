@@ -1,6 +1,6 @@
-#line 2 "src/parser/formula_input.yy.c"
+#line 2 "formula_input.yy.c"
 
-#line 4 "src/parser/formula_input.yy.c"
+#line 4 "formula_input.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -469,15 +469,15 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "src/parser/formula_input.l"
-#line 2 "src/parser/formula_input.l"
+#line 1 "formula_input.l"
+#line 2 "formula_input.l"
 #include <iostream>
 #include <cstdlib>
 using namespace std;
 #define YY_DECL extern "C" int yylex()
 
 #include "formula_input.tab.hpp"
-#line 481 "src/parser/formula_input.yy.c"
+#line 481 "formula_input.yy.c"
 
 #define INITIAL 0
 
@@ -664,9 +664,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 10 "src/parser/formula_input.l"
+#line 10 "formula_input.l"
 
-#line 670 "src/parser/formula_input.yy.c"
+#line 670 "formula_input.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -751,82 +751,82 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 11 "src/parser/formula_input.l"
+#line 11 "formula_input.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 12 "src/parser/formula_input.l"
+#line 12 "formula_input.l"
 { yylval.ival = atoi(yytext); return TK_VAR; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 13 "src/parser/formula_input.l"
+#line 13 "formula_input.l"
 { return TK_MINUS; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 14 "src/parser/formula_input.l"
+#line 14 "formula_input.l"
 { return TK_LPAREN; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 15 "src/parser/formula_input.l"
+#line 15 "formula_input.l"
 { return TK_RPAREN; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 16 "src/parser/formula_input.l"
+#line 16 "formula_input.l"
 { return TK_AND; }
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 17 "src/parser/formula_input.l"
+#line 17 "formula_input.l"
 { return TK_NEWLINE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 18 "src/parser/formula_input.l"
+#line 18 "formula_input.l"
 { return TK_OR; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 19 "src/parser/formula_input.l"
+#line 19 "formula_input.l"
 { return TK_XOR; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 20 "src/parser/formula_input.l"
+#line 20 "formula_input.l"
 { return TK_IMPLY; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 21 "src/parser/formula_input.l"
+#line 21 "formula_input.l"
 { return TK_EQUIV; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 22 "src/parser/formula_input.l"
+#line 22 "formula_input.l"
 { return TK_NEGATE; }
 	YY_BREAK
 case 13:
 /* rule 13 can match eol */
 YY_RULE_SETUP
-#line 23 "src/parser/formula_input.l"
+#line 23 "formula_input.l"
 { return TK_END; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 24 "src/parser/formula_input.l"
+#line 24 "formula_input.l"
 ;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 25 "src/parser/formula_input.l"
+#line 25 "formula_input.l"
 ECHO;
 	YY_BREAK
-#line 830 "src/parser/formula_input.yy.c"
+#line 830 "formula_input.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1824,7 +1824,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 25 "src/parser/formula_input.l"
+#line 25 "formula_input.l"
 
 
 

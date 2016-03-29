@@ -66,7 +66,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 268 of yacc.c  */
-#line 1 "src/parser/formula_input.ypp"
+#line 1 "formula_input.ypp"
 
 #include <cstdio>
 #include <iostream>
@@ -83,7 +83,7 @@ Formula_input *res = NULL;
 
 
 /* Line 268 of yacc.c  */
-#line 87 "src/parser/formula_input.tab.cpp"
+#line 87 "formula_input.tab.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -132,7 +132,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 21 "src/parser/formula_input.ypp"
+#line 21 "formula_input.ypp"
 
     int ival;
     class Formula_input *f;
@@ -140,7 +140,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 144 "src/parser/formula_input.tab.cpp"
+#line 144 "formula_input.tab.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -152,7 +152,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 156 "src/parser/formula_input.tab.cpp"
+#line 156 "formula_input.tab.cpp"
 
 #ifdef short
 # undef short
@@ -1387,91 +1387,91 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 48 "src/parser/formula_input.ypp"
+#line 48 "formula_input.ypp"
     { res = (yyvsp[(1) - (1)].f); }
     break;
 
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 52 "src/parser/formula_input.ypp"
+#line 52 "formula_input.ypp"
     { (yyval.f) = (yyvsp[(1) - (2)].f); }
     break;
 
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 56 "src/parser/formula_input.ypp"
+#line 56 "formula_input.ypp"
     { (yyval.f) = new FVar_input((yyvsp[(1) - (1)].ival)); }
     break;
 
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 57 "src/parser/formula_input.ypp"
+#line 57 "formula_input.ypp"
     { (yyval.f) = new FVar_input(-(yyvsp[(2) - (2)].ival)); }
     break;
 
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 58 "src/parser/formula_input.ypp"
+#line 58 "formula_input.ypp"
     { (yyval.f) = (yyvsp[(2) - (3)].f); }
     break;
 
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 59 "src/parser/formula_input.ypp"
+#line 59 "formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::AND); }
     break;
 
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 60 "src/parser/formula_input.ypp"
+#line 60 "formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::AND); }
     break;
 
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 61 "src/parser/formula_input.ypp"
+#line 61 "formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::OR); }
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 62 "src/parser/formula_input.ypp"
+#line 62 "formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::XOR); }
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 63 "src/parser/formula_input.ypp"
+#line 63 "formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::IMPLY); }
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 64 "src/parser/formula_input.ypp"
+#line 64 "formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::EQUIV); }
     break;
 
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 65 "src/parser/formula_input.ypp"
+#line 65 "formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(2) - (2)].f), NULL, FOperation_input::NEGATE); }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1475 "src/parser/formula_input.tab.cpp"
+#line 1475 "formula_input.tab.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1702,6 +1702,6 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 67 "src/parser/formula_input.ypp"
+#line 67 "formula_input.ypp"
 
 

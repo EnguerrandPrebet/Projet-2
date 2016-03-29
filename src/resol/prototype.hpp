@@ -12,7 +12,7 @@ bool backtrack(Formula&, std::stack<Decision_var>& decisions, std::ostream&, Opt
 
 void pretreatment(Formula&, std::ostream&, Option& option);
 
-Res update(Formula&, std::stack<Decision_var>& decisions, int& x, std::ostream&, Option&);
+Res update(Formula&, std::stack<Decision_var>& decisions, std::ostream&, Option&);
 
 int get_next_var(Formula& f, std::ostream&, Option&);
 

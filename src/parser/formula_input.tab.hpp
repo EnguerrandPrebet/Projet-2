@@ -59,7 +59,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 21 "src/parser/formula_input.ypp"
+#line 21 "formula_input.ypp"
 
     int ival;
     class Formula_input *f;
@@ -67,7 +67,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 71 "src/parser/formula_input.tab.hpp"
+#line 71 "formula_input.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -1,5 +1,6 @@
 #include "prototype.hpp"
 #include "formula.hpp"
+#include "cl.hpp"
 
 #include <list>
 #include <map>
@@ -16,12 +17,13 @@ State dpll(Formula& f, ostream& os, Option& option)
 
     bool sat_unknown = true;
 	int x = 0;
+	decisions.push(Decision_var(0,INFER,0)); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
     while(sat_unknown)
 	{
 		Res action_result;
 		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
 		{
-			action_result = update(f,decisions,x,os,option);
+			action_result = update(f,decisions,os,option);
 		}while(action_result==NEW);
 
 		switch(action_result)
@@ -37,7 +39,8 @@ State dpll(Formula& f, ostream& os, Option& option)
 				x = get_next_var(f, os, option); // x = variable + assignment
 				DEBUG(1) << "x :" << x << endl;
 				f.update_var(x, os, option); // met à jour assignment et vars_alive
-				decisions.push(Decision_var(x,GUESS));
+
+				decisions.push(Decision_var({x,GUESS,decisions.top().time+1}));
 				break;
 			default:
 				break;
@@ -52,8 +55,14 @@ State dpll(Formula& f, ostream& os, Option& option)
 
 bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
-	vector<bool> be_cancelled(f.nb_variables()+1,false); //Variable à annuler
-	while(!decisions.empty() && decisions.top().choice == INFER)
+	int time_back = decisions.top().time; //Peut être réduit par le clause learning
+
+	if(option.cl)
+	{
+		/*time_back = */clause_learning(f,os,option);
+	}
+	vector<bool> be_cancelled(f.nb_variables()+1, false); //Variables à annuler
+	while(!decisions.empty() && (decisions.top().choice == INFER || decisions.top().time > time_back))
 	{
 		Decision_var dec = decisions.top();
 		decisions.pop();
@@ -75,6 +84,8 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	change_of_mind.choice = INFER;
 	change_of_mind.var *= -1;
 	decisions.pop();
+	change_of_mind.time = decisions.top().time;
+	DEBUG(1) << "Back to time " << change_of_mind.time << endl;
 	decisions.push(change_of_mind);
 	f.update_var(change_of_mind.var,os,option);
 
@@ -87,10 +98,10 @@ void pretreatment(Formula& f, ostream& os, Option& option)
 	f.supprTauto(os, option);
 }
 
-Res update(Formula& f, stack<Decision_var>& decisions, int& x, ostream& os, Option& option)
+Res update(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
 	DEBUG(1) << endl << "Update time !" << endl;
-	f.apply_modification(x,os,option);//On met à jour les clauses ici
+	f.apply_modification(decisions.top().time,os,option);//On met à jour les clauses ici
 	DEBUG(1) << "End modif" << endl;
 
 	f.print_formula(os, option);

@@ -55,6 +55,7 @@ Formula tseitin(Formula_input& f_input, const Option& option, ostream& os)
 
 	/* On construit la formule */
 	Formula f(renaming);
+
 	f.set_clauses_alive(clauses);
 
 	return f;

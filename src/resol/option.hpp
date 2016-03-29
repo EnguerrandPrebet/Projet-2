@@ -22,7 +22,10 @@ struct Option
 
 	Heuristique heuristique = NONE;
 
-    bool redirect_os = false;
+	bool cl_interactive = false; //!!!NON CONSTANT ! (à voir comment le gérer)
+	bool cl = false;
+
+    bool redirect_os = false;  //!!!Autant le remplacer directement par un ostream& initialisé à cout si on le met en global
 };
 
 typedef const Option& OptionChoisie;

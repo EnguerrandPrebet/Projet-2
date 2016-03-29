@@ -1,27 +1,37 @@
 CXX=g++
 CPPFLAGS=-Wall -std=c++11 -Wno-write-strings
+LEX=flex
+LIBLEX=-lfl
+YACC=bison
+
+EXEC=./bin/resol ./bin/graph
+FOLDER= ./src/resol ./src/parser ./src/tseitin
 
 TSEITIN=./src/tseitin/tseitin.cpp
 RESOL=$(wildcard ./src/resol/*.cpp)
 
 NAME=./src/parser/formula_input
 PARSER=$(NAME).tab.cpp $(NAME).yy.c $(NAME).cpp ./src/parser/parser.cpp
-LEX=flex
-LIBLEX=-lfl
-YACC=bison
 
-all: exec graph
+.PHONY : all $(FOLDER) gprof debug regression clean mrproper
+all: $(EXEC)
 
-exec: $(TSEITIN) $(RESOL) $(PARSER)
-	$(CXX) $(CPPFLAGS) -O2 -o ./bin/resol $^ $(LIBLEX)
 
-graph: ./src/stats/main.cpp
-	$(CXX) $(CPPFLAGS) -o ./tests/resol/graph $^
-gprof:$(TSEITIN) $(RESOL) $(PARSER)
-	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $^ $(LIBLEX)
+$(FOLDER):
+	cd $@ && make
+
+./bin/resol: $(FOLDER)
+	mkdir -p ./obj
+	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
+
+./bin/graph: ./src/stats/main.cpp
+	$(CXX) $(CPPFLAGS) -o $@ $^
+	
+gprof: $(FOLDER)
+	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol ./obj/* $(LIBLEX)
 	 
-debug:$(TSEITIN) $(RESOL) $(PARSER)
-	$(CXX) $(CPPFLAGS) -g -D_GLIBCXX_DEBUG -o ./bin/resol $^ $(LIBLEX)
+debug: $(FOLDER)
+	$(CXX) $(CPPFLAGS) -g -D_GLIBCXX_DEBUG -o ./bin/resol ./obj/* $(LIBLEX)
 
 $(NAME).yy.c :  $(NAME).l
 	$(LEX)  -o $@ $^
@@ -33,7 +43,7 @@ regression: debug
 	cd tests/resol/; ./regression.sh
 
 clean:
-	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output
+	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output ./obj/*.o
 
-mrpoper: clean
-	rm -f /bin/resol
+mrproper: clean
+	rm -f $(EXEC)

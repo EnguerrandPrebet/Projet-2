@@ -41,7 +41,7 @@ class Formula
 		State test(ostream& os,Option& option);
 		void revive(ostream& os,  Option& option, std::vector<bool> be_cancelled = std::vector<bool>({false}));
 		void supprTauto(ostream& os, Option& option);
-		void apply_modification(int& x,ostream& os, Option& option);
+		void apply_modification(int& t,ostream& os, Option& option);
 		Res propagation_unitary(std::stack<Decision_var>& decisions, ostream& os, Option& option);
 		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, ostream& os, Option& option);
 		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, ostream& os, Option& option);

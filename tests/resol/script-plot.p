@@ -2,7 +2,7 @@ reset
 
 set title "Comparaison de DPLL avec rien, littéraux surveillés et les heuristiques"
 set xlabel "Tests"
-set ylabel "Temps dexecution"
+set ylabel "Temps d'execution"
 
 set style data linespoints
 

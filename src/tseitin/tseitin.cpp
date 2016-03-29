@@ -50,6 +50,7 @@ Formula tseitin(Formula_input& f_input, unsigned int& nb_input_variables, const 
 	}
 
 	clauses.push_back(list<int>({f_input.tseitin_x}));
+
 	/* On construit la formule */
 	Formula f(Formula_input::variables_mapping,Formula_input::next_available_var);
 	f.set_clauses_alive(clauses);

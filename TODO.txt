@@ -97,3 +97,5 @@ Trouver un outil qui check la minimalité des dépendances des headers
 Utiliser un outil d'analyse de propreté du code pour trouver quelles fonctions il faut "couper"
 
 Faire un profiling sérieux pour voir où sont les inefficacités.
+
+Rendre plus propre le code de Formula_input,  créer la classe Renaming utile pour tseitin et pour treat_cnf

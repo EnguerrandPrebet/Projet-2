@@ -25,6 +25,8 @@ const static char HELP_OUTPUT[] =
 "  -t  --tseitin        use tseitin transform to accept user-friendly .for file\n"
 "  -d[N]  --debug       print trace of the SAT resolution\n"
 "  -h  --help           print help and exit\n"
+"  -wl                  activate watched litterals\n"
+"  -rand -moms -dlis    use heuristique\n"
 "\n"
 "N is an integer between 0 (by default, no output) and " XSTR(MAX_DEBUG) " setting the debug level\n"
 "	(notice : debug level is incremental)\n"

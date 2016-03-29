@@ -3,6 +3,8 @@
 #include "../parser/formula_input.hpp"
 #include "../tseitin/tseitin.hpp"
 
+#include "renaming.hpp"
+
 #include <sstream>
 #include <set>
 #include <unistd.h> // dup2 dans treat_tseitin
@@ -58,9 +60,7 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 	unsigned int actual_v = 0, actual_c = 0;
 
 	list<Clause> clauses({});
-	vector<unsigned int> variables_inverse_mapping({0});
-	unsigned int next_available_var = 1;
-	map<int, unsigned int> variables_mapping({});
+	Renaming renaming;
 
 	/* On récupère chaque ligne (c'est à dire chaque clause) */
 	while (getline(is, line))
@@ -77,17 +77,8 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 			if (is_end_of_clause(l))
 				break;
 
-			/* variable non déjà vue */
-			unsigned int x = abs(l);
-			if (variables_mapping.find(x) == variables_mapping.end())
-			{
-				variables_inverse_mapping.push_back(x);
-
-				variables_mapping[x] = next_available_var++;
-			}
-
-			/* On ajoute le nouveau littéral à la clause */
-			int mapped_l = sign(l) * variables_mapping[abs(l)]; // on remet le signe de x
+			/* On ajoute à la clause le littéral renommé */
+			int mapped_l = renaming.rename_litteral(l);
 			clause.insert(mapped_l);
 
 			actual_v = max(actual_v, (unsigned int) abs(l));
@@ -105,7 +96,7 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 		}
 	}
 
-	Formula f(variables_mapping);
+	Formula f(renaming);
 	f.set_clauses_alive(clauses);
 
 	if (actual_v != v)
@@ -120,13 +111,15 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 	return f;
 }
 
-Formula treat_tseitin(const string& filename, unsigned int& nb_input_variables, const Option& option, ostream& os)
+Formula treat_tseitin(const string& filename, const Option& option, ostream& os)
 {
 	int fd = open(filename.c_str(), O_RDONLY);
 	dup2(fd, 0);
 	//!!!!!! traitement des erreurs ici
 
-	Formula f = tseitin(*parser(option, os), nb_input_variables, option, os);
+	Formula f = tseitin(*parser(option, os), option, os);
+
+	//!!! quand est ce que le fichier fd est fermé ?
 
 	return f;
 }

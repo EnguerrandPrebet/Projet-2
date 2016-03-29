@@ -44,10 +44,7 @@ Formula_input *res = NULL;
 %left TK_MINUS
 
 %%
-// this is the actual grammar that bison will parse, but for right now it's just
-// something silly to echo to the screen what bison gets from flex.  We'll
-// make a real one shortly:
-
+// this is the actual grammar that bison will parse
 input: formula_completed  { res = $1; }
 	;
 

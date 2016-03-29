@@ -52,7 +52,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 
 bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
-	vector<bool> be_cancelled(f.get_nb_Var()+1,false); //Variable à annuler
+	vector<bool> be_cancelled(f.nb_variables()+1,false); //Variable à annuler
 	while(!decisions.empty() && decisions.top().choice == INFER)
 	{
 		Decision_var dec = decisions.top();

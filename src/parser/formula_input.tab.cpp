@@ -443,8 +443,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    51,    51,    55,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    68
+       0,    48,    48,    52,    56,    57,    58,    59,    60,    61,
+      62,    63,    64,    65
 };
 #endif
 
@@ -1387,84 +1387,84 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 51 "src/parser/formula_input.ypp"
+#line 48 "src/parser/formula_input.ypp"
     { res = (yyvsp[(1) - (1)].f); }
     break;
 
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 55 "src/parser/formula_input.ypp"
+#line 52 "src/parser/formula_input.ypp"
     { (yyval.f) = (yyvsp[(1) - (2)].f); }
     break;
 
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 59 "src/parser/formula_input.ypp"
+#line 56 "src/parser/formula_input.ypp"
     { (yyval.f) = new FVar_input((yyvsp[(1) - (1)].ival)); }
     break;
 
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 60 "src/parser/formula_input.ypp"
+#line 57 "src/parser/formula_input.ypp"
     { (yyval.f) = new FVar_input(-(yyvsp[(2) - (2)].ival)); }
     break;
 
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 61 "src/parser/formula_input.ypp"
+#line 58 "src/parser/formula_input.ypp"
     { (yyval.f) = (yyvsp[(2) - (3)].f); }
     break;
 
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 62 "src/parser/formula_input.ypp"
+#line 59 "src/parser/formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::AND); }
     break;
 
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 63 "src/parser/formula_input.ypp"
+#line 60 "src/parser/formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::AND); }
     break;
 
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 64 "src/parser/formula_input.ypp"
+#line 61 "src/parser/formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::OR); }
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 65 "src/parser/formula_input.ypp"
+#line 62 "src/parser/formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::XOR); }
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 66 "src/parser/formula_input.ypp"
+#line 63 "src/parser/formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::IMPLY); }
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 67 "src/parser/formula_input.ypp"
+#line 64 "src/parser/formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(1) - (3)].f), (yyvsp[(3) - (3)].f), FOperation_input::EQUIV); }
     break;
 
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 68 "src/parser/formula_input.ypp"
+#line 65 "src/parser/formula_input.ypp"
     { (yyval.f) = new FOperation_input((yyvsp[(2) - (2)].f), NULL, FOperation_input::NEGATE); }
     break;
 
@@ -1702,6 +1702,6 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 70 "src/parser/formula_input.ypp"
+#line 67 "src/parser/formula_input.ypp"
 
 

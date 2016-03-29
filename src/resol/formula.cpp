@@ -13,21 +13,18 @@ Formula::Formula()
 
 }
 
-Formula::Formula(map<int, unsigned int> n_vars, int input_nb_var)
+Formula::Formula(const Renaming& input_renaming)
 {
-	var_true_name = n_vars;
+	renaming = input_renaming;
 
-	if(input_nb_var == -1) //.cnf
-		nb_Var = n_vars.size();
-	else
-		nb_Var = input_nb_var;
+	unsigned int n = renaming.number_of_input_variables();
 
-	var_alive = list<unsigned int>({});
-	for(unsigned int i = 1; i <= nb_Var; i++)
-		var_alive.push_back(i);
-	assignment = vector<State>(nb_Var+1,UNKNOWN);
+	for (unsigned int x = 1; x <= n; x++)
+		var_alive.push_back(x);
 
-	tab_stack_delete = vector<list<Clause>>(nb_Var+1,list<Clause>{});
+	assignment = vector<State>(n + 1, UNKNOWN);
+
+	tab_stack_delete = vector< list<Clause> >(n + 1);
 }
 
 int Formula::get_first_var() const
@@ -57,7 +54,7 @@ int Formula::get_random_var() const
 	auto it = next(var_alive.begin(), count);
 	int x = *it;
 
-	/* On génère / trouve sa valeur */
+	/* On génère | trouve sa valeur */
 	uniform_int_distribution<default_random_engine::result_type> binary_dist(0, 1);
 	int sign = (binary_dist(rng) == 0) ? 1 : -1;
 
@@ -119,7 +116,7 @@ void Formula::update_var(int& x,ostream& os,Option& option)
 		assignment[-x] = FALSE;
 	DEBUG(1) << abs(x) << " set to " << (x>0) << endl;
 
-	auto it = find(var_alive.begin(),var_alive.end(),abs(x));
+	auto it = find(var_alive.begin(), var_alive.end(), abs(x));
 	var_alive.erase(it);
 	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
@@ -256,7 +253,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 
 Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, Option& option)
 {
-	vector<int> seen(nb_Var+1,0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
+	vector<int> seen(Formula::nb_variables()+1, 0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
 	for(auto c = clauses_alive.begin(); c != clauses_alive.end(); c++)
 	{
@@ -278,7 +275,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 
 	Res act = NOTHING;
 
-	for(unsigned int i = 1; i <= nb_Var; i++)
+	for(unsigned int i = 1; i <= Formula::nb_variables(); i++)
 	{
 		if(abs(seen[i]) == 1)
 		{
@@ -339,11 +336,11 @@ void Formula::print_formula(ostream& os, const Option& option, bool true_name, u
 	if(option.debug >= debug_lvl)
 	{
 		os << endl << "Check :" << endl;
-		for(auto c : clauses_alive)
+		for (const Clause& clause : clauses_alive)
 		{
-			for(auto it = c.get_vars().begin(); it != c.get_vars().end(); it++)
+			for(auto it = clause.get_vars().begin(); it != clause.get_vars().end(); it++)
 			{
-				os << ((true_name)?(int)var_true_name[abs(*it)]*(1-2*(*it<0)):(*it)) << " ";
+				os << ((true_name) ? renaming.translate_litteral(*it) : *it) << ' ';
 			}
 			os << endl;
 		}
@@ -351,35 +348,31 @@ void Formula::print_formula(ostream& os, const Option& option, bool true_name, u
 	}
 }
 
-void Formula::print_assignment(const Option& option, ostream& os, bool tseitin, unsigned int tseitin_nb_input_variables)
+void Formula::print_assignment(const Option& option, ostream& os)
 {
-	for (const pair<int, unsigned int> _ : var_true_name)
+	for (const pair<int, unsigned int> _ : renaming)
 	{
 		int x = _.first;
 		unsigned int mapped_x = _.second;
 
-		/* Variable qui n'était pas dans l'input */
-		//if (tseitin && mapped_x > tseitin_nb_input_variables)
-		//	continue;
-
 		switch (assignment[mapped_x])
 		{
 			case TRUE:
-				cout << x;
+				os << x;
 				break;
 
 			case FALSE:
-				cout << (-x);
+				os << (-x);
 				break;
 
 			case UNKNOWN:
-				if(option.debug >= 1)
-					cout << "?" << x;
+				if (option.debug >= 1)
+					os << "?" << x;
 				break;
 		}
 
-        cout << ' ';
+		os << ' ';
 	}
 
-	cout << endl;
+	os << endl;
 }

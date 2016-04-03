@@ -28,17 +28,18 @@ Clause::Clause(list<int> literals)
 	wl2 = max(0, (int)literals_fixed.size() - 1);
 }
 
-State Clause::litteral_status(vector<State>& assignment, int& x)
+State Clause::litteral_status(const vector<State>& assignment, int& l)
 {
-	switch(assignment[abs(x)])
+	unsigned int x = abs(l);
+	switch(assignment[x])
 	{
 		case TRUE:
-			if(x > 0)
+			if(l > 0)
 				return TRUE;
 			else
 				return FALSE;
 		case FALSE:
-			if(x < 0)
+			if(l < 0)
 				return TRUE;
 			else
 				return FALSE;
@@ -48,7 +49,7 @@ State Clause::litteral_status(vector<State>& assignment, int& x)
 	return UNKNOWN;//anti-warning
 }
 
-State Clause::test(vector<State>& assignment)
+State Clause::check_satisfiability(const vector<State>& assignment)
 {
 	get_up_all();
 	State sol_c = FALSE;
@@ -62,7 +63,7 @@ State Clause::test(vector<State>& assignment)
 	return sol_c;
 }
 
-int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& option)
+int Clause::apply_modification(vector<State>& assignment, ostream& os, const Option& option)
 {
 	DEBUG(3) << "Modifying Clause :" << endl;
 	for(auto it = literals_dyn.begin(); it != literals_dyn.end();)
@@ -88,7 +89,7 @@ int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& opt
 	return 0;
 }
 
-int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, Option& option)
+int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, const Option& option)
 {
 	if(literals_fixed.empty())//CLause vide
 		return 0;
@@ -141,7 +142,7 @@ int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, Option&
 	return 0;
 }
 
-Res Clause::propagation_unitary_wl(vector<State>& assignment, ostream& os, Option& option, int& x)
+Res Clause::propagation_unitary_wl(vector<State>& assignment, ostream& os, const Option& option, int& x)
 {
 	if(wl1 == literals_fixed.size())
 		return ERROR;
@@ -159,7 +160,7 @@ Res Clause::propagation_unitary_wl(vector<State>& assignment, ostream& os, Optio
 	}
 	return NOTHING;
 }
-void Clause::get_up(vector<bool>& be_cancelled,ostream& os,Option& option)
+void Clause::get_up(vector<bool>& be_cancelled, ostream& os, const Option& option)
 {
 	while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
 	{

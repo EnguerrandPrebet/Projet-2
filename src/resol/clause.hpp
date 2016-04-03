@@ -33,21 +33,23 @@ class Clause
 		Clause(std::list<int>);
 
 		//Get
-		int get(){return literals_dyn.front();};
+		int get_first_litteral() const {return literals_dyn.front();};
 		unsigned int size() const {return literals_dyn.size();};
 		std::list<int>& get_vars() {return literals_dyn;};
 		const std::list<int>& get_vars() const {return literals_dyn;};
 
 		//DPLL
 		void print();
-		State test(std::vector<State>& assignment);
-        void get_up(std::vector<bool>& be_cancelled,std::ostream& os, Option& option);
+		State check_satisfiability(const std::vector<State>& assignment);
+
+		void get_up(std::vector<bool>& be_cancelled,std::ostream& os, const Option& option);
 		void get_up_wl();
 		void get_up_all();
-        State litteral_status(std::vector<State>& assignment, int& x);
-        int apply_modification(std::vector<State>& assignment,std::ostream& os, Option& option); //Renvoie true si la clause est validé par les modifs
-		int apply_modification_wl(std::vector<State>& assignment,std::ostream& os, Option& option); //Renvoie true si la clause est validé par les modifs
-		Res propagation_unitary_wl(std::vector<State>& assignment, std::ostream& os, Option& option, int& x);
+
+		State litteral_status(const std::vector<State>& assignment, int& l);
+		int apply_modification(std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
+		int apply_modification_wl(std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
+		Res propagation_unitary_wl(std::vector<State>& assignment, std::ostream& os, const Option& option, int& x);
 
 	private:
 		// option watched litterals

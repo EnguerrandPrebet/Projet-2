@@ -22,12 +22,14 @@ void interface(Option& option)
 			case 'g':
 				show_graph();
 				break;
+
 			case 't':
 				option.cl_interactive = false;
 			//Pas besoin de break, les 2 ferment l'interface
 			case 'c':
 				good_cmd = true;
 				break;
+
 			default:
 				good_cmd = false;
 		}
@@ -36,8 +38,6 @@ void interface(Option& option)
 
 int clause_learning(Formula& f, ostream& os, Option& option)
 {
-
-
 	if(option.cl_interactive)
 		interface(option); /**???Où dans le CL ? À la fin ?**/
 	return 0;

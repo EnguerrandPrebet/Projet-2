@@ -5,6 +5,7 @@
 #include <random>
 
 #include <climits> // pour initialisation des min / max
+#include <cassert> // pour s'assurer que la formule ne contient pas de clause UNKNOWN
 
 using namespace std;
 
@@ -17,12 +18,15 @@ Formula::Formula(const Renaming& input_renaming)
 {
 	renaming = input_renaming;
 
-	unsigned int n = renaming.number_of_input_variables();
+	unsigned int n = renaming.number_of_variables();
 
 	for (unsigned int x = 1; x <= n; x++)
 		var_alive.push_back(x);
 
 	assignment = vector<State>(n + 1, UNKNOWN);
+
+	//??? if (option.cl == true)
+	reason_of_assignment = vector< list<int> >(n + 1);
 
 	tab_stack_delete = vector< list<Clause> >(n + 1);
 }
@@ -108,26 +112,29 @@ int Formula::get_dlis_var() const
 	return max_score->first;
 }
 
-void Formula::update_var(int& x,ostream& os,Option& option)
+void Formula::update_var(int& l, ostream& os, const Option& option)
 {
-	if (x>0)
-		assignment[x] = TRUE;
-	else
-		assignment[-x] = FALSE;
-	DEBUG(1) << abs(x) << " set to " << (x>0) << endl;
+	unsigned int x = abs(l);
 
-	auto it = find(var_alive.begin(), var_alive.end(), abs(x));
+	assignment[x] = (l > 0) ? TRUE : FALSE;
+
+	DEBUG(1) << x << " set to " << (l>0) << endl;
+
+	auto it = find(var_alive.begin(), var_alive.end(), x);
 	var_alive.erase(it);
+
 	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
-void Formula::apply_modification(int& t,ostream& os,Option& option)
+void Formula::apply_modification(int& t,ostream& os, const Option& option)
 {
 	DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
 	{
 		int cause;
-		if((option.watched_litterals == false && (cause = it->apply_modification(assignment,os,option))) || (option.watched_litterals == true && (cause = it->apply_modification_wl(assignment,os,option))))
+		if ((option.watched_litterals == false
+			 && (cause = it->apply_modification(assignment,os,option)))
+				|| (option.watched_litterals == true && (cause = it->apply_modification_wl(assignment,os,option))))
 		{
 			DEBUG(1) << "Clause deleted at t = " << t << ", because of " << cause <<  endl;
 			tab_stack_delete[abs(cause)].push_back(*it);
@@ -146,27 +153,33 @@ void Formula::apply_modification(int& t,ostream& os,Option& option)
 	}
 }
 
-State Formula::test(ostream& os,Option& option)
+State Formula::check_satisfiability(ostream& os, const Option& option)
 {
-	revive(os,option); //Remet toutes les clauses vivantes
-	State sol = TRUE;
-	for(auto c:clauses_alive)
-	{
-		State sol_c = c.test(assignment);
-		if(sol_c == UNKNOWN)
-			sol_c = UNKNOWN;
-		if(sol_c == FALSE)
+	revive(os,option); // remet toutes les clauses vivantes
+
+	/* On vérifie que toutes les clauses sont satisfaites */
+	for(Clause& c : clauses_alive)
+		switch (c.check_satisfiability(assignment))
+		{
+		case TRUE:
+			continue;
+
+		case FALSE:
 			return FALSE;
-	}
-	return sol;
+
+		case UNKNOWN:
+			return UNKNOWN;
+		}
+
+	return TRUE;
 }
 
-void Formula::supprTauto(ostream& os, Option& option)
+void Formula::remove_tautology(ostream& os, const Option& option)
 {
 	list<Clause> new_clauses({});
-	for(auto c:clauses_alive)
+	for(Clause& c : clauses_alive)
 	{
-		c.test(assignment);
+		c.check_satisfiability(assignment);
 		map<int,bool> truc({}); //true : x, false : x bar
 		bool tauto = false;
 		for(auto j = c.get_vars().begin(); j != c.get_vars().end() && !tauto; j++)
@@ -193,37 +206,44 @@ void Formula::supprTauto(ostream& os, Option& option)
 	set_clauses_alive(new_clauses);
 }
 
-Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Option& option)
+Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, const Option& option)
 {
-	Res act = SUCCESS;
+	Res action = SUCCESS;
 
-	for(auto c = clauses_alive.begin(); c != clauses_alive.end(); c++)
+	for (auto it = clauses_alive.begin(); it != clauses_alive.end(); it++)
 	{
-		switch(c->size())
+		const Clause& c = *it;
+
+		switch(c.size())
 		{
 			case 0:
 				return ERROR;
+
 			case 1:
+			{
+				action = NEW;
+				int l = c.get_first_litteral();
+				DEBUG(1) << "Unitaire avec : " << l << endl;
+
+				unsigned int x = abs(l);
+				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
-					act = NEW;
-					int x = c->get();
-					DEBUG(1) << "Unitaire avec : " << x << endl;
-					if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
-					{
-						update_var(x,os,option);
-						decisions.push(Decision_var(x,INFER,decisions.top().time));
-					}
-				}break;
-			default:
-				if(act != NEW)
-					act = NOTHING;
+					update_var(l, os, option);
+					decisions.push(Decision_var(l, INFER, decisions.top().time));
+				}
+				break;
+			}
+
+			default: // c.size() >= 2
+				if(action != NEW)
+					action = NOTHING;
 		}
 	}
 
-	return act;
+	return action;
 }
 
-Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os, Option& option)
+Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os, const Option& option)
 {
 	Res act = SUCCESS;
 
@@ -251,7 +271,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 	return act;
 }
 
-Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, Option& option)
+Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, const Option& option)
 {
 	vector<int> seen(Formula::nb_variables()+1, 0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
@@ -262,38 +282,38 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			if(seen[abs(*j)] == 2)
 				continue;
 
-			if(!seen[abs(*j)])
+			if (!seen[abs(*j)])
 			{
 				seen[abs(*j)] = (*j)/(abs(*j)); // +/- 1
 			}
-			else if((seen[abs(*j)] < 0) != ((*j) < 0)) //Different signs
+			else if ((seen[abs(*j)] < 0) != ((*j) < 0)) //Different signs
 			{
 				seen[abs(*j)] = 2;
 			}
 		}
 	}
 
-	Res act = NOTHING;
+	Res action = NOTHING;
 
 	for(unsigned int i = 1; i <= Formula::nb_variables(); i++)
 	{
 		if(abs(seen[i]) == 1)
 		{
 			int x = i*seen[i];
-			act = NEW;
+			action = NEW;
 
 			DEBUG(1) << "Polarité unique avec : " << x << endl;
 			if(assignment[abs(x)] == UNKNOWN)
 			{
-				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER,decisions.top().time));
+				update_var(x, os, option);
+				decisions.push(Decision_var(x, INFER, decisions.top().time));
 			}
 		}
 	}
-	return act;
+	return action;
 }
 
-void Formula::revive(ostream& os,  Option& option, vector<bool> be_cancelled)
+void Formula::revive(ostream& os,  const Option& option, vector<bool> be_cancelled)
 {
 	unsigned int taille = be_cancelled.size();
 
@@ -330,6 +350,12 @@ void Formula::set_clauses_alive(list<Clause> clauses)
 {
 	clauses_alive = clauses;
 }
+
+unsigned int Formula::nb_variables() const
+{
+	return assignment.size() - 1;
+}
+
 
 void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl)
 {

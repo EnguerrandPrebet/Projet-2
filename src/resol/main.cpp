@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 			cout << "s ???" << endl;
 	}
 
-	layered_debug(option, os, "End of main", 1);
+	layered_debug(option, os, "End of main\n", 1);
 
 	return 0;
 }

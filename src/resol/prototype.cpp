@@ -16,32 +16,37 @@ State dpll(Formula& f, ostream& os, Option& option)
 	stack<Decision_var> decisions;
 
     bool sat_unknown = true;
-	int x = 0;
-	decisions.push(Decision_var(0,INFER,0,NULL)); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
-    while(sat_unknown)
+
+	decisions.push(Decision_var(0, INFER, 0, _List_iterator<Clause>())); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
+	while (sat_unknown)
 	{
 		Res action_result;
 		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
 		{
-			action_result = update(f,decisions,os,option);
-		}while(action_result==NEW);
+			action_result = update(f, decisions, os, option);
+		} while (action_result == NEW);
 
-		switch(action_result)
+		switch (action_result)
 		{
 			case ERROR:
 				DEBUG(1) << "Backtrack" << endl;
-                sat_unknown = backtrack(f,decisions,os,option);
+				sat_unknown = backtrack(f, decisions, os, option);
 				break;
+
 			case SUCCESS:
                 sat_unknown = false;
 				break;
-			case NOTHING: //default
-				x = get_next_var(f, os, option); // x = variable + assignment
-				DEBUG(1) << "x :" << x << endl;
-				f.update_var(x, os, option); // met à jour assignment et vars_alive
 
-				decisions.push(Decision_var({x,GUESS,decisions.top().time+1,NULL}));
+			case NOTHING:
+			{
+				int l = get_next_assignment(f, os, option); // l = var & (true | false)
+				DEBUG(1) << "x :" << l << endl;
+				f.update_var(l, os, option); // met à jour assignment et vars_alive
+
+				decisions.push(Decision_var({l, GUESS, decisions.top().time+1, _List_iterator<Clause>()}));
 				break;
+			}
+
 			default:
 				break;
 		}
@@ -50,7 +55,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 		f.print_formula(os, option);
 	}
 
-    return f.test(os,option);
+	return f.check_satisfiability(os, option);
 }
 
 bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
@@ -59,8 +64,9 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 
 	if(option.cl)
 	{
-		/*time_back = */clause_learning(f,os,option);
+		/*time_back = */clause_learning(f, decisions, os, option);
 	}
+
 	vector<bool> be_cancelled(f.nb_variables()+1, false); //Variables à annuler
 	while(!decisions.empty() && (decisions.top().choice == INFER || decisions.top().time > time_back))
 	{
@@ -69,6 +75,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 		DEBUG(1) << "Forget infer " << dec.var << endl;
 		be_cancelled[abs(dec.var)] = true;
 	}
+
 	if(decisions.empty())
 	{
 		DEBUG(1) << "Nothing to backtrack" << endl;
@@ -86,29 +93,29 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	decisions.pop();
 	change_of_mind.time = decisions.top().time;
 	DEBUG(1) << "Back to time " << change_of_mind.time << endl;
-	decisions.push(change_of_mind); //! GROS PROBLEME ICI !
+	decisions.push(change_of_mind); //! GROS PROBLEME ICI ! mettre la clause obtenue via l'apprentissage
 	f.update_var(change_of_mind.var,os,option);
 
 	return true;
 }
 
 
-void pretreatment(Formula& f, ostream& os, Option& option)
+void pretreatment(Formula& f, ostream& os, const Option& option)
 {
-	f.supprTauto(os, option);
+	f.remove_tautology(os, option);
 }
 
-Res update(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
+Res update(Formula& f, stack<Decision_var>& decisions, ostream& os, const Option& option)
 {
 	DEBUG(1) << endl << "Update time !" << endl;
-	f.apply_modification(decisions.top().time,os,option);//On met à jour les clauses ici
+	f.apply_modification(decisions.top().time, os, option);//On met à jour les clauses ici
 	DEBUG(1) << "End modif" << endl;
 
 	f.print_formula(os, option);
 
 	Res act;
 	if(option.watched_litterals == true)
-		act = f.propagation_unitary_wl(decisions,os,option);
+		act = f.propagation_unitary_wl(decisions, os, option);
 	else
 		act = f.propagation_unitary(decisions,os,option);//On teste le résultat des modifications au passage
 
@@ -126,17 +133,15 @@ Res update(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& opti
 	return act;
 }
 
-int get_next_var(Formula& f, ostream& os, Option& option)
+int get_next_assignment(Formula& f, ostream& os, const Option& option)
 {
 	switch (option.heuristique)
 	{
 		case RAND:
 			return f.get_random_var();
-			break;
 
 		case MOMS:
 			return f.get_moms_var();
-			break;
 
 		case DLIS:
 			return f.get_dlis_var();

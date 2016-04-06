@@ -45,6 +45,12 @@ int Renaming::new_variable()
 	return mapped_x;
 }
 
+unsigned int Renaming::number_of_variables() const
+{
+	return next_available_var;
+}
+
+
 unsigned int Renaming::number_of_input_variables() const
 {
 	return nb_input_variables;

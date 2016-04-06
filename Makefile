@@ -5,7 +5,7 @@ LIBLEX=-lfl
 YACC=bison
 
 EXEC=./bin/resol ./bin/graph
-FOLDER= ./src/resol ./src/parser ./src/tseitin
+FOLDER=./src/parser ./src/tseitin ./src/resol
 
 TSEITIN=./src/tseitin/tseitin.cpp
 RESOL=$(wildcard ./src/resol/*.cpp)

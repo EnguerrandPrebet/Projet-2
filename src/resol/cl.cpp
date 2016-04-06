@@ -23,34 +23,84 @@ void interface(Option& option)
 			case 'g':
 				show_graph();
 				break;
+
 			case 't':
 				option.cl_interactive = false;
 			//Pas besoin de break, les 2 ferment l'interface
 			case 'c':
 				good_cmd = true;
 				break;
+
 			default:
 				good_cmd = false;
 		}
 	}
 }
 
-int clause_learning(Formula& f, ostream& os, Option& option)
-{
-	vector<list<int>> la; //graphe des sommets bleus
-	vector<list<int>> la_inv;
-	vector<list<int>> la_old; //graphe qui à un sommet bleu donne les parents blancs
+void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, stack<Decision_var> decisions);
+vector<bool> update_cancel(int n, stack<Decision_var> decisions);
 
-	create_graphe(la,la_inv,la_old,f);
+int clause_learning(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
+{
+	//0 représente le conflit
+	vector<list<int>> la(f.nb_variables()+1); //graphe des sommets bleus
+	vector<list<int>> la_inv(f.nb_variables()+1);
+	vector<list<int>> la_old(f.nb_variables()+1); //graphe qui à un sommet bleu donne les parents blancs (donc inversé)
+
+	create_graphe(la, la_inv, la_old, decisions);
 
 	if(option.cl_interactive)
 		interface(option); /**???Où dans le CL ? À la fin ?**/
 	return 0;
 }
 
-void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, Formula& f)
+void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
+	int current_time = decisions.top().time;
 
+	vector<bool> be_cancelled = update_cancel(la.size(), decisions);//Pour détecter les sommets bleus
+	while(!decisions.empty() && decisions.top().time >= current_time)
+	{
+		Decision_var dec = decisions.top();
+		decisions.pop();
+
+		Clause c = *(dec.reason);
+		int x_fils = abs(dec.var);
+		stack<int> stack_delete = c.get_stack(); //encore une copie pour ne rien modifier
+
+		while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
+		{
+			int x_pere = abs(stack_delete.top());
+			stack_delete.pop();
+
+			la[x_pere].push_back(x_fils);
+			la_inv[x_fils].push_back(x_pere);
+		}
+		//Et maintenant les sommets blancs
+		while(!stack_delete.empty())
+		{
+			int x_pere = abs(stack_delete.top());
+			stack_delete.pop();
+
+			la_old[x_fils].push_back(x_pere);
+		}
+	}
+}
+
+vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une copie
+{
+	int current_time = decisions.top().time;
+
+	vector<bool> be_cancelled(n, false);
+	while(!decisions.empty() && decisions.top().time >= current_time)
+	{
+		Decision_var dec = decisions.top();
+		decisions.pop();
+
+		be_cancelled[abs(dec.var)] = true;
+	}
+
+	return be_cancelled;
 }
 
 void show_graph()
@@ -74,6 +124,8 @@ vector<Color> coloring(vector<list<int>> la, vector<list<int>> la_inv, int root)
 	int uip = bfs(0,la_inv,time);
 
 	apply_color(uip,la,PURPLE,color);
+
+	return color;
 }
 
 void dfs(int i, vector<list<int>>& la, vector<pair<int,int>>& time, int& t)
@@ -119,14 +171,15 @@ int bfs(int root, vector<list<int>>& la_inv, vector<pair<int,int>>& time)
 		}
 	}
 
-
+	return 0;
 }
 
 bool isuip(int challenger, vector<pair<int,int>>& time)
 {
 	for(int i = 0; i < time.size(); i++)
 	{
-		if((time[i].first < time[challenger].first || time[i].second > time[challenger].second)&&(time[i].first > time[challenger].first || time[i].second < time[challenger].second))
+		//On vérifie que i est un ancêtre du conflit (pas une déduction qui ne mènent nul part, et que challenger est un parent (ancêtre ou descendant) de i
+		if((time[i].first < time[0].first && time[i].second > time[0].second)&&((time[i].first < time[challenger].first || time[i].second > time[challenger].second)&&(time[i].first > time[challenger].first || time[i].second < time[challenger].second)))
 			return false;
 	}
 	return true;

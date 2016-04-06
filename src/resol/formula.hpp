@@ -25,7 +25,7 @@ class Formula
 		void set_clauses_alive(std::list<Clause>);
 
 		// Get
-		unsigned int nb_variables(){return assignment.size() - 1;};
+		unsigned int nb_variables() const;
 
 		int get_first_var() const; // choix par défaut
 		int get_random_var() const;
@@ -37,24 +37,25 @@ class Formula
 		void print_assignment(const Option&, ostream&); // print
 
 		// ? à trier
-		void update_var(int& x, ostream& os, Option& option);
-		State test(ostream& os,Option& option);
-		void revive(ostream& os,  Option& option, std::vector<bool> be_cancelled = std::vector<bool>({false}));
-		void supprTauto(ostream& os, Option& option);
-		void apply_modification(int& t,ostream& os, Option& option);
-		Res propagation_unitary(std::stack<Decision_var>& decisions, ostream& os, Option& option);
-		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, ostream& os, Option& option);
-		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, ostream& os, Option& option);
+		void update_var(int& l, ostream& os, const Option&);
+		State check_satisfiability(ostream& os, const Option&);
+		void revive(ostream& os,  const Option&, std::vector<bool> be_cancelled = std::vector<bool>({false}));
+		void remove_tautology(ostream& os, const Option&);
+		void apply_modification(int& t,ostream& os, const Option&);
+		Res propagation_unitary(std::stack<Decision_var>& decisions, ostream& os, const Option&);
+		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, ostream& os, const Option&);
+		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, ostream& os, const Option&);
 
 	private:
 		//!!! Plus performant avec des pointeurs ?
 		std::list<Clause> clauses_alive;
-		std::vector<std::list<Clause>> tab_stack_delete; //Clause peut devenir Decision_cla si on veut plus d'info
-		//On utilise des list pour un backtrack rapide
+		std::vector< std::list<Clause> > tab_stack_delete; //Clause peut devenir Decision_cla si on veut plus d'info
 
 		Renaming renaming;
 
 		std::vector<State> assignment; //  [NULL, x_1, ..., x_n] donc taille (n + 1)
+		//std::vector< std::list<int> > reason_of_assignment; // clause learning useless
+
 		std::list<unsigned int> var_alive;
 };
 

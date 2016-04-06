@@ -17,14 +17,7 @@ enum Res {NEW, NOTHING, ERROR, SUCCESS};
 enum Choix {INFER, GUESS};
 
 
-struct Decision_var
-{
-    Decision_var(int n_var, Choix n_choice, int n_time) {var = n_var; choice = n_choice; time = n_time;} //! Clem à gérer
 
-    int var;
-    int time = 0;
-    Choix choice;
-};
 
 class Clause
 {
@@ -52,13 +45,23 @@ class Clause
 	private:
 		// option watched litterals
 		std::vector<int> literals_fixed;
-		unsigned int wl1, wl2;
+		int wl1, wl2;
 		bool nothing_before_wl;
 		bool nothing_after_wl;
 
 		// non watched litterals
 		std::list<int> literals_dyn;
 		std::stack<int> stack_delete;
+};
+
+struct Decision_var
+{
+    Decision_var(int n_var, Choix n_choice, int n_time, Clause n_reason) {var = n_var; choice = n_choice; time = n_time; reason = &n_reason;} //!!! Clem à gérer
+
+    int var;
+    int time = 0;
+    Clause* reason;
+    Choix choice;
 };
 
 struct Decision_cla

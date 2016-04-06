@@ -25,7 +25,7 @@ Clause::Clause(list<int> literals)
 
 	literals_fixed = vector<int>(literals.begin(), literals.end());
 	wl1 = 0;
-	wl2 = max(0, (int)literals_fixed.size() - 1);
+	wl2 = (int)literals_fixed.size() - 1;
 }
 
 State Clause::litteral_status(vector<State>& assignment, int& x)
@@ -73,8 +73,7 @@ int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& opt
 			case FALSE:
 				DEBUG(2) << *it << " deleted from clause" << endl;
 				stack_delete.push(*it);
-				literals_dyn.erase(it);
-				it = literals_dyn.begin(); //erase a boulversé le pointeur it, on le remet au début par précaution
+				it = literals_dyn.erase(it);
 				break;
 			case TRUE:
 				DEBUG(2) << "A clause is true because of " <<  *it << endl;
@@ -90,7 +89,7 @@ int Clause::apply_modification(vector<State>& assignment,ostream& os,Option& opt
 
 int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, Option& option)
 {
-	if(literals_fixed.empty())//CLause vide
+	if(wl2 == -1)//CLause vide
 		return 0;
 	if(nothing_before_wl == false)
 	{
@@ -117,7 +116,7 @@ int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, Option&
 
 	if(nothing_after_wl == false)
 	{
-		wl2 = max(0, (int)literals_fixed.size() - 1);
+		wl2 = (int)literals_fixed.size() - 1;
 		nothing_after_wl = true;
 	}
 	switch(litteral_status(assignment, literals_fixed[wl2]))
@@ -143,7 +142,7 @@ int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, Option&
 
 Res Clause::propagation_unitary_wl(vector<State>& assignment, ostream& os, Option& option, int& x)
 {
-	if(wl1 == literals_fixed.size())
+	if(wl1 == -1)
 		return ERROR;
 	DEBUG(2) << "c pu: " << literals_fixed[wl1] << " " << literals_fixed[wl2] << endl;
 

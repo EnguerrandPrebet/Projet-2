@@ -18,20 +18,21 @@ all: $(EXEC)
 
 
 $(FOLDER):
+	mkdir -p ./obj
 	cd $@ && make
 
 ./bin/resol: $(FOLDER)
-	mkdir -p ./obj
+	
 	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
 
 ./bin/graph: ./src/stats/main.cpp
 	$(CXX) $(CPPFLAGS) -o $@ $^
 	
-gprof: $(FOLDER)
-	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol ./obj/* $(LIBLEX)
+gprof:
+	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 	 
-debug: $(FOLDER)
-	$(CXX) $(CPPFLAGS) -g -D_GLIBCXX_DEBUG -o ./bin/resol ./obj/* $(LIBLEX)
+debug:
+	$(CXX) $(CPPFLAGS) -g -D_GLIBCXX_DEBUG -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 
 $(NAME).yy.c :  $(NAME).l
 	$(LEX)  -o $@ $^

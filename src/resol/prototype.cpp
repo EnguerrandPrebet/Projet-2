@@ -17,7 +17,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 
     bool sat_unknown = true;
 	int x = 0;
-	decisions.push(Decision_var(0,INFER,0)); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
+	decisions.push(Decision_var(0,INFER,0,NULL)); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
     while(sat_unknown)
 	{
 		Res action_result;
@@ -40,7 +40,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 				DEBUG(1) << "x :" << x << endl;
 				f.update_var(x, os, option); // met à jour assignment et vars_alive
 
-				decisions.push(Decision_var({x,GUESS,decisions.top().time+1}));
+				decisions.push(Decision_var({x,GUESS,decisions.top().time+1,NULL}));
 				break;
 			default:
 				break;
@@ -86,7 +86,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	decisions.pop();
 	change_of_mind.time = decisions.top().time;
 	DEBUG(1) << "Back to time " << change_of_mind.time << endl;
-	decisions.push(change_of_mind);
+	decisions.push(change_of_mind); //! GROS PROBLEME ICI !
 	f.update_var(change_of_mind.var,os,option);
 
 	return true;

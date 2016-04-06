@@ -17,12 +17,12 @@ Formula::Formula(const Renaming& input_renaming)
 {
 	renaming = input_renaming;
 
-	unsigned int n = renaming.number_of_input_variables();
+	unsigned int n = max((unsigned int)renaming.new_variable(),renaming.number_of_input_variables());
 
-	for (unsigned int x = 1; x <= n; x++)
+	for (unsigned int x = 1; x < n; x++)
 		var_alive.push_back(x);
 
-	assignment = vector<State>(n + 1, UNKNOWN);
+	assignment = vector<State>(n, UNKNOWN);
 
 	tab_stack_delete = vector< list<Clause> >(n + 1);
 }
@@ -131,13 +131,12 @@ void Formula::apply_modification(int& t,ostream& os,Option& option)
 		{
 			DEBUG(1) << "Clause deleted at t = " << t << ", because of " << cause <<  endl;
 			tab_stack_delete[abs(cause)].push_back(*it);
-			clauses_alive.erase(it);
+			it = clauses_alive.erase(it);
 			if(clauses_alive.empty())
 			{
 				DEBUG(1) << "Il y a plus rien !" << endl;
 				break;
 			}
-			it = clauses_alive.begin(); //erase fait des choses bizarres à it, on remet au début par sécurité
 		}
 		else
 		{
@@ -211,7 +210,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, Op
 					if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 					{
 						update_var(x,os,option);
-						decisions.push(Decision_var(x,INFER,decisions.top().time));
+						decisions.push(Decision_var(x,INFER,decisions.top().time,c));
 					}
 				}break;
 			default:
@@ -237,7 +236,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER,decisions.top().time));
+				decisions.push(Decision_var(x,INFER,decisions.top().time, c));
 			}
 			act = NEW;
 		}
@@ -286,7 +285,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER,decisions.top().time));
+				decisions.push(Decision_var(x,INFER,decisions.top().time, c));
 			}
 		}
 	}

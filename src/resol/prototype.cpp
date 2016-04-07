@@ -16,7 +16,8 @@ State dpll(Formula& f, ostream& os, Option& option)
 	stack<Decision_var> decisions;
 
     bool sat_unknown = true;
-	decisions.push(Decision_var(0, INFER, 0)); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
+
+	decisions.push(Decision_var(0, INFER, 0, _List_iterator<Clause>())); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
 	while (sat_unknown)
 	{
 		Res action_result;
@@ -42,8 +43,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 				DEBUG(1) << "x :" << l << endl;
 				f.update_var(l, os, option); // met à jour assignment et vars_alive
 
-				decisions.push(Decision_var({l, GUESS, decisions.top().time+1}));
-
+				decisions.push(Decision_var({l, GUESS, decisions.top().time+1, _List_iterator<Clause>()}));
 				break;
 			}
 
@@ -64,7 +64,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 
 	if(option.cl)
 	{
-		/*time_back = */clause_learning(f, os, option);
+		/*time_back = */clause_learning(f, decisions, os, option);
 	}
 
 	vector<bool> be_cancelled(f.nb_variables()+1, false); //Variables à annuler
@@ -93,7 +93,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	decisions.pop();
 	change_of_mind.time = decisions.top().time;
 	DEBUG(1) << "Back to time " << change_of_mind.time << endl;
-	decisions.push(change_of_mind);
+	decisions.push(change_of_mind); //! GROS PROBLEME ICI ! mettre la clause obtenue via l'apprentissage
 	f.update_var(change_of_mind.var,os,option);
 
 	return true;

@@ -20,10 +20,10 @@ Formula::Formula(const Renaming& input_renaming)
 
 	unsigned int n = renaming.number_of_variables();
 
-	for (unsigned int x = 1; x <= n; x++)
+	for (unsigned int x = 1; x < n; x++)
 		var_alive.push_back(x);
 
-	assignment = vector<State>(n + 1, UNKNOWN);
+	assignment = vector<State>(n, UNKNOWN);
 
 	//??? if (option.cl == true)
 	reason_of_assignment = vector< list<int> >(n + 1);
@@ -138,13 +138,12 @@ void Formula::apply_modification(int& t,ostream& os, const Option& option)
 		{
 			DEBUG(1) << "Clause deleted at t = " << t << ", because of " << cause <<  endl;
 			tab_stack_delete[abs(cause)].push_back(*it);
-			clauses_alive.erase(it);
+			it = clauses_alive.erase(it);
 			if(clauses_alive.empty())
 			{
 				DEBUG(1) << "Il y a plus rien !" << endl;
 				break;
 			}
-			it = clauses_alive.begin(); //erase fait des choses bizarres à it, on remet au début par sécurité
 		}
 		else
 		{
@@ -217,6 +216,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 		switch(c.size())
 		{
 			case 0:
+				decisions.push(Decision_var(0, INFER, decisions.top().time, it));//On push la clause vide pour l'avoir dans le clause learning
 				return ERROR;
 
 			case 1:
@@ -229,7 +229,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
 					update_var(l, os, option);
-					decisions.push(Decision_var(l, INFER, decisions.top().time));
+					decisions.push(Decision_var(l, INFER, decisions.top().time, it));
 				}
 				break;
 			}
@@ -257,7 +257,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER,decisions.top().time));
+				decisions.push(Decision_var(x,INFER,decisions.top().time, c));
 			}
 			act = NEW;
 		}
@@ -306,7 +306,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x, os, option);
-				decisions.push(Decision_var(x, INFER, decisions.top().time));
+				decisions.push(Decision_var(x, INFER, decisions.top().time, _List_iterator<Clause>()));
 			}
 		}
 	}

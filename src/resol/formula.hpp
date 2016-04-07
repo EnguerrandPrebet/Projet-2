@@ -53,7 +53,7 @@ class Formula
 		Renaming renaming;
 
 		std::vector<State> assignment; //  [NULL, x_1, ..., x_n] donc taille (n + 1)
-		std::vector< std::list<int> > reason_of_assignment; // clause learning
+		//std::vector< std::list<int> > reason_of_assignment; // clause learning useless
 
 		std::list<unsigned int> var_alive;
 };

@@ -83,6 +83,10 @@ Quand on fait #include <header_wtf_qui_sort_de_n_importe_ou>, on précise // pou
 Dans les header et les prédéclarations de fonctions il faut mettre les noms des paramètres seulement lorsque ce n'est pas déjà clair sans
 	exemple : abs(int) convient, mais pour print_debug_msg(Debug_struct, string owner, string msg), le rôle des deux derniers arguments n'est pas clair d'après les types.
 
+Utiliser des pointeurs Clause* n'est pas plus performant (1.40 au lieu de 1.50 sur 5.cnf) et désactive la vérification de types (pointeurs oblige)
+	A préciser dans le readme du prochain rendu, cela m'a pris au moins 45min.
+	C'est surement dû au fait que les list n'effectuent jamais de copie "en dur" des éléments qu'elles contiennent.
+
 // DANS UN FUTUR LOINTAIN
 A priori pas de utils.hpp, les petites fonctions restent dans les .cpp
 

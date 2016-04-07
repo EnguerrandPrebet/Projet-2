@@ -47,7 +47,6 @@ class Formula
 		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, ostream& os, const Option&);
 
 	private:
-		//!!! Plus performant avec des pointeurs ?
 		std::list<Clause> clauses_alive;
 		std::vector< std::list<Clause> > tab_stack_delete; //Clause peut devenir Decision_cla si on veut plus d'info
 

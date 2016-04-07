@@ -26,7 +26,7 @@ Formula::Formula(const Renaming& input_renaming)
 	assignment = vector<State>(n, UNKNOWN);
 
 	//??? if (option.cl == true)
-	reason_of_assignment = vector< list<int> >(n + 1);
+	//reason_of_assignment = vector< list<int> >(n + 1);
 
 	tab_stack_delete = vector< list<Clause> >(n + 1);
 }
@@ -156,6 +156,7 @@ State Formula::check_satisfiability(ostream& os, const Option& option)
 {
 	revive(os,option); // remet toutes les clauses vivantes
 
+	State result = TRUE;
 	/* On vérifie que toutes les clauses sont satisfaites */
 	for(Clause& c : clauses_alive)
 		switch (c.check_satisfiability(assignment))
@@ -167,10 +168,10 @@ State Formula::check_satisfiability(ostream& os, const Option& option)
 			return FALSE;
 
 		case UNKNOWN:
-			return UNKNOWN;
+			result = UNKNOWN; //On renvoie UNKNOWN seulement si aucune clause n'est fausse
 		}
 
-	return TRUE;
+	return result;
 }
 
 void Formula::remove_tautology(ostream& os, const Option& option)
@@ -216,7 +217,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 		switch(c.size())
 		{
 			case 0:
-				decisions.push(Decision_var(0, INFER, decisions.top().time, it));//On push la clause vide pour l'avoir dans le clause learning
+				decisions.push(Decision_var(0, INFER, decisions.top().time, *it));//On push la clause vide pour l'avoir dans le clause learning
 				return ERROR;
 
 			case 1:
@@ -229,7 +230,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
 					update_var(l, os, option);
-					decisions.push(Decision_var(l, INFER, decisions.top().time, it));
+					decisions.push(Decision_var(l, INFER, decisions.top().time, *it));
 				}
 				break;
 			}
@@ -257,7 +258,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER,decisions.top().time, c));
+				decisions.push(Decision_var(x,INFER,decisions.top().time, *c));
 			}
 			act = NEW;
 		}
@@ -306,7 +307,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x, os, option);
-				decisions.push(Decision_var(x, INFER, decisions.top().time, _List_iterator<Clause>()));
+				decisions.push(Decision_var(x, INFER, decisions.top().time, Clause()));
 			}
 		}
 	}

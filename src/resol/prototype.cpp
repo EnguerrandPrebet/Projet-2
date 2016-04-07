@@ -17,7 +17,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 
     bool sat_unknown = true;
 
-	decisions.push(Decision_var(0, INFER, 0, _List_iterator<Clause>())); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
+	decisions.push(Decision_var(0, INFER, 0, Clause())); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
 	while (sat_unknown)
 	{
 		Res action_result;
@@ -43,7 +43,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 				DEBUG(1) << "x :" << l << endl;
 				f.update_var(l, os, option); // met à jour assignment et vars_alive
 
-				decisions.push(Decision_var({l, GUESS, decisions.top().time+1, _List_iterator<Clause>()}));
+				decisions.push(Decision_var({l, GUESS, decisions.top().time+1,Clause()}));
 				break;
 			}
 

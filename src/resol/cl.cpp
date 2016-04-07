@@ -64,9 +64,9 @@ void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list
 		Decision_var dec = decisions.top();
 		decisions.pop();
 
-		Clause c = *(dec.reason);
+		Clause c = dec.reason;
 		int x_fils = abs(dec.var);
-		stack<int> stack_delete = c.get_stack(); //encore une copie pour ne rien modifier
+		stack<int> stack_delete = c.get_stack();
 
 		while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
 		{

@@ -9,9 +9,9 @@
 
 enum Color{NOCOLOR,WHITE,BLUE,YELLOW,PURPLE};
 
-void show_graph(vector<list<int>>& la, vector<Color>& color);
+void show_graph(const vector<list<int>>& la, const vector<Color>& color);
 
-void interface(vector<list<int>>& la, vector<Color>& color, Option& option)
+void interface(const vector<list<int>>& la, const vector<Color>& color, Option& option)
 {
 	char cmd;
 	bool good_cmd = false;
@@ -43,11 +43,11 @@ void interface(vector<list<int>>& la, vector<Color>& color, Option& option)
 }
 
 int create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, vector<Color>& color_v, stack<Decision_var> decisions);
-int get_uip(vector<list<int>>& la, vector<list<int>>& la_inv, int root, vector<Color>& color);
-void merge(vector<list<int>>& la, vector<list<int>>& la_old);
-void apply_color(int i, vector<list<int>>& la, Color new_color, vector<Color>& color);
+int get_uip(const vector<list<int>>& la, const vector<list<int>>& la_inv, const int& root);
+void merge(vector<list<int>>& la, const vector<list<int>>& la_old);
+void apply_color(const int& i, const vector<list<int>>& la, const Color& new_color, vector<Color>& color);
 
-int clause_learning(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
+int clause_learning(Formula& f, const stack<Decision_var>& decisions, const ostream& os, Option& option)
 {
 	//0 représente le conflit
 	vector<list<int>> la(f.nb_variables()+1); //graphe des sommets bleus
@@ -57,7 +57,7 @@ int clause_learning(Formula& f, stack<Decision_var>& decisions, ostream& os, Opt
 	vector<Color> color_v(f.nb_variables()+1,NOCOLOR);
 	int root = create_graphe(la, la_inv, la_old, color_v, decisions);/*renvoie l'origine du graphe bleus, aka le pari.*///!En coloriant au passage en blanc et bleu
 
-	int uip = get_uip(la, la_inv, root, color_v);
+	int uip = get_uip(la, la_inv, root);
 
 	apply_color(uip,la,PURPLE,color_v);
 	color_v[uip] = YELLOW;
@@ -68,7 +68,7 @@ int clause_learning(Formula& f, stack<Decision_var>& decisions, ostream& os, Opt
 	return 0;
 }
 
-vector<bool> update_cancel(int n, stack<Decision_var> decisions);
+vector<bool> update_cancel(const int& n, stack<Decision_var> decisions);
 
 int create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, vector<Color>& color_v, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
@@ -112,7 +112,7 @@ int create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<
 	return x_fils;
 }
 
-vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une copie
+vector<bool> update_cancel(const int& n, stack<Decision_var> decisions) //Toujours une copie
 {
 	int current_time = decisions.top().time;
 
@@ -129,15 +129,15 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une 
 	return be_cancelled;
 }
 
-void show_graph(vector<list<int>>& la, vector<Color>& color)
+void show_graph(const vector<list<int>>& la, const vector<Color>& color)
 {
 }
 
-void dfs(int i, vector<list<int>>& la, vector<pair<int,int>>& time, int& t);
-int bfs(int root, vector<list<int>>& la_inv, vector<pair<int,int>>& time);
-bool isuip(int challenger, vector<pair<int,int>>& time);
+void dfs(const int& i, const vector<list<int>>& la, vector<pair<int,int>>& time, int& t);
+int bfs(const int& root, const vector<list<int>>& la_inv, const vector<pair<int,int>>& time);
+bool isuip(const int& challenger, const vector<pair<int,int>>& time);
 
-int get_uip(vector<list<int>>& la, vector<list<int>>& la_inv, int root, vector<Color>& color)
+int get_uip(const vector<list<int>>& la, const vector<list<int>>& la_inv, const int& root)
 {
 	vector<pair<int,int>> time(la.size(),make_pair(-1,-1));
 	int t = 0;
@@ -148,7 +148,7 @@ int get_uip(vector<list<int>>& la, vector<list<int>>& la_inv, int root, vector<C
 	return uip;
 }
 
-void dfs(int i, vector<list<int>>& la, vector<pair<int,int>>& time, int& t)
+void dfs(const int& i, const vector<list<int>>& la, vector<pair<int,int>>& time, int& t)
 {
     time[i].first = t;
     t++;
@@ -162,7 +162,7 @@ void dfs(int i, vector<list<int>>& la, vector<pair<int,int>>& time, int& t)
     time[i].second;
 }
 
-int bfs(int root, vector<list<int>>& la_inv, vector<pair<int,int>>& time)
+int bfs(const int& root, const vector<list<int>>& la_inv, const vector<pair<int,int>>& time)
 {
 	vector<bool> isSeen(time.size(),false);
 	isSeen[root] = true;
@@ -194,18 +194,18 @@ int bfs(int root, vector<list<int>>& la_inv, vector<pair<int,int>>& time)
 	return 0;
 }
 
-bool isuip(int challenger, vector<pair<int,int>>& time)
+bool isuip(const int& challenger, const vector<pair<int,int>>& time)
 {
 	for(int i = 0; i < time.size(); i++)
 	{
 		//On vérifie que i est un ancêtre du conflit (pas une déduction qui ne mènent nul part, et que challenger est un parent (ancêtre ou descendant) de i
-		if((time[i].first < time[0].first && time[i].second > time[0].second)&&((time[i].first < time[challenger].first || time[i].second > time[challenger].second)&&(time[i].first > time[challenger].first || time[i].second < time[challenger].second)))
+		if((time[i].first < time[0].first && time[i].second > time[0].second) && ((time[i].first < time[challenger].first || time[i].second > time[challenger].second) && (time[i].first > time[challenger].first || time[i].second < time[challenger].second)))
 			return false;
 	}
 	return true;
 }
 
-void apply_color(int i, vector<list<int>>& la, Color new_color, vector<Color>& color)
+void apply_color(const int& i, const vector<list<int>>& la, const Color& new_color, vector<Color>& color)
 {
 	color[i] = new_color;
     for(int j:la[i])
@@ -217,7 +217,7 @@ void apply_color(int i, vector<list<int>>& la, Color new_color, vector<Color>& c
     }
 }
 
-void merge(vector<list<int>>& la, vector<list<int>>& la_old)
+void merge(vector<list<int>>& la, const vector<list<int>>& la_old)
 {
 	for(int i = 0; i < la_old.size(); i++)
 	{

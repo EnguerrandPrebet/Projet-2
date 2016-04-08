@@ -4,6 +4,6 @@
 #include "option.hpp"
 #include "formula.hpp"
 
-int clause_learning(Formula& f, stack<Decision_var>& decisions, ostream& os, Option&);
+int clause_learning(Formula& f, const stack<Decision_var>& decisions, const ostream& os, Option& option);
 
 #endif //CL_HPP

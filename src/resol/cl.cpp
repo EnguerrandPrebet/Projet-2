@@ -6,7 +6,12 @@
 #include "formula.hpp"
 #include "option.hpp"
 
-void interface(Option& option)
+
+enum Color{NOCOLOR,WHITE,BLUE,YELLOW,PURPLE};
+
+void show_graph(vector<list<int>>& la, vector<Color>& color);
+
+void interface(vector<list<int>>& la, vector<Color>& color, Option& option)
 {
 	char cmd;
 	bool good_cmd = false;
@@ -21,7 +26,7 @@ void interface(Option& option)
 		switch(cmd)
 		{
 			case 'g':
-				show_graph();
+				show_graph(la, color);
 				break;
 
 			case 't':
@@ -37,8 +42,10 @@ void interface(Option& option)
 	}
 }
 
-void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, stack<Decision_var> decisions);
-vector<bool> update_cancel(int n, stack<Decision_var> decisions);
+int create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, vector<Color>& color_v, stack<Decision_var> decisions);
+int get_uip(vector<list<int>>& la, vector<list<int>>& la_inv, int root, vector<Color>& color);
+void merge(vector<list<int>>& la, vector<list<int>>& la_old);
+void apply_color(int i, vector<list<int>>& la, Color new_color, vector<Color>& color);
 
 int clause_learning(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
@@ -47,25 +54,37 @@ int clause_learning(Formula& f, stack<Decision_var>& decisions, ostream& os, Opt
 	vector<list<int>> la_inv(f.nb_variables()+1);
 	vector<list<int>> la_old(f.nb_variables()+1); //graphe qui à un sommet bleu donne les parents blancs (donc inversé)
 
-	create_graphe(la, la_inv, la_old, decisions);
+	vector<Color> color_v(f.nb_variables()+1,NOCOLOR);
+	int root = create_graphe(la, la_inv, la_old, color_v, decisions);/*renvoie l'origine du graphe bleus, aka le pari.*///!En coloriant au passage en blanc et bleu
 
+	int uip = get_uip(la, la_inv, root, color_v);
+
+	apply_color(uip,la,PURPLE,color_v);
+	color_v[uip] = YELLOW;
+
+	merge(la,la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
 	if(option.cl_interactive)
-		interface(option); /**???Où dans le CL ? À la fin ?**/
+		interface(la, color_v, option); /**???Où dans le CL ? À la fin ?**/
 	return 0;
 }
 
-void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
+vector<bool> update_cancel(int n, stack<Decision_var> decisions);
+
+int create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list<int>>& la_old, vector<Color>& color_v, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
 	int current_time = decisions.top().time;
 
 	vector<bool> be_cancelled = update_cancel(la.size(), decisions);//Pour détecter les sommets bleus
+
+	int x_fils = 0; //On le définit maintenant car à la fin de la boucle, x_fils == pari //initialisation anti-warning
+
 	while(!decisions.empty() && decisions.top().time >= current_time)
 	{
 		Decision_var dec = decisions.top();
 		decisions.pop();
 
 		Clause c = dec.reason;
-		int x_fils = abs(dec.var);
+		x_fils = abs(dec.var);
 		stack<int> stack_delete = c.get_stack();
 
 		while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
@@ -75,6 +94,9 @@ void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list
 
 			la[x_pere].push_back(x_fils);
 			la_inv[x_fils].push_back(x_pere);
+
+			color_v[x_pere] = WHITE;
+			color_v[x_fils] = WHITE;
 		}
 		//Et maintenant les sommets blancs
 		while(!stack_delete.empty())
@@ -83,8 +105,11 @@ void create_graphe(vector<list<int>>& la, vector<list<int>>& la_inv, vector<list
 			stack_delete.pop();
 
 			la_old[x_fils].push_back(x_pere);
+			color_v[x_pere] = BLUE;
 		}
 	}
+
+	return x_fils;
 }
 
 vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une copie
@@ -92,6 +117,7 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une 
 	int current_time = decisions.top().time;
 
 	vector<bool> be_cancelled(n, false);
+
 	while(!decisions.empty() && decisions.top().time >= current_time)
 	{
 		Decision_var dec = decisions.top();
@@ -103,29 +129,23 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une 
 	return be_cancelled;
 }
 
-void show_graph()
+void show_graph(vector<list<int>>& la, vector<Color>& color)
 {
 }
-
-enum Color{BLUE,YELLOW,PURPLE};
 
 void dfs(int i, vector<list<int>>& la, vector<pair<int,int>>& time, int& t);
 int bfs(int root, vector<list<int>>& la_inv, vector<pair<int,int>>& time);
 bool isuip(int challenger, vector<pair<int,int>>& time);
-void apply_color(int i, vector<list<int>>& la, Color new_color, vector<Color>& color);
 
-vector<Color> coloring(vector<list<int>> la, vector<list<int>> la_inv, int root)
+int get_uip(vector<list<int>>& la, vector<list<int>>& la_inv, int root, vector<Color>& color)
 {
-	vector<Color> color(la.size(),BLUE);
 	vector<pair<int,int>> time(la.size(),make_pair(-1,-1));
 	int t = 0;
 	dfs(root,la,time,t);
 
 	int uip = bfs(0,la_inv,time);
 
-	apply_color(uip,la,PURPLE,color);
-
-	return color;
+	return uip;
 }
 
 void dfs(int i, vector<list<int>>& la, vector<pair<int,int>>& time, int& t)
@@ -195,4 +215,15 @@ void apply_color(int i, vector<list<int>>& la, Color new_color, vector<Color>& c
 			apply_color(j,la,new_color,color);
 		}
     }
+}
+
+void merge(vector<list<int>>& la, vector<list<int>>& la_old)
+{
+	for(int i = 0; i < la_old.size(); i++)
+	{
+		for(int j: la_old[i])
+		{
+			la[j].push_back(i);
+		}
+	}
 }

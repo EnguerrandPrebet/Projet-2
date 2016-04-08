@@ -47,7 +47,7 @@ int get_uip(const vector<list<int>>& la, const vector<list<int>>& la_inv, const 
 void merge(vector<list<int>>& la, const vector<list<int>>& la_old);
 void apply_color(const int& i, const vector<list<int>>& la, const Color& new_color, vector<Color>& color);
 
-int clause_learning(Formula& f, const stack<Decision_var>& decisions, const ostream& os, Option& option)
+int clause_learning(Formula& f, const stack<Decision_var>& decisions, ostream& os, Option& option)
 {
 	//0 représente le conflit
 	vector<list<int>> la(f.nb_variables()+1); //graphe des sommets bleus

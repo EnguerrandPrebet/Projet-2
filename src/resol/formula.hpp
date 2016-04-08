@@ -22,7 +22,7 @@ class Formula
 		Formula(const Renaming&);
 
 		// Set
-		void set_clauses_alive(std::list<Clause>);
+		void set_clauses_alive(const std::list<Clause>&);
 
 		// Get
 		unsigned int nb_variables() const;
@@ -33,15 +33,15 @@ class Formula
 		int get_dlis_var() const;
 
 		// Debug
-		void print_formula(ostream& os, const Option& option, bool true_name = false, unsigned int debug_lvl = 3); // check
-		void print_assignment(const Option&, ostream&); // print
+		void print_formula(ostream& os, const Option& option, const bool& true_name = false, const unsigned int& debug_lvl = 3) const; // check
+		void print_assignment(const Option&, ostream&) const; // print
 
 		// ? à trier
-		void update_var(int& l, ostream& os, const Option&);
+		void update_var(const int& l, ostream& os, const Option&);
 		State check_satisfiability(ostream& os, const Option&);
-		void revive(ostream& os,  const Option&, std::vector<bool> be_cancelled = std::vector<bool>({false}));
+		void revive(ostream& os,  const Option&, const std::vector<bool>& be_cancelled = std::vector<bool>({false}));
 		void remove_tautology(ostream& os, const Option&);
-		void apply_modification(int& t,ostream& os, const Option&);
+		void apply_modification(const int& t,ostream& os, const Option&);
 		Res propagation_unitary(std::stack<Decision_var>& decisions, ostream& os, const Option&);
 		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, ostream& os, const Option&);
 		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, ostream& os, const Option&);

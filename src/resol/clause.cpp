@@ -14,7 +14,7 @@ Clause::Clause()
 
 }
 
-Clause::Clause(list<int> literals)
+Clause::Clause(const list<int>& literals)
 {
 	/* non WL */
 	literals_dyn = literals;
@@ -28,7 +28,7 @@ Clause::Clause(list<int> literals)
 	wl2 = (int)literals_fixed.size() - 1;
 }
 
-State Clause::litteral_status(const vector<State>& assignment, int& l)
+State Clause::litteral_status(const vector<State>& assignment, const int& l) const
 {
 	unsigned int x = abs(l);
 	switch(assignment[x])
@@ -63,7 +63,7 @@ State Clause::check_satisfiability(const vector<State>& assignment)
 	return sol_c;
 }
 
-int Clause::apply_modification(vector<State>& assignment, ostream& os, const Option& option)
+int Clause::apply_modification(const vector<State>& assignment, ostream& os, const Option& option)
 {
 	DEBUG(3) << "Modifying Clause :" << endl;
 	for(auto it = literals_dyn.begin(); it != literals_dyn.end();)
@@ -88,7 +88,7 @@ int Clause::apply_modification(vector<State>& assignment, ostream& os, const Opt
 	return 0;
 }
 
-int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, const Option& option)
+int Clause::apply_modification_wl(const vector<State>& assignment,ostream& os, const Option& option)
 {
 	if(wl2 == -1)//CLause vide
 		return 0;
@@ -141,7 +141,7 @@ int Clause::apply_modification_wl(vector<State>& assignment,ostream& os, const O
 	return 0;
 }
 
-Res Clause::propagation_unitary_wl(vector<State>& assignment, ostream& os, const Option& option, int& x)
+Res Clause::propagation_unitary_wl(const vector<State>& assignment, ostream& os, const Option& option, int& x)
 {
 	if(wl1 == -1)
 		return ERROR;
@@ -159,7 +159,7 @@ Res Clause::propagation_unitary_wl(vector<State>& assignment, ostream& os, const
 	}
 	return NOTHING;
 }
-void Clause::get_up(vector<bool>& be_cancelled, ostream& os, const Option& option)
+void Clause::get_up(const vector<bool>& be_cancelled, ostream& os, const Option& option)
 {
 	while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
 	{
@@ -175,7 +175,7 @@ void Clause::get_up_wl()
 	nothing_after_wl = false;
 }
 
-void Clause::print()
+void Clause::print() const
 {
 	cout << "c";
 	for(int i : literals_dyn)

@@ -133,7 +133,7 @@ Res update(Formula& f, stack<Decision_var>& decisions, ostream& os, const Option
 	return act;
 }
 
-int get_next_assignment(Formula& f, ostream& os, const Option& option)
+int get_next_assignment(const Formula& f, ostream& os, const Option& option)
 {
 	switch (option.heuristique)
 	{

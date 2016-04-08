@@ -112,7 +112,7 @@ int Formula::get_dlis_var() const
 	return max_score->first;
 }
 
-void Formula::update_var(int& l, ostream& os, const Option& option)
+void Formula::update_var(const int& l, ostream& os, const Option& option)
 {
 	unsigned int x = abs(l);
 
@@ -126,7 +126,7 @@ void Formula::update_var(int& l, ostream& os, const Option& option)
 	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
-void Formula::apply_modification(int& t,ostream& os, const Option& option)
+void Formula::apply_modification(const int& t,ostream& os, const Option& option)
 {
 	DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
@@ -314,7 +314,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 	return action;
 }
 
-void Formula::revive(ostream& os,  const Option& option, vector<bool> be_cancelled)
+void Formula::revive(ostream& os,  const Option& option, const vector<bool>& be_cancelled)
 {
 	unsigned int taille = be_cancelled.size();
 
@@ -347,7 +347,7 @@ void Formula::revive(ostream& os,  const Option& option, vector<bool> be_cancell
 	}
 }
 
-void Formula::set_clauses_alive(list<Clause> clauses)
+void Formula::set_clauses_alive(const list<Clause>& clauses)
 {
 	clauses_alive = clauses;
 }
@@ -358,7 +358,7 @@ unsigned int Formula::nb_variables() const
 }
 
 
-void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl)
+void Formula::print_formula(ostream& os, const Option& option, const bool& true_name, const unsigned int& debug_lvl) const
 {
 	if(option.debug >= debug_lvl)
 	{
@@ -375,7 +375,7 @@ void Formula::print_formula(ostream& os, const Option& option, bool true_name, u
 	}
 }
 
-void Formula::print_assignment(const Option& option, ostream& os)
+void Formula::print_assignment(const Option& option, ostream& os) const
 {
 	for (const pair<int, unsigned int> _ : renaming)
 	{

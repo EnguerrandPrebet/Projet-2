@@ -1,5 +1,5 @@
 CXX=g++
-CPPFLAGS=-Wall -std=c++11 -Wno-write-strings
+CPPFLAGS=-pedantic -Wall -std=c++11 -Wno-write-strings
 LEX=flex
 LIBLEX=-lfl
 YACC=bison

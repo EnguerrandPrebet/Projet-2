@@ -32,7 +32,7 @@ gprof:
 	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 	 
 debug:
-	$(CXX) $(CPPFLAGS) -g -D_GLIBCXX_DEBUG -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
+	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 
 $(NAME).yy.c :  $(NAME).l
 	$(LEX)  -o $@ $^

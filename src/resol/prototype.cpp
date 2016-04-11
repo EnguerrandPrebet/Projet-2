@@ -17,7 +17,7 @@ State dpll(Formula& f, ostream& os, Option& option)
 
     bool sat_unknown = true;
 
-	decisions.push(Decision_var(0, INFER, 0, _List_iterator<Clause>())); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
+	decisions.push(Decision_var(0, INFER, 0, Clause())); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
 	while (sat_unknown)
 	{
 		Res action_result;
@@ -43,7 +43,9 @@ State dpll(Formula& f, ostream& os, Option& option)
 				DEBUG(1) << "x :" << l << endl;
 				f.update_var(l, os, option); // met à jour assignment et vars_alive
 
-				decisions.push(Decision_var({l, GUESS, decisions.top().time+1, _List_iterator<Clause>()}));
+				decisions.push(Decision_var({l, GUESS, decisions.top().time+1,Clause()}));
+
+				f.time(abs(l),decisions.top().time); //Met à jour time[abs(l)]
 				break;
 			}
 
@@ -60,15 +62,16 @@ State dpll(Formula& f, ostream& os, Option& option)
 
 bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& option)
 {
-	int time_back = decisions.top().time; //Peut être réduit par le clause learning
+	int time_back = decisions.top().time - 1; //Peut être réduit par le clause learning
+	Clause clause_learned;
 
 	if(option.cl)
 	{
-		/*time_back = */clause_learning(f, decisions, os, option);
+		time_back = clause_learning(f, decisions, clause_learned, os, option);
 	}
 
 	vector<bool> be_cancelled(f.nb_variables()+1, false); //Variables à annuler
-	while(!decisions.empty() && (decisions.top().choice == INFER || decisions.top().time > time_back))
+	while(!decisions.empty() && (decisions.top().choice == INFER || decisions.top().time - 1 > time_back))
 	{
 		Decision_var dec = decisions.top();
 		decisions.pop();
@@ -91,9 +94,11 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	change_of_mind.choice = INFER;
 	change_of_mind.var *= -1;
 	decisions.pop();
-	change_of_mind.time = decisions.top().time;
+	change_of_mind.time = time_back;
+	change_of_mind.reason = clause_learned;
+
 	DEBUG(1) << "Back to time " << change_of_mind.time << endl;
-	decisions.push(change_of_mind); //! GROS PROBLEME ICI ! mettre la clause obtenue via l'apprentissage
+	decisions.push(change_of_mind);
 	f.update_var(change_of_mind.var,os,option);
 
 	return true;
@@ -123,7 +128,7 @@ Res update(Formula& f, stack<Decision_var>& decisions, ostream& os, const Option
 	if(act == ERROR || act == SUCCESS)//Inutile d'aller plus loin
 		return act;
 
-    if(!option.watched_litterals)
+    if(!option.watched_litterals && !option.cl)
 	{
 		Res act_aux = f.propagation_unique_polarity(decisions,os,option);
 		if(act_aux != NOTHING)
@@ -133,7 +138,7 @@ Res update(Formula& f, stack<Decision_var>& decisions, ostream& os, const Option
 	return act;
 }
 
-int get_next_assignment(Formula& f, ostream& os, const Option& option)
+int get_next_assignment(const Formula& f, ostream& os, const Option& option)
 {
 	switch (option.heuristique)
 	{

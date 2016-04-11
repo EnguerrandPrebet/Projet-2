@@ -24,9 +24,10 @@ Formula::Formula(const Renaming& input_renaming)
 		var_alive.push_back(x);
 
 	assignment = vector<State>(n, UNKNOWN);
+	time_of_assign = vector<int>(n, -1);
 
 	//??? if (option.cl == true)
-	reason_of_assignment = vector< list<int> >(n + 1);
+	//reason_of_assignment = vector< list<int> >(n + 1);
 
 	tab_stack_delete = vector< list<Clause> >(n + 1);
 }
@@ -112,7 +113,7 @@ int Formula::get_dlis_var() const
 	return max_score->first;
 }
 
-void Formula::update_var(int& l, ostream& os, const Option& option)
+void Formula::update_var(const int& l, ostream& os, const Option& option)
 {
 	unsigned int x = abs(l);
 
@@ -126,7 +127,7 @@ void Formula::update_var(int& l, ostream& os, const Option& option)
 	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
-void Formula::apply_modification(int& t,ostream& os, const Option& option)
+void Formula::apply_modification(const int& t,ostream& os, const Option& option)
 {
 	DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
@@ -156,6 +157,7 @@ State Formula::check_satisfiability(ostream& os, const Option& option)
 {
 	revive(os,option); // remet toutes les clauses vivantes
 
+	State result = TRUE;
 	/* On vérifie que toutes les clauses sont satisfaites */
 	for(Clause& c : clauses_alive)
 		switch (c.check_satisfiability(assignment))
@@ -167,10 +169,10 @@ State Formula::check_satisfiability(ostream& os, const Option& option)
 			return FALSE;
 
 		case UNKNOWN:
-			return UNKNOWN;
+			result = UNKNOWN; //On renvoie UNKNOWN seulement si aucune clause n'est fausse
 		}
 
-	return TRUE;
+	return result;
 }
 
 void Formula::remove_tautology(ostream& os, const Option& option)
@@ -216,7 +218,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 		switch(c.size())
 		{
 			case 0:
-				decisions.push(Decision_var(0, INFER, decisions.top().time, it));//On push la clause vide pour l'avoir dans le clause learning
+				decisions.push(Decision_var(0, INFER, decisions.top().time, *it));//On push la clause vide pour l'avoir dans le clause learning
 				return ERROR;
 
 			case 1:
@@ -229,7 +231,8 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
 					update_var(l, os, option);
-					decisions.push(Decision_var(l, INFER, decisions.top().time, it));
+					time_of_assign[x] = decisions.top().time;
+					decisions.push(Decision_var(l, INFER, decisions.top().time, *it));
 				}
 				break;
 			}
@@ -257,7 +260,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x,os,option);
-				decisions.push(Decision_var(x,INFER,decisions.top().time, c));
+				decisions.push(Decision_var(x,INFER,decisions.top().time, *c));
 			}
 			act = NEW;
 		}
@@ -279,9 +282,6 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 	{
 		for(auto j = c->get_vars().begin(); j!=c->get_vars().end(); j++)
 		{
-			if(seen[abs(*j)] == 2)
-				continue;
-
 			if (!seen[abs(*j)])
 			{
 				seen[abs(*j)] = (*j)/(abs(*j)); // +/- 1
@@ -306,14 +306,14 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x, os, option);
-				decisions.push(Decision_var(x, INFER, decisions.top().time, _List_iterator<Clause>()));
+				decisions.push(Decision_var(x, INFER, decisions.top().time, Clause()));
 			}
 		}
 	}
 	return action;
 }
 
-void Formula::revive(ostream& os,  const Option& option, vector<bool> be_cancelled)
+void Formula::revive(ostream& os,  const Option& option, const vector<bool>& be_cancelled)
 {
 	unsigned int taille = be_cancelled.size();
 
@@ -346,7 +346,7 @@ void Formula::revive(ostream& os,  const Option& option, vector<bool> be_cancell
 	}
 }
 
-void Formula::set_clauses_alive(list<Clause> clauses)
+void Formula::set_clauses_alive(const list<Clause>& clauses)
 {
 	clauses_alive = clauses;
 }
@@ -357,7 +357,7 @@ unsigned int Formula::nb_variables() const
 }
 
 
-void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl)
+void Formula::print_formula(ostream& os, const Option& option, const bool& true_name, const unsigned int& debug_lvl) const
 {
 	if(option.debug >= debug_lvl)
 	{
@@ -374,7 +374,7 @@ void Formula::print_formula(ostream& os, const Option& option, bool true_name, u
 	}
 }
 
-void Formula::print_assignment(const Option& option, ostream& os)
+void Formula::print_assignment(const Option& option, ostream& os) const
 {
 	for (const pair<int, unsigned int> _ : renaming)
 	{
@@ -403,4 +403,32 @@ void Formula::print_assignment(const Option& option, ostream& os)
 	}
 
 	os << endl;
+}
+
+int Formula::generate_new_clause(const list<int>& clause, const int& uip, Clause& clause_learned)
+{
+	int mini = time_of_assign[uip] + 1; //Plus grand que tout ce qu'il peut y avoir
+
+	list<int> signed_clause;
+
+	for(int j: clause)
+	{
+		if(time_of_assign[j] < mini)
+			mini = time_of_assign[j];
+
+		int signed_j = (2*(assignment[j] == TRUE) - 1) * j;
+		signed_clause.push_back(signed_j);
+	}
+
+	int signed_uip = (2*(assignment[uip] == TRUE) - 1) * uip;
+	signed_clause.push_back(signed_uip);
+
+	Clause new_clause(signed_clause);
+	clause_learned = new_clause;
+
+	clauses_alive.push_back(new_clause);
+
+	if(mini == time_of_assign[uip] + 1) //aka clause = (uip) -> déduction unitaire à t = 0
+		mini = 0;
+	return mini;
 }

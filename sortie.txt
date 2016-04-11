@@ -7,62 +7,407 @@ End modif
 After unitaire, act = 1
 x :1
 1 set to 1
-2 vars left
+15 vars left
 
 Update time !
 Modifying f
 Clause deleted at t = 1, because of 1
 End modif
-Unitaire avec : 2
-2 set to 1
-1 vars left
-Unitaire avec : -2
-Unitaire avec : -3
+After unitaire, act = 1
+Polarité unique avec : -2
+2 set to 0
+14 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of -2
+End modif
+After unitaire, act = 1
+x :3
+3 set to 1
+13 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of 3
+End modif
+Unitaire avec : -5
+5 set to 0
+12 vars left
+After unitaire, act = 0
+Polarité unique avec : -4
+4 set to 0
+11 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of -5
+Clause deleted at t = 2, because of -4
+End modif
+Unitaire avec : -6
+6 set to 0
+10 vars left
+After unitaire, act = 0
+Polarité unique avec : 14
+14 set to 1
+9 vars left
+Polarité unique avec : 15
+15 set to 1
+8 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of -6
+Clause deleted at t = 2, because of 14
+Clause deleted at t = 2, because of 14
+Clause deleted at t = 2, because of 15
+End modif
+Unitaire avec : -7
+7 set to 0
+7 vars left
+Unitaire avec : 7
+After unitaire, act = 0
+Polarité unique avec : -13
+13 set to 0
+6 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of -7
+Clause deleted at t = 2, because of -13
+End modif
+After unitaire, act = 2
+Backtrack
+Forget infer 0
+Forget infer -13
+Forget infer -7
+Forget infer 15
+Forget infer 14
+Forget infer -6
+Forget infer -4
+Forget infer -5
+Forget guess 3
+Revived 7
+Revived 6
+Revived 7
+Revived -3
+Revived 5
+Revived 6
+Back to time 1
 3 set to 0
+13 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of -3
+End modif
+Unitaire avec : 4
+4 set to 1
+12 vars left
+After unitaire, act = 0
+Polarité unique avec : 5
+5 set to 1
+11 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of 4
+Clause deleted at t = 1, because of 5
+End modif
+After unitaire, act = 1
+Polarité unique avec : 6
+6 set to 1
+10 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of 6
+Clause deleted at t = 1, because of 6
+End modif
+After unitaire, act = 1
+Polarité unique avec : 7
+7 set to 1
+9 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of 7
+End modif
+After unitaire, act = 1
+Polarité unique avec : 8
+8 set to 1
+8 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of 8
+End modif
+After unitaire, act = 1
+Polarité unique avec : -16
+16 set to 0
+7 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of -16
+End modif
+After unitaire, act = 1
+x :9
+9 set to 1
+6 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of 9
+End modif
+Unitaire avec : -11
+11 set to 0
+5 vars left
+After unitaire, act = 0
+Polarité unique avec : 10
+10 set to 1
+4 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of -11
+Clause deleted at t = 2, because of 10
+Clause deleted at t = 2, because of 10
+End modif
+Unitaire avec : 15
+15 set to 1
+3 vars left
+After unitaire, act = 0
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of 15
+End modif
+Unitaire avec : -14
+14 set to 0
+2 vars left
+After unitaire, act = 0
+
+Update time !
+Modifying f
+Clause deleted at t = 2, because of -14
+End modif
+Unitaire avec : 12
+12 set to 1
+1 vars left
+Unitaire avec : 13
+13 set to 1
 0 vars left
 After unitaire, act = 0
 
 Update time !
 Modifying f
-Clause deleted at t = 1, because of 2
-Clause deleted at t = 1, because of 2
-Clause deleted at t = 1, because of -3
-Clause deleted at t = 1, because of -3
+Clause deleted at t = 2, because of 12
+Clause deleted at t = 2, because of 13
 End modif
 After unitaire, act = 2
 Backtrack
-Forget infer -3
-Forget infer 2
-Forget guess 1
-Revived -2
-Revived -1
-Revived -1
-Revived -1
-1 set to 0
+Forget infer 0
+Forget infer 13
+Forget infer 12
+Forget infer -14
+Forget infer 15
+Forget infer 10
+Forget infer -11
+Forget guess 9
+Revived -12
+Revived -13
+Revived -9
+Revived 14
+Revived 14
+Revived -15
+Revived 11
+Back to time 1
+9 set to 0
+6 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of -9
+End modif
+Unitaire avec : -10
+10 set to 0
+5 vars left
+After unitaire, act = 0
+Polarité unique avec : 11
+11 set to 1
+4 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 1, because of -10
+Clause deleted at t = 1, because of 11
+End modif
+Unitaire avec : 12
+12 set to 1
+3 vars left
+Unitaire avec : -12
+After unitaire, act = 0
+Polarité unique avec : -15
+15 set to 0
 2 vars left
 
 Update time !
 Modifying f
-Clause deleted at t = 0, because of -1
-Clause deleted at t = 0, because of -1
-Clause deleted at t = 0, because of -1
+Clause deleted at t = 1, because of 12
+Clause deleted at t = 1, because of 12
+Clause deleted at t = 1, because of -15
 End modif
-Unitaire avec : -3
-3 set to 0
+Unitaire avec : -13
+13 set to 0
 1 vars left
-After unitaire, act = 0
-Polarité unique avec : 2
-2 set to 1
-0 vars left
+After unitaire, act = 2
+Backtrack
+Forget infer 0
+Forget infer -13
+Forget infer -15
+Forget infer 12
+Forget infer 11
+Forget infer -10
+Forget infer -9
+Forget infer -16
+Forget infer 8
+Forget infer 7
+Forget infer 6
+Forget infer 5
+Forget infer 4
+Forget infer -3
+Forget infer -2
+Forget guess 1
+Revived -12
+Revived -12
+Revived 10
+Revived 3
+Revived 9
+Revived 10
+Revived -4
+Revived -1
+Back to time 0
+1 set to 0
+15 vars left
 
 Update time !
 Modifying f
-Clause deleted at t = 0, because of -3
+Clause deleted at t = 0, because of -1
+End modif
+Unitaire avec : 2
+2 set to 1
+14 vars left
+After unitaire, act = 0
+Polarité unique avec : 4
+4 set to 1
+13 vars left
+Polarité unique avec : 14
+14 set to 1
+12 vars left
+Polarité unique avec : 15
+15 set to 1
+11 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of 14
 Clause deleted at t = 0, because of 2
+Clause deleted at t = 0, because of 4
+Clause deleted at t = 0, because of 15
+Clause deleted at t = 0, because of 14
+End modif
+Unitaire avec : -3
+3 set to 0
+10 vars left
+After unitaire, act = 0
+Polarité unique avec : -3
+Polarité unique avec : -13
+13 set to 0
+9 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of -13
 Clause deleted at t = 0, because of -3
+Clause deleted at t = 0, because of -3
+End modif
+After unitaire, act = 1
+Polarité unique avec : 5
+5 set to 1
+8 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of 5
+End modif
+After unitaire, act = 1
+Polarité unique avec : 6
+6 set to 1
+7 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of 6
+Clause deleted at t = 0, because of 6
+End modif
+After unitaire, act = 1
+Polarité unique avec : 7
+7 set to 1
+6 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of 7
+End modif
+After unitaire, act = 1
+Polarité unique avec : 8
+8 set to 1
+5 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of 8
+End modif
+After unitaire, act = 1
+Polarité unique avec : -16
+16 set to 0
+4 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of -16
+End modif
+After unitaire, act = 1
+Polarité unique avec : -11
+11 set to 0
+3 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of -11
+End modif
+After unitaire, act = 1
+Polarité unique avec : 9
+9 set to 1
+2 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of 9
+End modif
+After unitaire, act = 1
+Polarité unique avec : 10
+10 set to 1
+1 vars left
+
+Update time !
+Modifying f
+Clause deleted at t = 0, because of 10
+Clause deleted at t = 0, because of 10
 Il y a plus rien !
 End modif
 After unitaire, act = 3
 s SATISFIABLE
--1 2 -3 
+-1 2 3 -4 5 6 7 8 9 ?10 -11 12 13 -14 -15 16 
 End of main

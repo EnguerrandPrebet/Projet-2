@@ -23,27 +23,27 @@ class Clause
 {
     public:
 		Clause();
-		Clause(std::list<int>);
+		Clause(const std::list<int>&);
 
 		//Get
-		std::stack<int> get_stack() const {return stack_delete;};
+		std::stack<int>& get_stack() {return stack_delete;};
 		int get_first_litteral() const {return literals_dyn.front();};
 		unsigned int size() const {return literals_dyn.size();};
 		std::list<int>& get_vars() {return literals_dyn;};
 		const std::list<int>& get_vars() const {return literals_dyn;};
 
 		//DPLL
-		void print();
+		void print() const;
 		State check_satisfiability(const std::vector<State>& assignment);
 
-		void get_up(std::vector<bool>& be_cancelled,std::ostream& os, const Option& option);
+		void get_up(const std::vector<bool>& be_cancelled, std::ostream& os, const Option& option);
 		void get_up_wl();
 		void get_up_all();
 
-		State litteral_status(const std::vector<State>& assignment, int& l);
-		int apply_modification(std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
-		int apply_modification_wl(std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
-		Res propagation_unitary_wl(std::vector<State>& assignment, std::ostream& os, const Option& option, int& x);
+		State litteral_status(const std::vector<State>& assignment, const int& l) const;
+		int apply_modification(const std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
+		int apply_modification_wl(const std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
+		Res propagation_unitary_wl(const std::vector<State>& assignment, std::ostream& os, const Option& option, int& x);
 
 	private:
 		// option watched litterals
@@ -59,24 +59,12 @@ class Clause
 
 struct Decision_var
 {
-    Decision_var(int n_var, Choix n_choice, int n_time, std::_List_iterator<Clause> n_reason) {var = n_var; choice = n_choice; time = n_time; reason = n_reason;} //!!! Clem à gérer
+    Decision_var(int n_var, Choix n_choice, int n_time, Clause n_reason) {var = n_var; choice = n_choice; time = n_time; reason = n_reason;} //!!! Clem à gérer
 
     int var;
     int time = 0;
-    std::_List_iterator<Clause> reason;
+    Clause reason;
     Choix choice;
-};
-
-struct Decision_cla
-{
-	Clause clause;
-	int var;
-
-	Decision_cla(Clause n_clause,int n_var)
-	{
-		clause = n_clause;
-		var = n_var;
-	}
 };
 
 #endif // CLAUSE_HPP

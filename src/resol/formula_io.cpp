@@ -17,7 +17,7 @@ bool is_commentary(const string& s)
 	return s[0] == 'c';
 }
 
-bool is_end_of_clause(int x)
+bool is_end_of_clause(const int& x)
 {
 	return x == 0;
 }
@@ -119,7 +119,8 @@ Formula treat_tseitin(const string& filename, const Option& option, ostream& os)
 
 	Formula f = tseitin(*parser(option, os), option, os);
 
-	//!!! quand est ce que le fichier fd est fermé ?
+	//dup2(0,fd); //on remet l'entrée standard (pour cl-interac) (si ça marche)
+	close(fd);
 
 	return f;
 }

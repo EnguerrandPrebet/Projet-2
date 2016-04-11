@@ -4,7 +4,7 @@
 
 using namespace std;
 
-template <typename T> int sign(T val) {
+template <typename T> int sign(const T& val) {
 	return (T(0) < val) - (val < T(0));
 }
 
@@ -15,7 +15,7 @@ Renaming::Renaming() :
 
 }
 
-int Renaming::rename_litteral(int l)
+int Renaming::rename_litteral(const int& l)
 {
 	unsigned int x = abs(l);
 
@@ -30,7 +30,7 @@ int Renaming::rename_litteral(int l)
 	return sign(l) * mapped_x;
 }
 
-int Renaming::translate_litteral(int l) const
+int Renaming::translate_litteral(const int& l) const
 {
 	unsigned int x = abs(l);
 	unsigned int mapped_x = variables_mapping.at(x);

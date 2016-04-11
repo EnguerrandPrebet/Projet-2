@@ -24,6 +24,7 @@ Formula::Formula(const Renaming& input_renaming)
 		var_alive.push_back(x);
 
 	assignment = vector<State>(n, UNKNOWN);
+	time_of_assign = vector<int>(n, -1);
 
 	//??? if (option.cl == true)
 	//reason_of_assignment = vector< list<int> >(n + 1);
@@ -230,6 +231,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
 					update_var(l, os, option);
+					time_of_assign[x] = decisions.top().time;
 					decisions.push(Decision_var(l, INFER, decisions.top().time, *it));
 				}
 				break;
@@ -280,9 +282,6 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 	{
 		for(auto j = c->get_vars().begin(); j!=c->get_vars().end(); j++)
 		{
-			if(seen[abs(*j)] == 2)
-				continue;
-
 			if (!seen[abs(*j)])
 			{
 				seen[abs(*j)] = (*j)/(abs(*j)); // +/- 1
@@ -404,4 +403,32 @@ void Formula::print_assignment(const Option& option, ostream& os) const
 	}
 
 	os << endl;
+}
+
+int Formula::generate_new_clause(const list<int>& clause, const int& uip, Clause& clause_learned)
+{
+	int mini = time_of_assign[uip] + 1; //Plus grand que tout ce qu'il peut y avoir
+
+	list<int> signed_clause;
+
+	for(int j: clause)
+	{
+		if(time_of_assign[j] < mini)
+			mini = time_of_assign[j];
+
+		int signed_j = (2*(assignment[j] == TRUE) - 1) * j;
+		signed_clause.push_back(signed_j);
+	}
+
+	int signed_uip = (2*(assignment[uip] == TRUE) - 1) * uip;
+	signed_clause.push_back(signed_uip);
+
+	Clause new_clause(signed_clause);
+	clause_learned = new_clause;
+
+	clauses_alive.push_back(new_clause);
+
+	if(mini == time_of_assign[uip] + 1) //aka clause = (uip) -> déduction unitaire à t = 0
+		mini = 0;
+	return mini;
 }

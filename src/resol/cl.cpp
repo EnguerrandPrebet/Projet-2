@@ -7,7 +7,7 @@
 #include "option.hpp"
 
 
-enum Color{NOCOLOR,WHITE,BLUE,YELLOW,PURPLE};
+enum Color{NOCOLOR,WHITE,BLUE,YELLOW,PURPLE,NEW_CLAUSE}; //!Le dernier sert dans la création de la nouvelle clause pour les redondances, doit être considéré comme identique à WHITE
 
 void show_graph(const vector<list<int>>& la, const vector<Color>& color);
 
@@ -47,7 +47,9 @@ int get_uip(const vector<list<int>>& la, const vector<list<int>>& la_inv, const 
 void merge(vector<list<int>>& la, const vector<list<int>>& la_old);
 void apply_color(const int& i, const vector<list<int>>& la, const Color& new_color, vector<Color>& color);
 
-int clause_learning(Formula& f, const stack<Decision_var>& decisions, ostream& os, Option& option)
+int generate_new_clause(Formula& f, Clause& clause_learned, const vector<list<int>>& la_old, vector<Color>& color_v, int& uip);
+
+int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& clause_learned, ostream& os, Option& option)
 {
 	//0 représente le conflit
 	vector<list<int>> la(f.nb_variables()+1); //graphe des sommets bleus
@@ -62,10 +64,15 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, ostream& o
 	apply_color(uip,la,PURPLE,color_v);
 	color_v[uip] = YELLOW;
 
+	int time_back;
+
+	time_back = generate_new_clause(f, clause_learned, la_old, color_v, uip); ///Ajoute la clause à f
+
 	merge(la,la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
 	if(option.cl_interactive)
 		interface(la, color_v, option); /**???Où dans le CL ? À la fin ?**/
-	return 0;
+
+	return time_back;
 }
 
 vector<bool> update_cancel(const int& n, stack<Decision_var> decisions);
@@ -226,4 +233,26 @@ void merge(vector<list<int>>& la, const vector<list<int>>& la_old)
 			la[j].push_back(i);
 		}
 	}
+}
+
+int generate_new_clause(Formula& f, Clause& clause_learned, const vector<list<int>>& la_old, vector<Color>& color_v, int& uip)
+{
+	list<int> clause;
+
+	for(int i = 0; i < color_v.size(); i++)
+	{
+		if(color_v[i] == PURPLE)
+		{
+			for(int j: la_old[i])
+			{
+				if(color_v[j] == WHITE)//Sommet pas encore vu
+				{
+					clause.push_back(j);
+					color_v[j] = NEW_CLAUSE;
+				}
+			}
+		}
+	}
+
+	return f.generate_new_clause(clause,uip, clause_learned);
 }

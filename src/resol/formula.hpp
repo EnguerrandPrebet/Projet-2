@@ -38,7 +38,9 @@ class Formula
 		void print_assignment(const Option&, ostream&) const; // print
 
 		//CL
-		int generate_new_clause(const std::list<int>& new_clause, const int& uip, Clause& clause_learned);
+		int generate_new_clause(std::vector<int>& new_clause, const int& uip, Clause& clause_learned);
+		bool comp(int i, int j){return time_of_assign[i] < time_of_assign[j];}; ///?à passer en private ? car elle n'a aucune raison d'être accessible dehors
+
 		// ? à trier
 		void update_var(const int& l, ostream& os, const Option&);
 		State check_satisfiability(ostream& os, const Option&);
@@ -58,6 +60,8 @@ class Formula
 
 		std::vector<State> assignment; //  [NULL, x_1, ..., x_n] donc taille (n + 1)
 		std::vector<int> time_of_assign; //CL
+
+
 		//std::vector< std::list<int> > reason_of_assignment; // clause learning useless
 
 		std::list<unsigned int> var_alive;

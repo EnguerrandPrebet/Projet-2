@@ -75,7 +75,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	{
 		Decision_var dec = decisions.top();
 		decisions.pop();
-		DEBUG(1) << "Forget infer " << dec.var << endl;
+		DEBUG(1) << "Forget " << ((dec.choice == INFER)?"infer":"guess") << " " << dec.var << endl;
 		be_cancelled[abs(dec.var)] = true;
 	}
 
@@ -86,20 +86,25 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, ostream& os, Option& 
 	}
 
 	Decision_var change_of_mind = decisions.top();
+	decisions.pop();
 	DEBUG(1) << "Forget guess " << change_of_mind.var << endl;
 	be_cancelled[abs(change_of_mind.var)] = true;
 	f.revive(os,option,be_cancelled);
 
-	//Guess vers Infer
-	change_of_mind.choice = INFER;
-	change_of_mind.var *= -1;
-	decisions.pop();
-	change_of_mind.time = time_back;
-	change_of_mind.reason = clause_learned;
+	if(!option.cl) //La nouvelle clause va faire la déduction seule. Ceci est inutile donc
+	{
+		//Guess vers Infer
+		change_of_mind.choice = INFER;
+		change_of_mind.var *= -1;
+		decisions.top();
+		change_of_mind.time = time_back;
+		change_of_mind.reason = clause_learned;
 
-	DEBUG(1) << "Back to time " << change_of_mind.time << endl;
-	decisions.push(change_of_mind);
-	f.update_var(change_of_mind.var,os,option);
+		decisions.push(change_of_mind);
+		f.update_var(change_of_mind.var,os,option);
+	}
+
+	DEBUG(1) << "Back to time " << time_back << endl;
 
 	return true;
 }

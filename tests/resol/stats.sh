@@ -1,7 +1,7 @@
 #!/bin/bash
 
 rm -f stats.dat
-for FILE in ./Test_unitaire/*
+for FILE in ./benchmarks/*
 do
 	for i in "" -wl -rand -moms -dlis
 	do

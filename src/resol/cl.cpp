@@ -48,7 +48,7 @@ void interface(const vector< list<int> >& la, const vector<Color>& color, Option
 int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v, stack<Decision_var> decisions);
 int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, const int& root);
 void merge(vector< list<int> >& la, const vector< list<int> >& la_old);
-void apply_color(const int& i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color);
+void apply_color(const int& i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int& uip);
 
 int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int& uip);
 
@@ -64,7 +64,7 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 
 	int uip = get_uip(la, la_inv, root);
 
-	apply_color(uip,la,PURPLE,color_v);
+	apply_color(0,la_inv,PURPLE,color_v,uip);
 	color_v[uip] = YELLOW;
 
 	int time_back;
@@ -100,22 +100,25 @@ int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< 
 		while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
 		{
 			int x_pere = abs(stack_delete.top());
+
 			stack_delete.pop();
 
 			la[x_pere].push_back(x_fils);
 			la_inv[x_fils].push_back(x_pere);
 
-			color_v[x_pere] = WHITE;
-			color_v[x_fils] = WHITE;
+			color_v[x_pere] = BLUE;
+			color_v[x_fils] = BLUE;
 		}
+
 		//Et maintenant les sommets blancs
 		while(!stack_delete.empty())
 		{
 			int x_pere = abs(stack_delete.top());
+
 			stack_delete.pop();
 
 			la_old[x_fils].push_back(x_pere);
-			color_v[x_pere] = BLUE;
+			color_v[x_pere] = WHITE;
 		}
 	}
 
@@ -185,41 +188,59 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 	system("dot -Tps graph.dot -o graph.ps");
 	remove("graph.dot");
 	system("xdg-open graph.ps");
-	remove("graph.ps");
+	//remove("graph.ps");
 }
 
-void dfs(const int& i, const vector< list<int> >& la, vector<pair<int,int>>& time, int& t);
-int bfs(const int& root, const vector< list<int> >& la_inv, const vector<pair<int,int>>& time);
-bool isuip(const int& challenger, const vector<pair<int,int>>& time);
+void dfs(const int& i, const vector< list<int> >& la, vector< vector<bool> >& dependance, vector< vector<bool> >& obligation);
+int bfs(const int& root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
+bool isuip(const int& challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
 
 int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, const int& root)
 {
-	vector<pair<int,int>> time(la.size(),make_pair(-1,-1));
-	int t = 0;
-	dfs(root,la,time,t);
+	vector< vector<bool> > dependance(la.size(),vector<bool>(la.size(),false)), obligation(la.size(),vector<bool>(la.size(),false));
+	dfs(root,la,dependance,obligation);
 
-	int uip = bfs(0,la_inv,time);
+
+	int uip = bfs(0,la_inv,dependance,obligation);
 
 	return uip;
 }
 
-void dfs(const int& i, const vector< list<int> >& la, vector<pair<int,int>>& time, int& t)
+void dfs(const int& i, const vector< list<int> >& la, vector< vector<bool> >& dependance, vector< vector<bool> >& obligation)
 {
-    time[i].first = t;
-    t++;
+	dependance[i][i] = true;
+
+	obligation[i][i] = true;
+
     for(int j:la[i])
     {
-		if(time[j].first == -1)
+		if(dependance[j][j] == false)
 		{
-			dfs(j,la,time,t);
+			dfs(j,la,dependance,obligation);
+		}
+		for(unsigned int k = 0; k < dependance.size(); k++)
+		{
+			if(dependance[j][k])
+				dependance[i][k] = true;
 		}
     }
-    time[i].second;
+    for(unsigned int k = 0; k < dependance.size(); k++)
+    {
+		bool obl = true;
+        for(int j: la[i])
+		{
+			if(obligation[j][k] == false && dependance[j][0])
+				obl = false;
+		}
+		if(obl && dependance[i][k])
+			obligation[i][k] = true;
+    }
+
 }
 
-int bfs(const int& root, const vector< list<int> >& la_inv, const vector<pair<int,int>>& time)
+int bfs(const int& root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
 {
-	vector<bool> isSeen(time.size(),false);
+	vector<bool> isSeen(dependance.size(),false);
 	isSeen[root] = true;
 	queue<int> q;
 	for(int i:la_inv[root])
@@ -233,7 +254,7 @@ int bfs(const int& root, const vector< list<int> >& la_inv, const vector<pair<in
 		int challenger = q.front();
 		isSeen[challenger] = true;
 		q.pop();
-		if(isuip(challenger,time))
+		if(isuip(challenger,dependance,obligation))
 			return challenger;
 
 		for(int i:la_inv[challenger])
@@ -249,25 +270,25 @@ int bfs(const int& root, const vector< list<int> >& la_inv, const vector<pair<in
 	return 0;
 }
 
-bool isuip(const int& challenger, const vector<pair<int,int>>& time)
+bool isuip(const int& challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
 {
-	for(unsigned int i = 0; i < time.size(); i++)
+	for(unsigned int i = 0; i < dependance.size(); i++)
 	{
-		//On vérifie que i est un ancêtre du conflit (pas une déduction qui ne mènent nul part, et que challenger est un parent (ancêtre ou descendant) de i
-		if((time[i].first < time[0].first && time[i].second > time[0].second) && ((time[i].first < time[challenger].first || time[i].second > time[challenger].second) && (time[i].first > time[challenger].first || time[i].second < time[challenger].second)))
+		//On vérifie que i est un ancêtre du conflit (pas une déduction qui ne mènent nul part, et que challenger est soit un ancêtre de i, soit i est obligé de passer par challenger pour aller à 0
+		if(dependance[i][0] && !((dependance[i][challenger] && obligation[i][challenger]) || dependance[challenger][i]))
 			return false;
 	}
 	return true;
 }
 
-void apply_color(const int& i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color)
+void apply_color(const int& i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int& uip)
 {
 	color[i] = new_color;
     for(int j:la[i])
     {
-		if(color[j] != new_color)
+		if(color[j] != new_color && j != uip)
 		{
-			apply_color(j,la,new_color,color);
+			apply_color(j,la,new_color,color,uip);
 		}
     }
 }
@@ -285,7 +306,7 @@ void merge(vector< list<int> >& la, const vector< list<int> >& la_old)
 
 int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int& uip)
 {
-	list<int> clause;
+	vector<int> clause; //On a besoin de trier les éléments dans la méthode d'où un vector (pour utiliser sort de algorithm)
 
 	for(unsigned int i = 0; i < color_v.size(); i++)
 	{

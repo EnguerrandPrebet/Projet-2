@@ -405,22 +405,25 @@ void Formula::print_assignment(const Option& option, ostream& os) const
 	os << endl;
 }
 
-int Formula::generate_new_clause(const list<int>& clause, const int& uip, Clause& clause_learned)
+int Formula::generate_new_clause(vector<int>& clause, const int& uip, Clause& clause_learned)
 {
-	int mini = time_of_assign[uip] + 1; //Plus grand que tout ce qu'il peut y avoir
+	int maxi = 0;
+
+	sort(clause.begin(),clause.end(), [=](int i, int j){return this->comp(i,j);}); //le moins récent en premier pour être empilé dans le bon ordre
+	//! L'expression est compliquée mais en gros, je trie selon la fonction "comp"
 
 	list<int> signed_clause;
 
 	for(int j: clause)
 	{
-		if(time_of_assign[j] < mini)
-			mini = time_of_assign[j];
+		if(time_of_assign[j] > maxi)
+			maxi = time_of_assign[j];
 
-		int signed_j = (2*(assignment[j] == TRUE) - 1) * j;
+		int signed_j = (1 - 2*(assignment[j] == TRUE)) * j;
 		signed_clause.push_back(signed_j);
 	}
 
-	int signed_uip = (2*(assignment[uip] == TRUE) - 1) * uip;
+	int signed_uip = (1 - 2*(assignment[uip] == TRUE)) * uip;
 	signed_clause.push_back(signed_uip);
 
 	Clause new_clause(signed_clause);
@@ -428,7 +431,5 @@ int Formula::generate_new_clause(const list<int>& clause, const int& uip, Clause
 
 	clauses_alive.push_back(new_clause);
 
-	if(mini == time_of_assign[uip] + 1) //aka clause = (uip) -> déduction unitaire à t = 0
-		mini = 0;
-	return mini;
+	return maxi;
 }

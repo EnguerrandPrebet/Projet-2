@@ -8,8 +8,8 @@ class Renaming
 public:
 	Renaming();
 
-	int rename_litteral(const int& l);
-	int translate_litteral(const int& l) const;
+	int rename_litteral(int l);
+	int translate_litteral(int l) const;
 
 	int new_variable();
 

@@ -17,7 +17,7 @@ bool is_commentary(const string& s)
 	return s[0] == 'c';
 }
 
-bool is_end_of_clause(const int& x)
+bool is_end_of_clause(int x)
 {
 	return x == 0;
 }

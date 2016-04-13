@@ -113,7 +113,7 @@ int Formula::get_dlis_var() const
 	return max_score->first;
 }
 
-void Formula::update_var(const int& l, ostream& os, const Option& option)
+void Formula::update_var(int l, ostream& os, const Option& option)
 {
 	unsigned int x = abs(l);
 
@@ -127,7 +127,7 @@ void Formula::update_var(const int& l, ostream& os, const Option& option)
 	DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
-void Formula::apply_modification(const int& t,ostream& os, const Option& option)
+void Formula::apply_modification(int t,ostream& os, const Option& option)
 {
 	DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
@@ -357,7 +357,7 @@ unsigned int Formula::nb_variables() const
 }
 
 
-void Formula::print_formula(ostream& os, const Option& option, const bool& true_name, const unsigned int& debug_lvl) const
+void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl) const
 {
 	if(option.debug >= debug_lvl)
 	{
@@ -405,7 +405,7 @@ void Formula::print_assignment(const Option& option, ostream& os) const
 	os << endl;
 }
 
-int Formula::generate_new_clause(vector<int>& clause, const int& uip, Clause& clause_learned)
+int Formula::generate_new_clause(vector<int>& clause, int uip, Clause& clause_learned)
 {
 	int maxi = 0;
 

@@ -21,7 +21,7 @@ enum Choix {INFER, GUESS};
 
 class Clause
 {
-    public:
+	public:
 		Clause();
 		Clause(const std::list<int>&);
 
@@ -40,7 +40,7 @@ class Clause
 		void get_up_wl();
 		void get_up_all();
 
-		State litteral_status(const std::vector<State>& assignment, const int& l) const;
+		State litteral_status(const std::vector<State>& assignment, int l) const;
 		int apply_modification(const std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
 		int apply_modification_wl(const std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
 		Res propagation_unitary_wl(const std::vector<State>& assignment, std::ostream& os, const Option& option, int& x);
@@ -59,12 +59,12 @@ class Clause
 
 struct Decision_var
 {
-    Decision_var(int n_var, Choix n_choice, int n_time, Clause n_reason) {var = n_var; choice = n_choice; time = n_time; reason = n_reason;} //!!! Clem à gérer
+	Decision_var(int n_var, Choix n_choice, int n_time, Clause n_reason) {var = n_var; choice = n_choice; time = n_time; reason = n_reason;} //!!! Clem à gérer
 
-    int var;
-    int time = 0;
-    Clause reason;
-    Choix choice;
+	int var;
+	int time = 0;
+	Clause reason;
+	Choix choice;
 };
 
 #endif // CLAUSE_HPP

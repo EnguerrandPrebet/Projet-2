@@ -46,11 +46,11 @@ void interface(const vector< list<int> >& la, const vector<Color>& color, Option
 }
 
 int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v, stack<Decision_var> decisions);
-int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, const int& root);
+int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, int root);
 void merge(vector< list<int> >& la, const vector< list<int> >& la_old);
-void apply_color(const int& i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int& uip);
+void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int uip);
 
-int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int& uip);
+int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int uip);
 
 int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& clause_learned, ostream& os, Option& option)
 {
@@ -78,7 +78,7 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 	return time_back;
 }
 
-vector<bool> update_cancel(const int& n, stack<Decision_var> decisions);
+vector<bool> update_cancel(int n, stack<Decision_var> decisions);
 
 int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
@@ -125,7 +125,7 @@ int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< 
 	return x_fils;
 }
 
-vector<bool> update_cancel(const int& n, stack<Decision_var> decisions) //Toujours une copie
+vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une copie
 {
 	int current_time = decisions.top().time;
 
@@ -168,7 +168,11 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 			default: continue; // variable non concernée
 		}
 
-		file << "\t" << s << " [style=filled, fillcolor=" << graphviz_color_name << "];" << endl;
+		string conflict_style;
+		if (s == 0)
+			conflict_style = "label=\"conflict\",";
+
+		file << "\t" << s << " [" << conflict_style << "style=filled, fillcolor=" << graphviz_color_name << "];" << endl;
 	}
 
 	file << endl;
@@ -191,11 +195,11 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 	//remove("graph.ps");
 }
 
-void dfs(const int& i, const vector< list<int> >& la, vector< vector<bool> >& dependance, vector< vector<bool> >& obligation);
-int bfs(const int& root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
-bool isuip(const int& challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
+void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependance, vector< vector<bool> >& obligation);
+int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
+bool isuip(int challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
 
-int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, const int& root)
+int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, int root)
 {
 	vector< vector<bool> > dependance(la.size(),vector<bool>(la.size(),false)), obligation(la.size(),vector<bool>(la.size(),false));
 	dfs(root,la,dependance,obligation);
@@ -206,14 +210,14 @@ int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, co
 	return uip;
 }
 
-void dfs(const int& i, const vector< list<int> >& la, vector< vector<bool> >& dependance, vector< vector<bool> >& obligation)
+void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependance, vector< vector<bool> >& obligation)
 {
 	dependance[i][i] = true;
 
 	obligation[i][i] = true;
 
-    for(int j:la[i])
-    {
+	for(int j:la[i])
+	{
 		if(dependance[j][j] == false)
 		{
 			dfs(j,la,dependance,obligation);
@@ -223,22 +227,22 @@ void dfs(const int& i, const vector< list<int> >& la, vector< vector<bool> >& de
 			if(dependance[j][k])
 				dependance[i][k] = true;
 		}
-    }
-    for(unsigned int k = 0; k < dependance.size(); k++)
-    {
+	}
+	for(unsigned int k = 0; k < dependance.size(); k++)
+	{
 		bool obl = true;
-        for(int j: la[i])
+		for(int j: la[i])
 		{
 			if(obligation[j][k] == false && dependance[j][0])
 				obl = false;
 		}
 		if(obl && dependance[i][k])
 			obligation[i][k] = true;
-    }
+	}
 
 }
 
-int bfs(const int& root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
+int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
 {
 	vector<bool> isSeen(dependance.size(),false);
 	isSeen[root] = true;
@@ -270,7 +274,7 @@ int bfs(const int& root, const vector< list<int> >& la_inv, const vector< vector
 	return 0;
 }
 
-bool isuip(const int& challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
+bool isuip(int challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
 {
 	for(unsigned int i = 0; i < dependance.size(); i++)
 	{
@@ -281,16 +285,16 @@ bool isuip(const int& challenger, const vector< vector<bool> >& dependance, cons
 	return true;
 }
 
-void apply_color(const int& i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int& uip)
+void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int uip)
 {
 	color[i] = new_color;
-    for(int j:la[i])
-    {
+	for(int j:la[i])
+	{
 		if(color[j] != new_color && j != uip)
 		{
 			apply_color(j,la,new_color,color,uip);
 		}
-    }
+	}
 }
 
 void merge(vector< list<int> >& la, const vector< list<int> >& la_old)
@@ -304,7 +308,7 @@ void merge(vector< list<int> >& la, const vector< list<int> >& la_old)
 	}
 }
 
-int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int& uip)
+int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int uip)
 {
 	vector<int> clause; //On a besoin de trier les éléments dans la méthode d'où un vector (pour utiliser sort de algorithm)
 

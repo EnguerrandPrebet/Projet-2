@@ -20,15 +20,15 @@ Clause::Clause(const list<int>& literals)
 	literals_dyn = literals;
 
 	/* WL */
-    nothing_before_wl = true;
-    nothing_after_wl = true;
+	nothing_before_wl = true;
+	nothing_after_wl = true;
 
 	literals_fixed = vector<int>(literals.begin(), literals.end());
 	wl1 = 0;
 	wl2 = (int)literals_fixed.size() - 1;
 }
 
-State Clause::litteral_status(const vector<State>& assignment, const int& l) const
+State Clause::litteral_status(const vector<State>& assignment, int l) const
 {
 	unsigned int x = abs(l);
 	switch(assignment[x])

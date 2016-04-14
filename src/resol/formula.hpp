@@ -2,7 +2,7 @@
 #define FORMULA_HPP
 
 #include "clause.hpp"
-#include "option.hpp"
+#include "global.hpp"
 
 #include "renaming.hpp"
 
@@ -34,23 +34,23 @@ class Formula
 		int get_dlis_var() const;
 
 		// Debug
-		void print_formula(ostream& os, const Option& option, bool true_name = false, unsigned int debug_lvl = 3) const; // check
-		void print_assignment(const Option&, ostream&) const; // print
+		void print_formula(bool true_name = false) const; // check
+		void print_assignment() const; // print
 
 		//CL
 		int generate_new_clause(std::vector<int>& new_clause, int uip, Clause& clause_learned);
 		bool comp(int i, int j){return time_of_assign[i] < time_of_assign[j];}; ///?à passer en private ? car elle n'a aucune raison d'être accessible dehors
 
 		// ? à trier
-		void update_var(int l, ostream& os, const Option&);
-		State check_satisfiability(ostream& os, const Option&);
-		void revive(ostream& os,  const Option&, const std::vector<bool>& be_cancelled = std::vector<bool>({false}));
-		void remove_tautology(ostream& os, const Option&);
-		void apply_modification(int t,ostream& os, const Option&);
-		Res propagation_unitary(std::stack<Decision_var>& decisions, ostream& os, const Option&);
-		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, ostream& os, const Option&);
+		void update_var(int l);
+		State check_satisfiability();
+		void revive(const std::vector<bool>& be_cancelled = std::vector<bool>({false}));
+		void remove_tautology();
+		void apply_modification(int);
+		Res propagation_unitary(std::stack<Decision_var>& decisions);
+		Res propagation_unique_polarity(std::stack<Decision_var>& decisions);
 		//WL
-		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, ostream& os, const Option&);
+		Res propagation_unitary_wl(std::stack<Decision_var>& decisions);
 
 	private:
 		std::list<Clause> clauses_alive;

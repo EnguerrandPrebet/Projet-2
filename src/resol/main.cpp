@@ -2,6 +2,7 @@
 #include "clause.hpp"
 #include "prototype.hpp"
 #include "formula_io.hpp"
+#include "global.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -40,109 +41,108 @@ const static char HELP_OUTPUT[] =
 
 int main(int argc, char* argv[])
 {
-    Option option;
-	ostream& os = cout;
-
-    string file_name;
-    for(int i = 1; i < argc; i++)
-    {
+	string file_name;
+	for(int i = 1; i < argc; i++)
+	{
 		/* Options en ligne commande */
-        if (argv[i][0] == '-')
-        {
-            string argument(argv[i] + 1);
+		if (argv[i][0] == '-')
+		{
+			string argument(argv[i] + 1);
 
-            if (argument == "-debug")
-                option.debug = MAX_DEBUG;
-
-            else if (argument[0] == 'd' && argument.size() == 2) // -d1 à -dMAX_DEBUG
-            {
-            	option.debug = argument[1] - '0';
-                if (option.debug > MAX_DEBUG)
-                {
-                    cout << "Error: debug level set to inappropriate value: " << option.debug << ", debug level set to MAX_DEBUG" << endl;
-                    option.debug = MAX_DEBUG;
-                }
-            }
-            else if (argument == "-tseitin" || argument == "tseitin" || argument == "t")
-            {
-                option.tseitin = true;
-
-                if (argument == "tseitin")
-					cout << "Warning: -tseitin is obsolete, please use --tseitin or -t instead" << endl;
+			if (argument == "-debug")
+			{
+				Global::option.debug = MAX_DEBUG;
 			}
-            else if (argument == "-help" || argument == "h")
-            {
-                cout << HELP_OUTPUT;
+
+			else if (argument[0] == 'd' && argument.size() == 2) // -d1 à -dMAX_DEBUG
+			{
+				Global::option.debug = argument[1] - '0';
+				if (Global::option.debug > MAX_DEBUG)
+				{
+					Global::ERROR() << "debug level set to inappropriate value: " << Global::option.debug << ", debug level set to MAX_DEBUG" << endl;
+					Global::option.debug = MAX_DEBUG;
+				}
+			}
+			else if (argument == "-tseitin" || argument == "tseitin" || argument == "t")
+			{
+				Global::option.tseitin = true;
+
+				if (argument == "tseitin")
+					Global::WARNING() << "-tseitin is obsolete, please use --tseitin or -t instead" << endl;
+			}
+			else if (argument == "-help" || argument == "h")
+			{
+				cout << HELP_OUTPUT;
 				return 0;
 			}
 			else if (argument == "wl")
 			{
-				option.watched_litterals = true;
+				Global::option.watched_litterals = true;
 			}
 			else if (argument == "cl-interac")
 			{
-				option.cl_interactive = true;
-				option.cl = true;
+				Global::option.cl_interactive = true;
+				Global::option.cl = true;
 			}
 			else if (argument == "cl")
 			{
-				option.cl = true;
+				Global::option.cl = true;
 			}
 			else if (argument == "rand")
 			{
-				option.heuristique = RAND;
+				Global::option.heuristique = RAND;
 			}
 			else if (argument == "moms")
 			{
-				option.heuristique = MOMS;
+				Global::option.heuristique = MOMS;
 			}
 			else if (argument == "dlis")
 			{
-				option.heuristique = DLIS;
+				Global::option.heuristique = DLIS;
 			}
-            else
+			else
 				cout << "Unrecognized command line option: " << argv[i] << endl;
-        }
-        else /* A priori un nom de fichier */
-        {
-            if (string(argv[i]).find(".cnf") != string::npos)
-            {
+		}
+		else /* A priori un nom de fichier */
+		{
+			if (string(argv[i]).find(".cnf") != string::npos)
+			{
 				file_name = argv[i];
-                option.cnf_found = true;
+				Global::option.cnf_found = true;
 			}
 
-            else if (string(argv[i]).find(".for") != string::npos)
-            {
+			else if (string(argv[i]).find(".for") != string::npos)
+			{
 				file_name = argv[i];
-                option.for_found = true;
+				Global::option.for_found = true;
 				}
 
-            else
-            {
-                cout << "Unknown command line argument: " << argv[i] << endl;
-            }
-        }
-    }
+			else
+			{
+				cout << "Unknown command line argument: " << argv[i] << endl;
+			}
+		}
+	}
 
-    if(option.cnf_found == false && option.tseitin == false)
-    {
-        cout << "Expected input file (.cnf or .for)" << endl;
-        return 0;
-    }
+	if(Global::option.cnf_found == false && Global::option.tseitin == false)
+	{
+		cout << "Expected input file (.cnf or .for)" << endl;
+		return 0;
+	}
 
-    ifstream file(file_name, fstream::in);
-    if (!file)
-    {
+	ifstream file(file_name, fstream::in);
+	if (!file)
+	{
 		cout << "Cannot open file: " << file_name << endl;
 		return 0;
 	}
 
 	Formula f;
-	if (option.cnf_found)
-		f = treat_cnf(file, option, os);
+	if (Global::option.cnf_found)
+		f = treat_cnf(file);
 
-	else if (option.tseitin)
-		f = treat_tseitin(file_name, option, os);
+	else if (Global::option.tseitin)
+		f = treat_tseitin(file_name);
 
 	else
 	{
@@ -150,22 +150,26 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if(option.cnf_found)
+	if(Global::option.cnf_found)
 	{
-		layered_debug(option, os, "Input read, f is ", 3);
-		f.print_formula(os, option,true);
+		Global::DEBUG(3) << "Input read, f is ";
 
-		layered_debug(option, os, "Above, litterals were sorted in a different way in clauses\n", 3);
+		if (Global::option.debug >= 3)
+			f.print_formula(true);
+
+		Global::DEBUG(3) << "Above, litterals were sorted in a different way in clauses" << endl;
 	}
 
-	layered_debug(option, os, "And now renamed :", 3);
-	f.print_formula(os, option, false);
+	Global::DEBUG(3) << "And now renamed :";
 
-	switch(dpll(f, os, option))
+	if (Global::option.debug >= 3)
+		f.print_formula(false);
+
+	switch(dpll(f))
 	{
 		case TRUE:
 			cout << "s SATISFIABLE" << endl;
-			f.print_assignment(option, os);
+			f.print_assignment();
 			break;
 
 		case FALSE:
@@ -176,7 +180,8 @@ int main(int argc, char* argv[])
 			cout << "s ???" << endl;
 	}
 
-	layered_debug(option, os, "End of main\n", 1);
+
+	Global::DEBUG(1) << "End of main" << endl;
 
 	return 0;
 }

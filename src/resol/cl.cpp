@@ -1,20 +1,19 @@
 #include "cl.hpp"
 
+#include "formula.hpp"
+#include "global.hpp"
+
 #include <iostream> // interface
 #include <queue> // bfs
 #include <fstream> // pour créer le fichier .dot
 
 #include <cstdlib> // pour lancer graphviz sur le fichier .dot
 
-#include "formula.hpp"
-#include "option.hpp"
-
-
 enum Color {NO_COLOR, WHITE, BLUE, YELLOW, PURPLE, NEW_CLAUSE}; //!Le dernier sert dans la création de la nouvelle clause pour les redondances, doit être considéré comme identique à WHITE
 
 void show_graph(const vector< list<int> >& la, const vector<Color>& color);
 
-void interface(const vector< list<int> >& la, const vector<Color>& color, Option& option)
+void interface(const vector< list<int> >& la, const vector<Color>& color)
 {
 	char cmd;
 	bool good_cmd = false;
@@ -33,7 +32,7 @@ void interface(const vector< list<int> >& la, const vector<Color>& color, Option
 				break;
 
 			case 't':
-				option.cl_interactive = false;
+				Global::option.cl_interactive = false;
 			//Pas besoin de break, les 2 ferment l'interface
 			case 'c':
 				good_cmd = true;
@@ -52,7 +51,7 @@ void apply_color(int i, const vector< list<int> >& la, const Color& new_color, v
 
 int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int uip);
 
-int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& clause_learned, ostream& os, Option& option)
+int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& clause_learned)
 {
 	//0 représente le conflit
 	vector< list<int> > la(f.nb_variables()+1); //graphe des sommets bleus
@@ -71,9 +70,9 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 
 	time_back = generate_new_clause(f, clause_learned, la_old, color_v, uip); ///Ajoute la clause à f
 
-	merge(la,la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
-	if(option.cl_interactive)
-		interface(la, color_v, option); /**???Où dans le CL ? À la fin ?**/
+	merge(la, la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
+	if(Global::option.cl_interactive)
+		interface(la, color_v); /**???Où dans le CL ? À la fin ?**/
 
 	return time_back;
 }
@@ -149,7 +148,7 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 	ofstream file("graph.dot", ifstream::out | ifstream::trunc);
 
 	if (!file.good())
-		cout << "Error: can't open graph.dot for reading" << endl;
+		Global::ERROR() << "can't open graph.dot for reading" << endl;
 
 	file << "digraph \"Conflict Graph\" {" << endl;
 
@@ -164,13 +163,16 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 			case YELLOW: graphviz_color_name = "khaki"; break;
 			case PURPLE: graphviz_color_name = "thistle"; break;
 
-			case NEW_CLAUSE: graphviz_color_name = "crimson"; break;
+			case NEW_CLAUSE: graphviz_color_name = "palegreen3"; break;
 			default: continue; // variable non concernée
 		}
 
 		string conflict_style;
 		if (s == 0)
-			conflict_style = "label=\"conflict\",";
+		{
+			conflict_style = "label=\"CONFLICT\",";
+			graphviz_color_name = "tomato1";
+		}
 
 		file << "\t" << s << " [" << conflict_style << "style=filled, fillcolor=" << graphviz_color_name << "];" << endl;
 	}

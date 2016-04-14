@@ -1,10 +1,11 @@
-PROJET 2 : Rendu 2
+PROJET 2 : Rendu 3
 Enguerrand PREBET et Clément CHOUTEAU
-22/03/16
+14/04/16
 
+
+CE QUI SUIT N'EST PAS PROPRE AU RENDU 3
 
 Le programme gère l'entrée standard .cnf ainsi que la version conviviale .for avec maintenant déductions, la possibilité d'utiliser des heuristiques (RAND,MOMS,DLIS), ainsi que les littéraux surveillés.
- 
  
 //Structure du code
 On a gardé pour convention d'utiliser l'anglais pour les noms techniques ainsi que les sorties de debug, mais de garder les commentaires en français, pour pouvoir taper des commentaires pertinents plus rapidement. 
@@ -34,18 +35,31 @@ L'option de débug --debug permet de suivre facilement ce que fait l'algorithme.
 L'algo est bien plus performant que pour le rendu 1 puisque combinatorial.cnf qui ne terminait pas après plus de 10 min, est maintenant une question de secondes.
 Plus d'informations dans tests/resol/README
 
+
+CE QUI SUIT EST PROPRE AU RENDU 3
+
+/Répartition
+Enguerrand s'est chargé d'implémenter l'algorithme de recherche de l'UIP ainsi que la déduction de clause.
+Clément s'est chargé d'afficher le graphe avec graphviz, de créer global.hpp et d'effectuer l'harmonisation des messages de debug ainsi que d'écrire ce readme.
+
+//Travail effectué
+L'affichage du graphe de Clause Learning fonctionne, ainsi que la déduction de clauses.
+
 //Améliorations
+Le Makefile a été amélioré et effectue maintenant une compilation avec fichiers intermédiaires pour limiter le temps de compilation (3s-5s actuellement).
+
+Un fichier global.hpp est maintenant chargé de définir les options (variable globale) du programme.
+	Il permet de créer un système de messages d'erreurs / warning / error, facilement, exemple :
+		Global::DEBUG(1) << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
+	qui n'affiche le message que si le niveau de debug donné en ligne de commande vaut au moins l'entier indiqué
+		Global::WARNING() << "Expected " << c << " clauses (" << actual_c << " found)" << endl;
+	qui ajoute un entête "Warning: "
+
+//Travail futur
 Dans l'avenir, on pense chercher des tests de performance plus conséquents, soit aléatoires, soit applicatifs.
 Analyser de façon précise (gprofs, valgrind) le temps d'exécution des différentes fonctions du programme.
 Utiliser des outils d'analyse de code pour trouver les fonctions / lignes trop longues pour rendre le code plus clair.
-Une vérification automatique du programme est mise en place avec regression.sh (non régression) et un message indiquant le type d'entrée, il contient encore peu de tests.
-Un Makefile plus propre et plus utile, et surtout effectue une compilation avec fichiers intermédiaires pour limiter le temps de compilation (3s-5s actuellement).
+
+Le point suivant est sûrement le plus important :
 Rendre les API des classes Formula, Clause, ... plus claires et plus robustes.
 	On a souvent des classes avec un rôle pas bien défini / des variables public / trop de setters, getters
-Un petite détail certes, mais gênant : const Option& se ballade dans tout le programme, on pense peut être faire un fichier pour le set en variable statique.
-
-/Répartition
-Nous avons essayé d'intervertir les rôles pour ce 2e rendu.
-Ainsi Enguerrand s'est chargé de la transformation de l'architecture du projet pour le rendre plus modulable, de l'implémentation des déductions et des littéraux surveillés, et toujours de ce README.
-Clément s'est quant à lui occupé d'implémenter les heuristiques, d'adapter tseitin aux nouvelles structures de données, ainsi qu'à la lisibilité du code.
-Le debug et le reste (les script de tests, par exemple) s'est effectué principalement à deux.

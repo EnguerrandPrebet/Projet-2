@@ -9,20 +9,20 @@
 
 using namespace std;
 
-Formula tseitin(Formula_input& f_input, const Option& option, ostream& os)
+Formula tseitin(Formula_input& f_input)
 {
 	/* Renommage des variables */
 	Renaming renaming;
 	f_input.compute_renaming(renaming);
 
-	if (option.debug >= 1)
+	if (Global::option.debug >= 1)
 	{
-		os << "Mapping of the input formula variables is: " << endl;
+		Global::DEBUG(1) << "Mapping of the input formula variables is: " << endl;
 		for (pair<int, unsigned int> _ : renaming)
 		{
-			os << "(" << _.first << " -> " << _.second << ")" << " ";
+			Global::DEBUG(1) << "(" << _.first << " -> " << _.second << ")" << " ";
 		}
-		os << endl << endl;
+		Global::DEBUG(1) << endl << endl;
 	}
 
 	/* TSEITIN */
@@ -40,15 +40,15 @@ Formula tseitin(Formula_input& f_input, const Option& option, ostream& os)
 		f_top->tseitin_one_step(jobs, clauses, renaming);
 	}
 
-	if (option.debug >= 1)
+	if (Global::option.debug >= 1)
 	{
-		os << "Tseitin added the following variables to the mapping : " << endl;
+		Global::DEBUG(1) << "Tseitin added the following variables to the mapping : " << endl;
 		for (pair<int, unsigned int> _ : renaming)
 		{
 			//if (_.second >= Formula_input::nb_input_variables)
-				os << "(" << _.first << " -> " << _.second << ")" << " ";
+				Global::DEBUG(1) << "(" << _.first << " -> " << _.second << ")" << " ";
 		}
-		os << endl << endl;
+		Global::DEBUG(1) << endl << endl;
 	}
 
 	clauses.push_back(list<int>({f_input.tseitin_x}));

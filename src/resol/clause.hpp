@@ -1,15 +1,9 @@
 #ifndef CLAUSE_HPP
 #define CLAUSE_HPP
 
-#include "option.hpp"
-
 #include <vector>
 #include <list>
-#include <ostream>
 #include <stack>
-
-#define DEBUG(X) if(option.debug >= X)\
-					os
 
 enum State{TRUE, FALSE, UNKNOWN};
 
@@ -36,14 +30,14 @@ class Clause
 		void print() const;
 		State check_satisfiability(const std::vector<State>& assignment);
 
-		void get_up(const std::vector<bool>& be_cancelled, std::ostream& os, const Option& option);
+		void get_up(const std::vector<bool>& be_cancelled);
 		void get_up_wl();
 		void get_up_all();
 
 		State litteral_status(const std::vector<State>& assignment, int l) const;
-		int apply_modification(const std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
-		int apply_modification_wl(const std::vector<State>& assignment,std::ostream& os, const Option& option); //Renvoie true si la clause est validé par les modifs
-		Res propagation_unitary_wl(const std::vector<State>& assignment, std::ostream& os, const Option& option, int& x);
+		int apply_modification(const std::vector<State>& assignment); //Renvoie true si la clause est validé par les modifs
+		int apply_modification_wl(const std::vector<State>& assignment); //Renvoie true si la clause est validé par les modifs
+		Res propagation_unitary_wl(const std::vector<State>& assignment, int& x);
 
 	private:
 		// option watched litterals

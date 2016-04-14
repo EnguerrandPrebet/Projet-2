@@ -2,6 +2,7 @@
 
 #include "../parser/formula_input.hpp"
 #include "../tseitin/tseitin.hpp"
+#include "global.hpp"
 
 #include "renaming.hpp"
 
@@ -26,7 +27,7 @@ template <typename T> int sign(T val) {
 	return (T(0) < val) - (val < T(0));
 }
 
-Formula treat_cnf(istream& is, const Option& option, ostream& os)
+Formula treat_cnf(istream& is)
 {
 	string line;
 	do
@@ -38,7 +39,7 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 	iss >> p;
 	if(p != "p")
 	{
-		cout << "Expected \"p\" on first line (" << p << " given)" << endl;
+		Global::ERROR() << "Expected \"p\" on first line (" << p << " given)" << endl;
 		exit(0);
 	}
 
@@ -46,14 +47,14 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 	iss >> cnf;
 	if(cnf != "cnf")
 	{
-		cout << "Expected \"cnf\" after \"p\" (" << cnf << " given)" << endl;
+		Global::ERROR() << "Expected \"cnf\" after \"p\" (" << cnf << " given)" << endl;
 		exit(0);
 	}
 
 	unsigned int v,c;
 	if (!(iss >> v >> c))
 	{
-		cout << "Unable to get V and C" << endl;
+		Global::ERROR() << "Unable to get V and C" << endl;
 		exit(0);
 	}
 
@@ -100,24 +101,24 @@ Formula treat_cnf(istream& is, const Option& option, ostream& os)
 	f.set_clauses_alive(clauses);
 
 	if (actual_v != v)
-		cout << "Expected " << v << " greatest variable (" << actual_v << " found)" << endl;
+		Global::WARNING() << "Expected " << v << " greatest variable (" << actual_v << " found)" << endl;
 
 	if (actual_c != c)
-		cout << "Expected " << c << " clauses (" << actual_c << " found)" << endl;
+			Global::WARNING() << "Expected " << c << " clauses (" << actual_c << " found)" << endl;
 
-	if (option.debug >= 1)
-		os << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
+	if (Global::option.debug >= 1)
+		Global::DEBUG(1) << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
 
 	return f;
 }
 
-Formula treat_tseitin(const string& filename, const Option& option, ostream& os)
+Formula treat_tseitin(const string& filename)
 {
 	int fd = open(filename.c_str(), O_RDONLY);
 	dup2(fd, 0);
 	//!!!!!! traitement des erreurs ici
 
-	Formula f = tseitin(*parser(option, os), option, os);
+	Formula f = tseitin(*parser());
 
 	//dup2(0,fd); //on remet l'entrée standard (pour cl-interac) (si ça marche)
 	close(fd);

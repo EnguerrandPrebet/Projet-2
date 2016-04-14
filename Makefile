@@ -22,21 +22,21 @@ $(FOLDER):
 	cd $@ && make
 
 ./bin/resol: $(FOLDER)
-	
+
 	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
 
 ./bin/graph: ./src/stats/main.cpp
 	$(CXX) $(CPPFLAGS) -o $@ $^
-	
+
 gprof:
 	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
-	 
+
 debug:
 	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 
 $(NAME).yy.c :  $(NAME).l
 	$(LEX)  -o $@ $^
-	
+
 $(NAME).tab.cpp : $(NAME).ypp
 	$(YACC) --report=all -o $@ -d $^
 
@@ -45,6 +45,8 @@ regression: debug
 
 clean:
 	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output ./obj/*.o
+
+rebuild: mrproper all
 
 mrproper: clean
 	rm -f $(EXEC)

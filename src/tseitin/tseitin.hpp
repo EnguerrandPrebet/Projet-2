@@ -6,6 +6,6 @@
 
 #include <iostream>
 
-Formula tseitin(Formula_input& f_input, const Option&, std::ostream& os);
+Formula tseitin(Formula_input& f_input);
 
 #endif // TSEITIN_HPP

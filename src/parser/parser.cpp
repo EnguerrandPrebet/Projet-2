@@ -4,6 +4,7 @@
 
 #include "formula_input.hpp"
 #include "formula_input.tab.hpp"
+#include "../resol/global.hpp"
 
 using namespace std;
 
@@ -13,28 +14,25 @@ extern int yyparse(void);
 
 extern Formula_input *res;
 
-Formula_input* parser(const Option& option, ostream& os)
+Formula_input* parser()
 {
-    // parse through the input until there is no more:
-    do
-    {
-        yyparse();
+	// parse through the input until there is no more:
+	do
+	{
+		yyparse();
 
-		if (option.debug >= 1)
-		{
-			os << "Post-parser: " << endl;
-	        os << res->to_string() << endl << endl;
-		}
+		Global::DEBUG(1) << "Post-parser" << endl;
+		Global::DEBUG(1) << res->to_string() << endl << endl;
 
-    } while (!feof(yyin));
+	} while (!feof(yyin));
 
-    return res;
+	return res;
 }
 
 void yyerror(const char *s)
 {
-    cout << "EEK, parse error!  Message: " << s << endl;
-    // might as well halt now:
-    exit(-1);
+	Global::ERROR() << "parse error!  Message: " << s << endl;
+
+	exit(-1);
 }
 

@@ -26,7 +26,7 @@ Formula::Formula(const Renaming& input_renaming)
 	assignment = vector<State>(n, UNKNOWN);
 	time_of_assign = vector<int>(n, -1);
 
-	//??? if (option.cl == true)
+	//??? if (Global::option.cl == true)
 	//reason_of_assignment = vector< list<int> >(n + 1);
 
 	tab_stack_delete = vector< list<Clause> >(n + 1);
@@ -113,36 +113,36 @@ int Formula::get_dlis_var() const
 	return max_score->first;
 }
 
-void Formula::update_var(int l, ostream& os, const Option& option)
+void Formula::update_var(int l)
 {
 	unsigned int x = abs(l);
 
 	assignment[x] = (l > 0) ? TRUE : FALSE;
 
-	DEBUG(1) << x << " set to " << (l>0) << endl;
+	Global::DEBUG(1) << x << " set to " << (l>0) << endl;
 
 	auto it = find(var_alive.begin(), var_alive.end(), x);
 	var_alive.erase(it);
 
-	DEBUG(1) << var_alive.size() << " vars left" << endl;
+	Global::DEBUG(1) << var_alive.size() << " vars left" << endl;
 }
 
-void Formula::apply_modification(int t,ostream& os, const Option& option)
+void Formula::apply_modification(int t)
 {
-	DEBUG(1) << "Modifying f" << endl;
+	Global::DEBUG(1) << "Modifying f" << endl;
 	for(auto it = clauses_alive.begin(); it != clauses_alive.end();)
 	{
 		int cause;
-		if ((option.watched_litterals == false
-			 && (cause = it->apply_modification(assignment,os,option)))
-				|| (option.watched_litterals == true && (cause = it->apply_modification_wl(assignment,os,option))))
+		if ((Global::option.watched_litterals == false
+			 && (cause = it->apply_modification(assignment)))
+				|| (Global::option.watched_litterals == true && (cause = it->apply_modification_wl(assignment))))
 		{
-			DEBUG(1) << "Clause deleted at t = " << t << ", because of " << cause <<  endl;
+			Global::DEBUG(1) << "Clause deleted at t = " << t << ", because of " << cause <<  endl;
 			tab_stack_delete[abs(cause)].push_back(*it);
 			it = clauses_alive.erase(it);
 			if(clauses_alive.empty())
 			{
-				DEBUG(1) << "Il y a plus rien !" << endl;
+				Global::DEBUG(1) << "Il y a plus rien !" << endl;
 				break;
 			}
 		}
@@ -153,9 +153,9 @@ void Formula::apply_modification(int t,ostream& os, const Option& option)
 	}
 }
 
-State Formula::check_satisfiability(ostream& os, const Option& option)
+State Formula::check_satisfiability()
 {
-	revive(os,option); // remet toutes les clauses vivantes
+	revive(); // remet toutes les clauses vivantes
 
 	State result = TRUE;
 	/* On vérifie que toutes les clauses sont satisfaites */
@@ -175,7 +175,7 @@ State Formula::check_satisfiability(ostream& os, const Option& option)
 	return result;
 }
 
-void Formula::remove_tautology(ostream& os, const Option& option)
+void Formula::remove_tautology()
 {
 	list<Clause> new_clauses({});
 	for(Clause& c : clauses_alive)
@@ -201,13 +201,13 @@ void Formula::remove_tautology(ostream& os, const Option& option)
 		}
 		else
 		{
-			DEBUG(1) << "Tautologie found" << endl;
+			Global::DEBUG(1) << "Tautologie found" << endl;
 		}
 	}
 	set_clauses_alive(new_clauses);
 }
 
-Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, const Option& option)
+Res Formula::propagation_unitary(stack<Decision_var>& decisions)
 {
 	Res action = SUCCESS;
 
@@ -225,12 +225,12 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 			{
 				action = NEW;
 				int l = c.get_first_litteral();
-				DEBUG(1) << "Unitaire avec : " << l << endl;
+				Global::DEBUG(1) << "Unitaire avec : " << l << endl;
 
 				unsigned int x = abs(l);
 				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
-					update_var(l, os, option);
+					update_var(l);
 					time_of_assign[x] = decisions.top().time;
 					decisions.push(Decision_var(l, INFER, decisions.top().time, *it));
 				}
@@ -246,20 +246,20 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, ostream& os, co
 	return action;
 }
 
-Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os, const Option& option)
+Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
 {
 	Res act = SUCCESS;
 
 	for(auto c = clauses_alive.begin(); c != clauses_alive.end(); c++)
 	{
 		int x;
-		Res act_aux = c->propagation_unitary_wl(assignment,os,option,x);
+		Res act_aux = c->propagation_unitary_wl(assignment, x);
 		if(act_aux == NEW)
 		{
-			DEBUG(1) << "Unitaire avec : " << x << endl;
+			Global::DEBUG(1) << "Unitaire avec : " << x << endl;
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
-				update_var(x,os,option);
+				update_var(x);
 				decisions.push(Decision_var(x,INFER,decisions.top().time, *c));
 			}
 			act = NEW;
@@ -274,7 +274,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, ostream& os,
 	return act;
 }
 
-Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream& os, const Option& option)
+Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions)
 {
 	vector<int> seen(Formula::nb_variables()+1, 0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
@@ -302,10 +302,10 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 			int x = i*seen[i];
 			action = NEW;
 
-			DEBUG(1) << "Polarité unique avec : " << x << endl;
+			Global::DEBUG(1) << "Polarité unique avec : " << x << endl;
 			if(assignment[abs(x)] == UNKNOWN)
 			{
-				update_var(x, os, option);
+				update_var(x);
 				decisions.push(Decision_var(x, INFER, decisions.top().time, Clause()));
 			}
 		}
@@ -313,7 +313,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, ostream
 	return action;
 }
 
-void Formula::revive(ostream& os,  const Option& option, const vector<bool>& be_cancelled)
+void Formula::revive(const vector<bool>& be_cancelled)
 {
 	unsigned int taille = be_cancelled.size();
 
@@ -338,8 +338,8 @@ void Formula::revive(ostream& os,  const Option& option, const vector<bool>& be_
 	{
 		for(auto it = clauses_alive.begin(); it != clauses_alive.end(); it++)//Puis les variables dans les clauses
 		{
-			if(option.watched_litterals == false)
-				it->get_up(be_cancelled,os,option);
+			if(Global::option.watched_litterals == false)
+				it->get_up(be_cancelled);
 			else
 				it->get_up_wl();
 		}
@@ -357,24 +357,22 @@ unsigned int Formula::nb_variables() const
 }
 
 
-void Formula::print_formula(ostream& os, const Option& option, bool true_name, unsigned int debug_lvl) const
+void Formula::print_formula(bool true_name) const
 {
-	if(option.debug >= debug_lvl)
+	Global::DEBUG() << endl << "Check :" << endl;
+	for (const Clause& clause : clauses_alive)
 	{
-		os << endl << "Check :" << endl;
-		for (const Clause& clause : clauses_alive)
+		for(auto it = clause.get_vars().begin(); it != clause.get_vars().end(); it++)
 		{
-			for(auto it = clause.get_vars().begin(); it != clause.get_vars().end(); it++)
-			{
-				os << ((true_name) ? renaming.translate_litteral(*it) : *it) << ' ';
-			}
-			os << endl;
+			Global::DEBUG() << ((true_name) ? renaming.translate_litteral(*it) : *it) << ' ';
 		}
-		os << "END" << endl << endl;
+		Global::DEBUG() << endl;
 	}
+	Global::DEBUG() << "END" << endl << endl;
+
 }
 
-void Formula::print_assignment(const Option& option, ostream& os) const
+void Formula::print_assignment() const
 {
 	for (const pair<int, unsigned int> _ : renaming)
 	{
@@ -385,32 +383,32 @@ void Formula::print_assignment(const Option& option, ostream& os) const
 		switch (assignment[mapped_x])
 		{
 			case TRUE:
-				os << x;
+				Global::DEBUG() << x;
 				break;
 
 			case FALSE:
-				os << (-x);
+				Global::DEBUG() << (-x);
 				break;
 
 			case UNKNOWN:
-				if(option.debug >= 1)
-					cout << "?";
-				cout << x; // affectation arbitraire
+				if(Global::option.debug >= 1)
+					Global::DEBUG() << "?";
+				Global::DEBUG() << x; // affectation arbitraire
 				break;
 		}
 
-		os << ' ';
+		Global::DEBUG() << ' ';
 	}
 
-	os << endl;
+	Global::DEBUG() << endl;
 }
 
 int Formula::generate_new_clause(vector<int>& clause, int uip, Clause& clause_learned)
 {
 	int maxi = 0;
 
+	//! inliner la fonction comp, son nom est mauvais
 	sort(clause.begin(),clause.end(), [=](int i, int j){return this->comp(i,j);}); //le moins récent en premier pour être empilé dans le bon ordre
-	//! L'expression est compliquée mais en gros, je trie selon la fonction "comp"
 
 	list<int> signed_clause;
 

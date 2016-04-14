@@ -17,6 +17,8 @@ using namespace std;
 class Formula
 {
 	public:
+		Renaming renaming;
+
 		Formula();
 
 		Formula(const Renaming&);
@@ -27,6 +29,8 @@ class Formula
 
 		// Get
 		unsigned int nb_variables() const;
+
+		State variable_assignment(unsigned int x) const;
 
 		int get_first_var() const; // choix par défaut
 		int get_random_var() const;
@@ -55,8 +59,6 @@ class Formula
 	private:
 		std::list<Clause> clauses_alive;
 		std::vector< std::list<Clause> > tab_stack_delete; //Clause peut devenir Decision_cla si on veut plus d'info
-
-		Renaming renaming;
 
 		std::vector<State> assignment; //  [NULL, x_1, ..., x_n] donc taille (n + 1)
 		std::vector<int> time_of_assign; //CL

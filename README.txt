@@ -43,13 +43,24 @@ Enguerrand s'est chargé d'implémenter l'algorithme de recherche de l'UIP ainsi
 Clément s'est chargé d'afficher le graphe avec graphviz, de créer global.hpp et d'effectuer l'harmonisation des messages de debug ainsi que d'écrire ce readme.
 
 //Travail effectué
-L'affichage du graphe de Clause Learning fonctionne, ainsi que la déduction de clauses.
+L'affichage du graphe de Clause Learning fonctionne.
+Le code couleurs est le suivant :
+	Fond bleu : noeud à t courant
+	Fond blanc : noeud à t antérieur
+	Fond rouge : conflict
+	Fond jaune : UIP
+	Fond vert : variables ajoutées par clause learning
+	Bordure rouge : noeud lié au conflict
+Petit ajout de dernière minute : les arrêtes entre deux sommets liés au conflict sont rouges, cela facilite considérablement la lecture du graphe.
+
+La déduction de clauses fonctionne également mais change peu les performances, environ +-20%.
+Le calcul du graphe est effectué au dernier moment, donc aucun impact sur les performances si l'option -cl n'est pas activée.
 
 //Améliorations
-Le Makefile a été amélioré et effectue maintenant une compilation avec fichiers intermédiaires pour limiter le temps de compilation (3s-5s actuellement).
+Le Makefile a été amélioré et effectue maintenant une compilation avec fichiers intermédiaires pour limiter le temps de compilation (quasiment instantané contre 3s-5s avant).
 
-Un fichier global.hpp est maintenant chargé de définir les options (variable globale) du programme.
-	Il permet de créer un système de messages d'erreurs / warning / error, facilement, exemple :
+Un fichier global.hpp est maintenant chargé de gérer les options (variable globale) du programme.
+	Il permet également de créer un système de messages d'erreurs / warning / error, facilement, exemple :
 		Global::DEBUG(1) << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
 	qui n'affiche le message que si le niveau de debug donné en ligne de commande vaut au moins l'entier indiqué
 		Global::WARNING() << "Expected " << c << " clauses (" << actual_c << " found)" << endl;
@@ -57,9 +68,12 @@ Un fichier global.hpp est maintenant chargé de définir les options (variable g
 
 //Travail futur
 Dans l'avenir, on pense chercher des tests de performance plus conséquents, soit aléatoires, soit applicatifs.
+Automatiser l'affichage de divers graphes de performances et notamment un affichage 2D (couleurs) des performances du programme sur des formules aléatoires de taille (n, m) où n et m varient
+afin de mieux voir l'influence des options sur des formules ayant beaucoup de (clauses | variables), notamment pour pouvoir faire le bilan sur notre implémentation des watched litterals.
+
 Analyser de façon précise (gprofs, valgrind) le temps d'exécution des différentes fonctions du programme.
 Utiliser des outils d'analyse de code pour trouver les fonctions / lignes trop longues pour rendre le code plus clair.
 
 Le point suivant est sûrement le plus important :
-Rendre les API des classes Formula, Clause, ... plus claires et plus robustes.
+	Rendre les API des classes Formula, Clause, ... plus claires et plus robustes.
 	On a souvent des classes avec un rôle pas bien défini / des variables public / trop de setters, getters

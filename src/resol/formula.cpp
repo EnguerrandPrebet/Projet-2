@@ -356,6 +356,10 @@ unsigned int Formula::nb_variables() const
 	return assignment.size() - 1;
 }
 
+State Formula::variable_assignment(unsigned int x) const
+{
+	return assignment[x];
+}
 
 void Formula::print_formula(bool true_name) const
 {

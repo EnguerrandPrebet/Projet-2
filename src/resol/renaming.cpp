@@ -12,7 +12,7 @@ Renaming::Renaming() :
 	next_available_var(1),
 	nb_input_variables(0)
 {
-
+	inverse_variables_mapping.push_back(0); // 0 -> 0, inverse_variables_mapping[0] est inutilisé
 }
 
 int Renaming::rename_litteral(int l)
@@ -25,6 +25,7 @@ int Renaming::rename_litteral(int l)
 
 	/* Renommage */
 	int mapped_x = variables_mapping[x] = next_available_var++;
+	inverse_variables_mapping.push_back(x); // next_available_var -> x
 	nb_input_variables++;
 
 	return sign(l) * mapped_x;
@@ -34,6 +35,16 @@ int Renaming::translate_litteral(int l) const
 {
 	unsigned int x = abs(l);
 	unsigned int mapped_x = variables_mapping.at(x);
+
+	return sign(l) * (int) mapped_x;
+}
+
+#include <iostream>
+
+int Renaming::inverse_translate_litteral(int l) const
+{
+	unsigned int x = abs(l);
+	unsigned int mapped_x = inverse_variables_mapping[x];
 
 	return sign(l) * (int) mapped_x;
 }

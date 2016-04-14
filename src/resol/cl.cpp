@@ -11,9 +11,9 @@
 
 enum Color {NO_COLOR, WHITE, BLUE, YELLOW, PURPLE, NEW_CLAUSE}; //!Le dernier sert dans la création de la nouvelle clause pour les redondances, doit être considéré comme identique à WHITE
 
-void show_graph(const vector< list<int> >& la, const vector<Color>& color);
+void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Color>& color);
 
-void interface(const vector< list<int> >& la, const vector<Color>& color)
+void interface(const Formula& f, const vector< list<int> >& la, const vector<Color>& color)
 {
 	char cmd;
 	bool good_cmd = false;
@@ -28,7 +28,7 @@ void interface(const vector< list<int> >& la, const vector<Color>& color)
 		switch(cmd)
 		{
 			case 'g':
-				show_graph(la, color);
+				show_graph(f, la, color);
 				break;
 
 			case 't':
@@ -58,7 +58,7 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 	vector< list<int> > la_inv(f.nb_variables()+1);
 	vector< list<int> > la_old(f.nb_variables()+1); //graphe qui à un sommet bleu donne les parents blancs (donc inversé)
 
-	vector<Color> color_v(f.nb_variables()+1,NO_COLOR);
+	vector<Color> color_v(f.nb_variables()+1, NO_COLOR);
 	int root = create_graphe(la, la_inv, la_old, color_v, decisions);/*renvoie l'origine du graphe bleus, aka le pari.*///!En coloriant au passage en blanc et bleu
 
 	int uip = get_uip(la, la_inv, root);
@@ -72,7 +72,7 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 
 	merge(la, la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
 	if(Global::option.cl_interactive)
-		interface(la, color_v); /**???Où dans le CL ? À la fin ?**/
+		interface(f, la, color_v); /**???Où dans le CL ? À la fin ?**/
 
 	return time_back;
 }
@@ -141,7 +141,7 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une 
 	return be_cancelled;
 }
 
-void show_graph(const vector< list<int> >& la, const vector<Color>& color)
+void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Color>& color)
 {
 	unsigned int n = color.size();
 
@@ -161,7 +161,7 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 			case WHITE: graphviz_color_name = "white"; break;
 			case BLUE: graphviz_color_name = "lightblue"; break;
 			case YELLOW: graphviz_color_name = "khaki"; break;
-			case PURPLE: graphviz_color_name = "thistle"; break;
+		case PURPLE: graphviz_color_name = "lightblue"; break; //avant : "thistle"
 
 			case NEW_CLAUSE: graphviz_color_name = "palegreen3"; break;
 			default: continue; // variable non concernée
@@ -174,7 +174,11 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 			graphviz_color_name = "tomato1";
 		}
 
-		file << "\t" << s << " [" << conflict_style << "style=filled, fillcolor=" << graphviz_color_name << "];" << endl;
+		string neg_string = (s != 0 && f.variable_assignment(s) == FALSE) ? "¬" : "";
+
+		string conflict_related_node_style = (color[s] == PURPLE || color[s] == YELLOW || color[s] == NEW_CLAUSE) ? ",color=tomato1,penwidth=2" : "";
+
+		file << "\t" << f.renaming.inverse_translate_litteral(s) << " [label=\"" << neg_string << s << "\"," << conflict_style << "style=filled, fillcolor=" << graphviz_color_name << conflict_related_node_style << "];" << endl;
 	}
 
 	file << endl;
@@ -183,7 +187,15 @@ void show_graph(const vector< list<int> >& la, const vector<Color>& color)
 	for (unsigned int s1 = 0; s1 < n; s1++)
 	{
 		for (unsigned int s2 : la[s1])
-			file << "\t" << s1 << " -> " << s2 << ";" << endl;
+		{
+			bool conflict_related_edge =
+					(color[s1] == PURPLE || color[s1] == YELLOW || color[s1] == NEW_CLAUSE)
+					&& (color[s2] == PURPLE || color[s2] == YELLOW || color[s2] == NEW_CLAUSE);
+
+			string conflict_edge_style = (conflict_related_edge) ? "[color=tomato1]" : "";
+
+			file << "\t" << f.renaming.inverse_translate_litteral(s1) << " -> " << f.renaming.inverse_translate_litteral(s2) << conflict_edge_style << ";" << endl;
+		}
 	}
 
 	file << "}";

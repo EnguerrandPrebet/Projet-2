@@ -1,0 +1,41 @@
+L'exemple (transparents 7 a 23).
+
+On traite l'egalite f(f(a)) = a
+
+On appelle donc Merge(f(f(a)), a)
+
+On fait union(f(f(a)), a), d'ou le "a" en rouge dans la colonne
+"find(t)" (transparent 10).
+
+On s'interesse ensuite a f(f(f(a))), qui contient f(f(a)) comme
+sous-terme (et appartient donc a A) : transp. 11
+
+transp. 12: on constate que sig(t) = f(a) a la fois pour f(a) et pour
+f(f(f(a))), le "if" de l'avant-derniere ligne du transparent 6 est
+donc vrai.
+
+on fait donc Merge(f(a), f(f(f(a)))), ce qui a pour effet de mettre
+f(a) dans la colonne "find" pour f(f(f(a))).
+
+on a termine pour la premiere equation, on passe a la deuxieme :
+transparent 14.
+
+cela nous amene a calculer Merge(f(a), a) (transp. 16). on met a dans
+la colonne "find" pour f(a), et du coup a est aussi dans la colonne
+"find" pour f(f(f(a))). 
+
+transp 17 nous met en evidence, sur la premiere colonne ("t"),
+l'ensemble A des termes ayant f(a) comme sous-terme 
+
+transp 18: on doit calculer sig(t) pour les deux elements de A, ca
+donne respectivement f(a) et g(a,b).
+
+du coup le "if" est vrai pour les termes dans les deux dernieres
+lignes du tableau, on fait un Merge.
+
+
+Enfin, on passe a la disegalite, et on aboutit a une contradiction.
+
+
+
+

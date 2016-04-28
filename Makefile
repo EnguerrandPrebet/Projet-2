@@ -4,7 +4,7 @@ LEX=flex
 LIBLEX=-lfl
 YACC=bison
 
-EXEC=./bin/resol ./bin/graph
+EXEC=./bin/resol ./bin/graph ./bin/generator
 FOLDER=./src/parser ./src/tseitin ./src/resol
 
 TSEITIN=./src/tseitin/tseitin.cpp
@@ -25,7 +25,7 @@ $(FOLDER):
 
 	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
 
-./bin/graph: ./src/stats/main.cpp
+./bin/%: ./src/stats/%.cpp
 	$(CXX) $(CPPFLAGS) -o $@ $^
 
 gprof:

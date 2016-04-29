@@ -1,0 +1,15 @@
+gérer les dépendances dans le makefile
+Il était démandé d’afficher la clause ajoutée et le niveau de backtrack pour -cl-interac
+Remarque Olga sur trops de trucs affichés sur le graphe
+Faire les //! et //? restants après que clem a fait ceux concernant le debug
+Uniformiser le debug (un peu de debug parout + messages dans le même style)
+CL avec WL
+Faire le parseur tseitin
+Faire le SMT avec le UnionFind de clem
+Faire un rapport .txt
+Corriger selon les remarques de clément
+
+Celui qui a le temps fait les slides
+
+Ordonner les classes à nettoyer pour clément
+Renommage de 1 = 1000 ? qui s'en charge ?

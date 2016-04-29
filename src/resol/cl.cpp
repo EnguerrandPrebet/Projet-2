@@ -15,17 +15,19 @@ enum Color {NO_COLOR, PRE_WHITE, PRE_BLUE, WHITE, BLUE, YELLOW, PURPLE, NEW_CLAU
 
 void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Color>& color);
 
-void interface(const Formula& f, const vector< list<int> >& la, const vector<Color>& color)
+void interface(const Formula& f, const vector< list<int> >& la, const vector<Color>& color, int time_back)
 {
 	char cmd;
 	bool good_cmd = false;
+
+	cout << "Welcome to the graphic interface of ClauseLearning.Inc" << endl;
+	cout << endl << "Press g to see the conflict graph of this wrong answer" << endl;
+	cout << "Press c to continue until the next conflitct" << endl;
+	cout << "Press t to stop the interaction and go directly at the end" << endl;
+	cout << endl << "We go back to " << time_back << "." << endl;
+
 	while(!good_cmd)
 	{
-		cout << "Welcome to the graphic interface of ClauseLearning.Inc" << endl;
-		cout << endl << "Press g to see the conflict graph of this wrong answer" << endl;
-		cout << "Press c to continue until the next conflitct" << endl;
-		cout << "Press t to stop the interaction and go directly at the end" << endl;
-
 		cin >> cmd;
 		switch(cmd)
 		{
@@ -76,7 +78,7 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 
 	merge(la, la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
 	if(Global::option.cl_interactive)
-		interface(f, la, color_v);
+		interface(f, la, color_v, time_back);
 
 	return time_back;
 }
@@ -147,9 +149,14 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une 
 void refine_graphe(int i, vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v)
 {
 	color_v[i] = BLUE;
+
+	Global::DEBUG(3) << " affinage " << i << " ";
+
 	for(int j:la_inv[i])
 	{
-		if(color_v[j] == PRE_WHITE)
+		Global::DEBUG(3) << "(" << i << "," << j << ") ";
+
+		if(color_v[j] == PRE_WHITE || color_v[j] == WHITE)
 		{
 			color_v[j] = WHITE;
 			la_old[i].push_back(j);
@@ -161,6 +168,8 @@ void refine_graphe(int i, vector< list<int> >& la, vector< list<int> >& la_inv, 
 				refine_graphe(j,la,la_inv,la_old,color_v);
 		}
 	}
+
+	Global::DEBUG(3) << endl;
 }
 
 void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Color>& color)
@@ -252,8 +261,11 @@ void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependanc
 
 	obligation[i][i] = true;
 
+	Global::DEBUG(3) << " uip " << i << " ";
+
 	for(int j:la[i])
 	{
+		Global::DEBUG(3) << "(" << i << "," << j << ") ";
 		if(dependance[j][j] == false)
 		{
 			dfs(j,la,dependance,obligation);
@@ -263,6 +275,7 @@ void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependanc
 			if(dependance[j][k])
 				dependance[i][k] = true;
 		}
+		Global::DEBUG(3) << endl;
 	}
 	for(unsigned int k = 0; k < dependance.size(); k++)
 	{
@@ -323,9 +336,11 @@ bool isuip(int challenger, const vector< vector<bool> >& dependance, const vecto
 
 void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color)
 {
+	Global::DEBUG(3) << " color " << i << " ";
 	color[i] = new_color;
 	for(int j:la[i])
 	{
+		Global::DEBUG(3) << "(" << i << "," << j << ") ";
 		if(color[j] != new_color)
 		{
 			apply_color(j,la,new_color,color);
@@ -354,7 +369,6 @@ int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<i
 		{
 			for(int j: la_old[i])
 			{
-
 				if(color_v[j] == WHITE)//Sommet pas encore vu
 				{
 					clause.push_back(j);

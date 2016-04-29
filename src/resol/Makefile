@@ -4,9 +4,21 @@ CPPFLAGS=-Wall -std=c++11 -Wno-write-strings
 CFILES=$(wildcard ./*.cpp)
 OFILES=$(subst ./,./../../obj/,$(CFILES:.cpp=.o))
 
-.PHONY: all
+.PHONY: all create_folder
 
 all : $(OFILES)
 
-$(OFILES): ./../../obj/%.o : %.cpp
-	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $^
+include $(wildcard ../../dep/resol/*.d)
+
+create_folder:
+	mkdir -p ../../dep/resol
+	
+$(OFILES): ./../../obj/%.o : %.cpp ../../dep/resol/%.d
+	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $<
+	
+../../dep/resol/%.d: %.cpp create_folder
+	@set -e; rm -f $@; \
+	$(CXX) -M $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+

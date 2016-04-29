@@ -7,9 +7,9 @@ YACC=bison
 EXEC=./bin/resol ./bin/graph ./bin/generator
 FOLDER=./src/parser ./src/tseitin ./src/resol
 
+
 TSEITIN=./src/tseitin/tseitin.cpp
 RESOL=$(wildcard ./src/resol/*.cpp)
-
 NAME=./src/parser/formula_input
 PARSER=$(NAME).tab.cpp $(NAME).yy.c $(NAME).cpp ./src/parser/parser.cpp
 
@@ -20,6 +20,7 @@ all: $(EXEC)
 create_folder:
 	mkdir -p ./obj
 	mkdir -p ./bin
+	mkdir -p ./dep
 
 $(FOLDER): create_folder
 	cd $@ && make

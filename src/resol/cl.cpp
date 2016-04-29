@@ -9,7 +9,9 @@
 
 #include <cstdlib> // pour lancer graphviz sur le fichier .dot
 
-enum Color {NO_COLOR, WHITE, BLUE, YELLOW, PURPLE, NEW_CLAUSE}; //!Le dernier sert dans la création de la nouvelle clause pour les redondances, doit être considéré comme identique à WHITE
+enum Color {NO_COLOR, PRE_WHITE, PRE_BLUE, WHITE, BLUE, YELLOW, PURPLE, NEW_CLAUSE}; //NEW_CLAUSE = GREEN
+/*PRE_WHITE et PRE_BLUE sont les couleurs du graphe complet (de l'état courant)*/
+/*Seuls les sommets liés au conflit passent à la couleur WHITE,BLUE*/
 
 void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Color>& color);
 
@@ -44,10 +46,11 @@ void interface(const Formula& f, const vector< list<int> >& la, const vector<Col
 	}
 }
 
-int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v, stack<Decision_var> decisions);
+int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision_var> decisions);
+void refine_graphe(int i, vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v);
 int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, int root);
 void merge(vector< list<int> >& la, const vector< list<int> >& la_old);
-void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int uip);
+void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color);
 
 int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int uip);
 
@@ -59,11 +62,12 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 	vector< list<int> > la_old(f.nb_variables()+1); //graphe qui à un sommet bleu donne les parents blancs (donc inversé)
 
 	vector<Color> color_v(f.nb_variables()+1, NO_COLOR);
-	int root = create_graphe(la, la_inv, la_old, color_v, decisions);/*renvoie l'origine du graphe bleus, aka le pari.*///!En coloriant au passage en blanc et bleu
+	int root = create_graphe(la_inv, color_v, decisions);/*renvoie l'origine du graphe bleus, aka le pari.*///En coloriant au passage en blanc et bleu
+	refine_graphe(0, la, la_inv, la_old, color_v);
 
 	int uip = get_uip(la, la_inv, root);
 
-	apply_color(0,la_inv,PURPLE,color_v,uip);
+	apply_color(uip,la,PURPLE,color_v);
 	color_v[uip] = YELLOW;
 
 	int time_back;
@@ -72,18 +76,18 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 
 	merge(la, la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
 	if(Global::option.cl_interactive)
-		interface(f, la, color_v); /**???Où dans le CL ? À la fin ?**/
+		interface(f, la, color_v);
 
 	return time_back;
 }
 
 vector<bool> update_cancel(int n, stack<Decision_var> decisions);
 
-int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
+int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
 	int current_time = decisions.top().time;
 
-	vector<bool> be_cancelled = update_cancel(la.size(), decisions);//Pour détecter les sommets bleus
+	vector<bool> be_cancelled = update_cancel(la_inv.size(), decisions);//Pour détecter les sommets bleus
 
 	int x_fils = 0; //On le définit maintenant car à la fin de la boucle, x_fils == pari //initialisation anti-warning
 
@@ -102,11 +106,10 @@ int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< 
 
 			stack_delete.pop();
 
-			la[x_pere].push_back(x_fils);
 			la_inv[x_fils].push_back(x_pere);
 
-			color_v[x_pere] = BLUE;
-			color_v[x_fils] = BLUE;
+			color_v[x_pere] = PRE_BLUE;
+			color_v[x_fils] = PRE_BLUE;
 		}
 
 		//Et maintenant les sommets blancs
@@ -116,8 +119,8 @@ int create_graphe(vector< list<int> >& la, vector< list<int> >& la_inv, vector< 
 
 			stack_delete.pop();
 
-			la_old[x_fils].push_back(x_pere);
-			color_v[x_pere] = WHITE;
+			la_inv[x_fils].push_back(x_pere);
+			color_v[x_pere] = PRE_WHITE;
 		}
 	}
 
@@ -139,6 +142,25 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une 
 	}
 
 	return be_cancelled;
+}
+
+void refine_graphe(int i, vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v)
+{
+	color_v[i] = BLUE;
+	for(int j:la_inv[i])
+	{
+		if(color_v[j] == PRE_WHITE)
+		{
+			color_v[j] = WHITE;
+			la_old[i].push_back(j);
+		}
+		else
+		{
+			la[j].push_back(i);
+			if(color_v[j] == PRE_BLUE)
+				refine_graphe(j,la,la_inv,la_old,color_v);
+		}
+	}
 }
 
 void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Color>& color)
@@ -299,14 +321,14 @@ bool isuip(int challenger, const vector< vector<bool> >& dependance, const vecto
 	return true;
 }
 
-void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color, int uip)
+void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color)
 {
 	color[i] = new_color;
 	for(int j:la[i])
 	{
-		if(color[j] != new_color && j != uip)
+		if(color[j] != new_color)
 		{
-			apply_color(j,la,new_color,color,uip);
+			apply_color(j,la,new_color,color);
 		}
 	}
 }
@@ -332,6 +354,7 @@ int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<i
 		{
 			for(int j: la_old[i])
 			{
+
 				if(color_v[j] == WHITE)//Sommet pas encore vu
 				{
 					clause.push_back(j);

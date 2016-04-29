@@ -14,15 +14,17 @@ NAME=./src/parser/formula_input
 PARSER=$(NAME).tab.cpp $(NAME).yy.c $(NAME).cpp ./src/parser/parser.cpp
 
 .PHONY : all $(FOLDER) gprof debug regression clean mrproper
+
 all: $(EXEC)
 
-
-$(FOLDER):
+create_folder:
 	mkdir -p ./obj
+	mkdir -p ./bin
+
+$(FOLDER): create_folder
 	cd $@ && make
 
 ./bin/resol: $(FOLDER)
-
 	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
 
 ./bin/%: ./src/stats/%.cpp

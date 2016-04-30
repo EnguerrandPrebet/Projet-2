@@ -11,7 +11,7 @@ OFILES=$(subst ./,./../../obj/,$(CFILES:.cpp=.o))
 
 .PHONY: all create_folder
 
-all : $(OFILES) ./../../obj/$(NAME).yy.o
+all : create_folder $(OFILES) ./../../obj/$(NAME).yy.o
 
 include $(wildcard ../../dep/parser/*.d)
 
@@ -30,8 +30,5 @@ $(NAME).yy.c :  $(NAME).l
 $(NAME).tab.cpp : $(NAME).ypp
 	$(YACC) --report=all -o $@ -d $^
 
-../../dep/parser/%.d: %.cpp create_folder
-	@set -e; rm -f $@; \
-	$(CXX) -M $(CPPFLAGS) $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
+../../dep/parser/%.d: %.cpp
+	$(CXX) $(CPPFLAGS) -MM -MD -MT ../../obj/$*.o -o $@ $<

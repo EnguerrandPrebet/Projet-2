@@ -23,7 +23,7 @@ create_folder:
 	mkdir -p ./dep
 
 $(FOLDER): create_folder
-	cd $@ && make
+	cd $@ && make all
 
 ./bin/resol: $(FOLDER)
 	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
@@ -47,9 +47,10 @@ regression: debug
 	cd tests/resol/; ./regression.sh
 
 clean:
-	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output ./obj/*.o
+	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output
+	rm -f -r ./dep/ ./obj/
 
 rebuild: mrproper all
 
 mrproper: clean
-	rm -f $(EXEC)
+	rm -f -r ./bin/

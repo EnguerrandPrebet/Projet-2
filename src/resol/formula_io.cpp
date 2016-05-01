@@ -10,6 +10,7 @@
 #include <set>
 #include <unistd.h> // dup2 dans treat_tseitin
 #include <fcntl.h> // open(2) dans treat_tseitin
+#include <cstring> // strerror
 
 using namespace std;
 
@@ -91,10 +92,8 @@ Formula treat_cnf(istream& is)
 			clauses.push_back(list<int>(clause.begin(), clause.end()));
 			actual_c++;
 		}
-		else
-		{
-			//!!!!!! affichage debug ici
-		}
+		else // ligne terminée sans le 0 indicateur de fin de clause
+			Global::WARNING() << "Clause not properly ended" << endl;
 	}
 
 	Formula f(renaming);
@@ -106,21 +105,31 @@ Formula treat_cnf(istream& is)
 	if (actual_c != c)
 			Global::WARNING() << "Expected " << c << " clauses (" << actual_c << " found)" << endl;
 
-	if (Global::option.debug >= 1)
-		Global::DEBUG(1) << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
+	Global::DEBUG(1) << "Reading complete !" << endl << "Launching DPLL Solver..." << endl;
 
 	return f;
 }
 
 Formula treat_tseitin(const string& filename)
 {
+	errno = 0;
 	int fd = open(filename.c_str(), O_RDONLY);
+	if (errno != 0)
+	{
+		Global::ERROR() << strerror(errno) << endl;
+		exit(1);
+	}
+
+	errno = 0;
 	dup2(fd, 0);
-	//!!!!!! traitement des erreurs ici
+	if (errno != 0)
+	{
+		Global::ERROR() << strerror(errno) << endl;
+		exit(1);
+	}
 
 	Formula f = tseitin(*parser());
 
-	//dup2(0,fd); //on remet l'entrée standard (pour cl-interac) (si ça marche)
 	close(fd);
 
 	return f;

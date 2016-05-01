@@ -30,10 +30,10 @@ int main(int argc, char* argv[])
 			ofstream file;
 			file.open(file_name);
 
-			file << "p cnf " << c << " " << v << endl;
+			file << "p cnf " << v << " " << c << endl;
 			for(int i = 0; i < c; i++)
 			{
-				int taille = (rand()%size_c)+1;
+				int taille = (rand()%size_c)+1; // size_c
 				for(int j = 0; j < taille; j++)
 				{
 					int var = (rand()%v)+1;

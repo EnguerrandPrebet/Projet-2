@@ -26,9 +26,6 @@ Formula::Formula(const Renaming& input_renaming)
 	assignment = vector<State>(n, UNKNOWN);
 	time_of_assign = vector<int>(n, -1);
 
-	//??? if (Global::option.cl == true)
-	//reason_of_assignment = vector< list<int> >(n + 1);
-
 	tab_stack_delete = vector< list<Clause> >(n + 1);
 }
 
@@ -218,7 +215,8 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions)
 		switch(c.size())
 		{
 			case 0:
-				decisions.push(Decision_var(0, INFER, decisions.top().time, *it));//On push la clause vide pour l'avoir dans le clause learning
+			decisions.push({0, decisions.top().time, *it, INFER});//On push la clause vide pour l'avoir dans le clause learning
+				//decisions.push(Decision_var(0, INFER, decisions.top().time, *it));//On push la clause vide pour l'avoir dans le clause learning
 				return ERROR;
 
 			case 1:
@@ -232,7 +230,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions)
 				{
 					update_var(l);
 					time_of_assign[x] = decisions.top().time;
-					decisions.push(Decision_var(l, INFER, decisions.top().time, *it));
+					decisions.push({l, decisions.top().time, *it, INFER});
 				}
 				break;
 			}
@@ -260,7 +258,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x);
-				decisions.push(Decision_var(x,INFER,decisions.top().time, *c));
+				decisions.push({x, decisions.top().time, *c, INFER});
 			}
 			act = NEW;
 		}
@@ -306,7 +304,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions)
 			if(assignment[abs(x)] == UNKNOWN)
 			{
 				update_var(x);
-				decisions.push(Decision_var(x, INFER, decisions.top().time, Clause()));
+				decisions.push({x, decisions.top().time, Clause(), INFER});
 			}
 		}
 	}
@@ -407,15 +405,14 @@ void Formula::print_assignment() const
 	Global::DEBUG() << endl;
 }
 
-int Formula::generate_new_clause(vector<int>& clause, int uip, Clause& clause_learned)
+int Formula::add_learned_clause(vector<int>& clause, int uip, Clause& clause_learned)
 {
-	int maxi = 0;
-
-	//! inliner la fonction comp, son nom est mauvais
-	sort(clause.begin(),clause.end(), [=](int i, int j){return this->comp(i,j);}); //le moins récent en premier pour être empilé dans le bon ordre
+	auto cmp = [this](int i, int j) {return time_of_assign[i] < time_of_assign[j];};
+	sort(clause.begin(),clause.end(), cmp); // le moins récent en premier
 
 	list<int> signed_clause;
 
+	int maxi = 0;
 	for(int j: clause)
 	{
 		if(time_of_assign[j] > maxi)

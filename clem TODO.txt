@@ -1,11 +1,12 @@
-Faire les //! et //? pour le debug
+#Faire les //! et //? pour le debug
 Faire l'union find avec backtracking
 	opérations classiques
 	backtrack optionnel (pour la version en ligne)
-Regarder initialisation de DecisionVar //!
+#Regarder initialisation de DecisionVar //!
 Faire heuristiques pour clause learning
 renommer les couleurs
 Afficher les graphes 2D
+nettoyer le TODO.txt
 faire heuristiques avec watched litterals
 Remarques sur le rapport d'enguerrand
 Faire le rapport en Latex

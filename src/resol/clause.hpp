@@ -8,7 +8,7 @@
 enum State{TRUE, FALSE, UNKNOWN};
 
 enum Res {NEW, NOTHING, ERROR, SUCCESS};
-enum Choix {INFER, GUESS};
+enum Choice {INFER, GUESS};
 
 
 
@@ -53,12 +53,15 @@ class Clause
 
 struct Decision_var
 {
-	Decision_var(int n_var, Choix n_choice, int n_time, Clause n_reason) {var = n_var; choice = n_choice; time = n_time; reason = n_reason;} //!!! Clem à gérer
-
+	//! c'était ça le problème :
+	//! http://stackoverflow.com/questions/24751567/error-when-initializing-a-struct-with-a-brace-enclosed-initializer-list
+	//! et
+	//! http://stackoverflow.com/questions/18184096/c11-struct-initialization-compilation-error
+	//? à supprimer après lecture !!!!
 	int var;
-	int time = 0;
+	int time;
 	Clause reason;
-	Choix choice;
+	Choice choice;
 };
 
 #endif // CLAUSE_HPP

@@ -33,6 +33,6 @@ void yyerror(const char *s)
 {
 	Global::ERROR() << "parse error!  Message: " << s << endl;
 
-	exit(-1);
+	exit(0);
 }
 

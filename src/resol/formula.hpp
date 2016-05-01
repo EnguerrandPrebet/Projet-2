@@ -42,8 +42,7 @@ class Formula
 		void print_assignment() const; // print
 
 		//CL
-		int generate_new_clause(std::vector<int>& new_clause, int uip, Clause& clause_learned);
-		bool comp(int i, int j){return time_of_assign[i] < time_of_assign[j];}; ///?à passer en private ? car elle n'a aucune raison d'être accessible dehors
+		int add_learned_clause(std::vector<int>& new_clause, int uip, Clause& clause_learned); // retour : date du backtrack
 
 		// ? à trier
 		void update_var(int l);

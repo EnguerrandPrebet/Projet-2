@@ -22,7 +22,7 @@ struct Option
 
 	Heuristique heuristique = NONE;
 
-	bool cl_interactive = false; //!!!NON CONSTANT ! (à voir comment le gérer)
+	bool cl_interactive = false;
 	bool cl = false;
 };
 

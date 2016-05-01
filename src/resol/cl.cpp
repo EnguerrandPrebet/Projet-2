@@ -341,5 +341,5 @@ int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<i
 		}
 	}
 
-	return f.generate_new_clause(clause,uip, clause_learned);
+	return f.add_learned_clause(clause,uip, clause_learned);
 }

@@ -93,7 +93,7 @@ int Clause::apply_modification(const vector<State>& assignment)
 
 int Clause::apply_modification_wl(const vector<State>& assignment)
 {
-	if(wl2 == -1)//CLause vide
+	if(wl2 == -1)//Clause vide
 		return 0;
 	if(nothing_before_wl == false)
 	{

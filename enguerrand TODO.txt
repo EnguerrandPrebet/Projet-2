@@ -1,6 +1,6 @@
-gérer les dépendances dans le makefile
-Il était démandé d’afficher la clause ajoutée et le niveau de backtrack pour -cl-interac
-Remarque Olga sur trops de trucs affichés sur le graphe
+#gérer les dépendances dans le makefile
+#Il était démandé d’afficher la clause ajoutée et le niveau de backtrack pour -cl-interac
+#Remarque Olga sur trops de trucs affichés sur le graphe
 Faire les //! et //? restants après que clem a fait ceux concernant le debug
 Uniformiser le debug (un peu de debug parout + messages dans le même style)
 CL avec WL

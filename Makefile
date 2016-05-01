@@ -7,22 +7,25 @@ YACC=bison
 EXEC=./bin/resol ./bin/graph ./bin/generator
 FOLDER=./src/parser ./src/tseitin ./src/resol
 
+
 TSEITIN=./src/tseitin/tseitin.cpp
 RESOL=$(wildcard ./src/resol/*.cpp)
-
 NAME=./src/parser/formula_input
 PARSER=$(NAME).tab.cpp $(NAME).yy.c $(NAME).cpp ./src/parser/parser.cpp
 
 .PHONY : all $(FOLDER) gprof debug regression clean mrproper
+
 all: $(EXEC)
 
-
-$(FOLDER):
+create_folder:
 	mkdir -p ./obj
-	cd $@ && make
+	mkdir -p ./bin
+	mkdir -p ./dep
+
+$(FOLDER): create_folder
+	cd $@ && make all
 
 ./bin/resol: $(FOLDER)
-
 	$(CXX) $(CPPFLAGS) -O2 -o $@ ./obj/* $(LIBLEX)
 
 ./bin/%: ./src/stats/%.cpp
@@ -44,9 +47,10 @@ regression: debug
 	cd tests/resol/; ./regression.sh
 
 clean:
-	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output ./obj/*.o
+	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output
+	rm -f -r ./dep/ ./obj/
 
 rebuild: mrproper all
 
 mrproper: clean
-	rm -f $(EXEC)
+	rm -f -r ./bin/

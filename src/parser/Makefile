@@ -9,12 +9,17 @@ NAME=formula_input
 CFILES=./$(NAME).tab.cpp ./$(NAME).cpp ./parser.cpp
 OFILES=$(subst ./,./../../obj/,$(CFILES:.cpp=.o))
 
-.PHONY: all
+.PHONY: all create_folder
 
-all : $(OFILES) ./../../obj/$(NAME).yy.o
+all : create_folder $(OFILES) ./../../obj/$(NAME).yy.o
 
-$(OFILES) : ./../../obj/%.o : %.cpp
-	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $^ $(LIBLEX)
+include $(wildcard ../../dep/parser/*.d)
+
+create_folder:
+	mkdir -p ../../dep/parser/
+	
+$(OFILES) : ./../../obj/%.o : %.cpp ../../dep/parser/%.d
+	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $< $(LIBLEX)
 
 ./../../obj/$(NAME).yy.o : $(NAME).yy.c
 	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $^ $(LIBLEX)
@@ -25,3 +30,5 @@ $(NAME).yy.c :  $(NAME).l
 $(NAME).tab.cpp : $(NAME).ypp
 	$(YACC) --report=all -o $@ -d $^
 
+../../dep/parser/%.d: %.cpp
+	$(CXX) $(CPPFLAGS) -MM -MD -MT ../../obj/$*.o -o $@ $<

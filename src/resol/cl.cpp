@@ -192,7 +192,7 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 			case WHITE: graphviz_color_name = "white"; break;
 			case BLUE: graphviz_color_name = "lightblue"; break;
 			case YELLOW: graphviz_color_name = "khaki"; break;
-		case PURPLE: graphviz_color_name = "lightblue"; break; //avant : "thistle"
+			case PURPLE: graphviz_color_name = "lightblue"; break; //avant : "thistle"
 
 			case NEW_CLAUSE: graphviz_color_name = "palegreen3"; break;
 			default: continue; // variable non concernée
@@ -235,7 +235,7 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 
 	/* On affiche le graphe */
 	system("dot -Tps graph.dot -o graph.ps");
-	remove("graph.dot");
+	//remove("graph.dot");
 	system("xdg-open graph.ps");
 	//remove("graph.ps");
 }

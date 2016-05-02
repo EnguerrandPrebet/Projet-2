@@ -121,6 +121,7 @@ Formula treat_tseitin(const string& filename)
 	}
 
 	errno = 0;
+	int input_fd = dup(0);
 	dup2(fd, 0);
 	if (errno != 0)
 	{
@@ -132,5 +133,6 @@ Formula treat_tseitin(const string& filename)
 
 	close(fd);
 
+	dup2(input_fd,0);
 	return f;
 }

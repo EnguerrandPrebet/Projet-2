@@ -39,7 +39,10 @@ int Renaming::translate_litteral(int l) const
 	return sign(l) * (int) mapped_x;
 }
 
-#include <iostream>
+bool Renaming::is_input_variable(unsigned int x) const
+{
+	return x <= nb_input_variables;
+}
 
 int Renaming::inverse_translate_litteral(int l) const
 {
@@ -60,7 +63,6 @@ unsigned int Renaming::number_of_variables() const
 {
 	return next_available_var;
 }
-
 
 unsigned int Renaming::number_of_input_variables() const
 {

@@ -11,7 +11,9 @@ public:
 
 	int rename_litteral(int l);
 	int translate_litteral(int l) const;
-	int inverse_translate_litteral(int l) const;
+
+    bool is_input_variable(unsigned int) const;
+    int inverse_translate_litteral(int l) const; // n'appeler que si is_input_variable() == true
 
 	int new_variable();
 

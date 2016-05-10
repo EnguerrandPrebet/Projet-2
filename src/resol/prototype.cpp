@@ -150,6 +150,7 @@ Res update(Formula& f, stack<Decision_var>& decisions)
 
 int get_next_assignment(const Formula& f)
 {
+	Global::DEBUG(2) << Global::option.heuristique << endl;
 	switch (Global::option.heuristique)
 	{
 		case RAND:

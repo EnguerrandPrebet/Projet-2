@@ -258,12 +258,16 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				update_var(x);
+				time_of_assign[abs(x)] = c->time_max(time_of_assign);
 				decisions.push({x, decisions.top().time, *c, INFER});
 			}
 			act = NEW;
 		}
 		else if(act_aux == ERROR)
+		{
+			decisions.push({0, c->time_max(time_of_assign), *c, INFER});//On push la clause vide pour l'avoir dans le clause learning
 			return ERROR;
+		}
 
 		if(act != NEW)
 			act = NOTHING;

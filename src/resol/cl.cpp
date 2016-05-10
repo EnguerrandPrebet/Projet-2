@@ -93,6 +93,7 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 
 	int x_fils = 0; //On le définit maintenant car à la fin de la boucle, x_fils == pari //initialisation anti-warning
 
+	Global::DEBUG(2) << "graph creation" << current_time << endl;
 	while(!decisions.empty() && decisions.top().time >= current_time)
 	{
 		Decision_var dec = decisions.top();
@@ -100,6 +101,29 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 
 		Clause c = dec.reason;
 		x_fils = abs(dec.var);
+		Global::DEBUG(3) << "loop " << x_fils << endl;
+
+		vector<int> clause = c.get_lit_fixed();
+		for(int i:clause)
+		{
+			int x_pere = abs(i);
+			if(x_fils == x_pere)
+				continue;
+			if(be_cancelled[x_pere])
+			{
+				la_inv[x_fils].push_back(x_pere);
+				Global::DEBUG(3) << x_fils << " " << x_pere << endl;
+				color_v[x_pere] = PRE_BLUE;
+				color_v[x_fils] = PRE_BLUE;
+			}
+			else
+			{
+				la_inv[x_fils].push_back(x_pere);
+				color_v[x_pere] = PRE_WHITE;
+			}
+
+		}
+		/*
 		stack<int> stack_delete = c.get_stack();
 
 		while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
@@ -124,6 +148,7 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 			la_inv[x_fils].push_back(x_pere);
 			color_v[x_pere] = PRE_WHITE;
 		}
+		*/
 	}
 
 	return x_fils;

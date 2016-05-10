@@ -53,9 +53,9 @@ State Clause::litteral_status(const vector<State>& assignment, int l) const
 
 State Clause::check_satisfiability(const vector<State>& assignment)
 {
-	get_up_all();
+
 	State sol_c = FALSE;
-	for(int x : literals_dyn)
+	for(int x : literals_fixed)
 	{
 		if(litteral_status(assignment,x) == TRUE)
 			return TRUE;
@@ -146,7 +146,7 @@ int Clause::apply_modification_wl(const vector<State>& assignment)
 
 Res Clause::propagation_unitary_wl(const vector<State>& assignment, int& x)
 {
-	if(wl1 == -1)
+	if(wl2 == -1)
 		return ERROR;
 	Global::DEBUG(2) << "c pu: " << literals_fixed[wl1] << " " << literals_fixed[wl2] << endl;
 
@@ -162,6 +162,19 @@ Res Clause::propagation_unitary_wl(const vector<State>& assignment, int& x)
 	}
 	return NOTHING;
 }
+
+int Clause::time_max(std::vector<int> time_of_assign)
+{
+	int maxi = 0;
+	for(int i:literals_fixed)
+	{
+		int x = abs(i);
+		if(time_of_assign[x] > maxi)
+			maxi = time_of_assign[x];
+	}
+	return maxi;
+}
+
 void Clause::get_up(const vector<bool>& be_cancelled)
 {
 	while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
@@ -184,13 +197,4 @@ void Clause::print() const
 	for(int i : literals_dyn)
 		Global::DEBUG() << " " << i;
 	Global::DEBUG() << endl;
-}
-
-void Clause::get_up_all()
-{
-	while(!stack_delete.empty())
-	{
-		literals_dyn.push_back(stack_delete.top());
-		stack_delete.pop();
-	}
 }

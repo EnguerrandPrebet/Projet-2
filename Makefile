@@ -37,6 +37,9 @@ gprof:
 debug:
 	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 
+clang:
+	clang++ $(CPPFLAGS) -O2 -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
+
 $(NAME).yy.c :  $(NAME).l
 	$(LEX)  -o $@ $^
 

@@ -21,10 +21,15 @@ class Clause
 
 		//Get
 		std::stack<int>& get_stack() {return stack_delete;};
+		std::vector<int>& get_lit_fixed() {return literals_fixed;};
+
 		int get_first_litteral() const {return literals_dyn.front();};
 		unsigned int size() const {return literals_dyn.size();};
 		std::list<int>& get_vars() {return literals_dyn;};
 		const std::list<int>& get_vars() const {return literals_dyn;};
+
+		//CL + WL
+		int time_max(std::vector<int> time_of_assign);
 
 		//DPLL
 		void print() const;
@@ -32,7 +37,6 @@ class Clause
 
 		void get_up(const std::vector<bool>& be_cancelled);
 		void get_up_wl();
-		void get_up_all();
 
 		State litteral_status(const std::vector<State>& assignment, int l) const;
 		int apply_modification(const std::vector<State>& assignment); //Renvoie true si la clause est validé par les modifs
@@ -53,11 +57,6 @@ class Clause
 
 struct Decision_var
 {
-	//! c'était ça le problème :
-	//! http://stackoverflow.com/questions/24751567/error-when-initializing-a-struct-with-a-brace-enclosed-initializer-list
-	//! et
-	//! http://stackoverflow.com/questions/18184096/c11-struct-initialization-compilation-error
-	//? à supprimer après lecture !!!!
 	int var;
 	int time;
 	Clause reason;

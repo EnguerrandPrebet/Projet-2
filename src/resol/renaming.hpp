@@ -18,7 +18,7 @@ public:
 	unsigned int number_of_variables() const;
 	unsigned int number_of_input_variables() const;
 
-	std::map<int, unsigned int>::const_iterator begin() const; //!!! à améliorer avec un itérateur qui retourne un struct
+	std::map<int, unsigned int>::const_iterator begin() const;
 	std::map<int, unsigned int>::const_iterator end() const;
 
 private:

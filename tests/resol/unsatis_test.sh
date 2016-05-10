@@ -1,7 +1,10 @@
 #!/bin/bash
-for FILE in $1/*
+folder=$1
+shift
+shift
+for FILE in $folder/*
 do
-	res=$(./../../bin/resol $FILE $2  | head -1 | cut -c3-)
+	res=$(./../../bin/resol $FILE $*  | head -1 | cut -c3-)
 	if [ "$res" != "UNSATISFIABLE" ]
 		then echo "$(basename $FILE), fail: $res"
 	fi

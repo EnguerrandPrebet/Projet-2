@@ -13,6 +13,7 @@ namespace Global // pas de using namespace sur Global
 {
 	extern Option option;
 
+	std::ostream& MSG();
 	std::ostream& DEBUG();
 	std::ostream& DEBUG(unsigned int required);
 	std::ostream& WARNING();

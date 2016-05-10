@@ -39,7 +39,7 @@ const static char HELP_OUTPUT[] =
 "\n"
 "Input file name must ends with .cnf or .for.\n";
 
-int main(int argc, char* argv[])
+string retrieve_cmd_arguments(int argc, char* argv[]) // retourne le nom du fichier à ouvrir
 {
 	string file_name;
 	for(int i = 1; i < argc; i++)
@@ -72,8 +72,8 @@ int main(int argc, char* argv[])
 			}
 			else if (argument == "-help" || argument == "h")
 			{
-				cout << HELP_OUTPUT;
-				return 0;
+				Global::MSG() << HELP_OUTPUT;
+				exit(0);
 			}
 			else if (argument == "wl")
 			{
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 				Global::option.heuristique = DLIS;
 			}
 			else
-				cout << "Unrecognized command line option: " << argv[i] << endl;
+				Global::WARNING() << "unrecognized command line option: " << argv[i] << endl;
 		}
 		else /* A priori un nom de fichier */
 		{
@@ -119,22 +119,29 @@ int main(int argc, char* argv[])
 
 			else
 			{
-				cout << "Unknown command line argument: " << argv[i] << endl;
+				Global::WARNING() << "unknown command line argument: " << argv[i] << endl;
 			}
 		}
 	}
 
+	return file_name;
+}
+
+int main(int argc, char* argv[])
+{
+	string file_name = retrieve_cmd_arguments(argc, argv);
+
 	if(Global::option.cnf_found == false && Global::option.tseitin == false)
 	{
-		cout << "Expected input file (.cnf or .for)" << endl;
+		Global::ERROR() << "expected input file (.cnf or .for)" << endl;
 		return 0;
 	}
 
 	ifstream file(file_name, fstream::in);
 	if (!file)
 	{
-		cout << "Cannot open file: " << file_name << endl;
-		return 0;
+		Global::ERROR() << "cannot open file: " << file_name << endl;
+		return 1;
 	}
 
 	Formula f;
@@ -146,7 +153,7 @@ int main(int argc, char* argv[])
 
 	else
 	{
-		cout << "Error: no file specified" << endl;
+		Global::ERROR() << "no file specified" << endl;
 		return 0;
 	}
 
@@ -168,16 +175,16 @@ int main(int argc, char* argv[])
 	switch(dpll(f))
 	{
 		case TRUE:
-			cout << "s SATISFIABLE" << endl;
+			Global::MSG() << "s SATISFIABLE" << endl;
 			f.print_assignment();
 			break;
 
 		case FALSE:
-			cout << "s UNSATISFIABLE" << endl;
+			Global::MSG() << "s UNSATISFIABLE" << endl;
 			break;
 
 		case UNKNOWN:
-			cout << "s ???" << endl;
+			Global::MSG() << "s ???" << endl;
 	}
 
 

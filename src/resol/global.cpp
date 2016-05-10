@@ -6,6 +6,7 @@ using namespace std;
 
 Option Global::option; // déclaration explicite
 
+static ostream& msg_stream = cout;
 static ostream& debug_stream = cout;
 static ostream& warning_stream = cout;
 static ostream& error_stream = cerr;
@@ -22,6 +23,11 @@ public:
 	null_ostream() : std::ostream( this ) {}
 	null_buffer* rdbuf() const { return (null_buffer*) this; }
 };
+
+std::ostream& Global::MSG()
+{
+	return msg_stream;
+}
 
 std::ostream& Global::DEBUG()
 {

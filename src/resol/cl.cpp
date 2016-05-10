@@ -204,7 +204,10 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 	ofstream file("graph.dot", ifstream::out | ifstream::trunc);
 
 	if (!file.good())
+	{
 		Global::ERROR() << "can't open graph.dot for reading" << endl;
+		exit(1);
+	}
 
 	file << "digraph \"Conflict Graph\" {" << endl;
 
@@ -232,9 +235,12 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 
 		string neg_string = (s != 0 && f.variable_assignment(s) == FALSE) ? "¬" : "";
 
+		string t = (f.renaming.is_input_variable(s)) ? "" : "t";
+		int vertex_label = (f.renaming.is_input_variable(s)) ? f.renaming.inverse_translate_litteral(s) : (s - f.renaming.number_of_input_variables());
+
 		string conflict_related_node_style = (color[s] == PURPLE || color[s] == YELLOW || color[s] == NEW_CLAUSE) ? ",color=tomato1,penwidth=2" : "";
 
-		file << "\t" << f.renaming.inverse_translate_litteral(s) << " [label=\"" << neg_string << s << "\"," << conflict_style << "style=filled, fillcolor=" << graphviz_color_name << conflict_related_node_style << "];" << endl;
+		file << "\t" << s << " [label=\"" << neg_string << t << vertex_label << "\"," << conflict_style << "style=filled, fillcolor=" << graphviz_color_name << conflict_related_node_style << "];" << endl;
 	}
 
 	file << endl;
@@ -250,7 +256,7 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 
 			string conflict_edge_style = (conflict_related_edge) ? "[color=tomato1]" : "";
 
-			file << "\t" << f.renaming.inverse_translate_litteral(s1) << " -> " << f.renaming.inverse_translate_litteral(s2) << conflict_edge_style << ";" << endl;
+			file << "\t" << s1 << " -> " << s2 << conflict_edge_style << ";" << endl;
 		}
 	}
 

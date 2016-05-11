@@ -228,8 +228,9 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions)
 				unsigned int x = abs(l);
 				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
-					update_var(l);
 					time_of_assign[x] = decisions.top().time;
+					Global::DEBUG(1) << "à la date " << time_of_assign[x] << endl;
+					update_var(l);
 					decisions.push({l, decisions.top().time, *it, INFER});
 				}
 				break;
@@ -257,15 +258,16 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
 			Global::DEBUG(1) << "Unitaire avec : " << x << endl;
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
+				time_of_assign[abs(x)] = decisions.top().time;
+				Global::DEBUG(1) << "à la date " << time_of_assign[abs(x)] << endl;
 				update_var(x);
-				time_of_assign[abs(x)] = c->time_max(time_of_assign);
 				decisions.push({x, decisions.top().time, *c, INFER});
 			}
 			act = NEW;
 		}
 		else if(act_aux == ERROR)
 		{
-			decisions.push({0, c->time_max(time_of_assign), *c, INFER});//On push la clause vide pour l'avoir dans le clause learning
+			decisions.push({0, decisions.top().time, *c, INFER});//On push la clause vide pour l'avoir dans le clause learning
 			return ERROR;
 		}
 

@@ -168,10 +168,12 @@ int Clause::time_max(std::vector<int> time_of_assign)
 	int maxi = 0;
 	for(int i:literals_fixed)
 	{
+		Global::DEBUG(2) << i << " " << time_of_assign[abs(i)] << endl;
 		int x = abs(i);
 		if(time_of_assign[x] > maxi)
 			maxi = time_of_assign[x];
 	}
+	Global::DEBUG(2) << maxi << endl;
 	return maxi;
 }
 

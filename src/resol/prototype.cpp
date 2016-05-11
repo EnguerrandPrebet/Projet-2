@@ -42,7 +42,7 @@ State dpll(Formula& f)
 			case NOTHING:
 			{
 				int l = get_next_assignment(f); // l = var & (true | false)
-				Global::DEBUG(1) << "x :" << l << endl;
+				Global::DEBUG(1) << "x :" << l << " at " << decisions.top().time+1 << endl;
 				f.update_var(l); // met à jour assignment et vars_alive
 
 				decisions.push({l, decisions.top().time+1, Clause(), GUESS});

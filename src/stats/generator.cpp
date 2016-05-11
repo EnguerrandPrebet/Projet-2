@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -25,6 +27,7 @@ int main(int argc, char* argv[])
 
         for(int z = 0; z < num_test; z++)
         {
+			int mini = size_c + 1;
 			string file_name = path + to_string(z) + ".cnf";
 
 			ofstream file;
@@ -33,16 +36,29 @@ int main(int argc, char* argv[])
 			file << "p cnf " << v << " " << c << endl;
 			for(int i = 0; i < c; i++)
 			{
-				int taille = (rand()%size_c)+1; // size_c
+				int taille = (rand()%(size_c/2))+ size_c/2;
+
+				mini = min(taille,mini);
+
+				vector<int> affected(v,0);
+
 				for(int j = 0; j < taille; j++)
 				{
 					int var = (rand()%v)+1;
-					int lit = var*(2*(rand()%2) - 1);
-					file << lit << " ";
+					if(affected[var])
+						file << var*affected[var] << " ";
+					else
+					{
+						int neg = 2*(rand()%2) - 1;
+						affected[var] = neg;
+						file << neg*var << " ";
+					}
+
 				}
 				file << "0" << endl;
 			}
 
+			cout << mini << endl;
 			file.close();
         }
 	}

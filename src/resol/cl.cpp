@@ -88,12 +88,11 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions);
 int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
 	int current_time = decisions.top().time;
-
 	vector<bool> be_cancelled = update_cancel(la_inv.size(), decisions);//Pour détecter les sommets bleus
 
 	int x_fils = 0; //On le définit maintenant car à la fin de la boucle, x_fils == pari //initialisation anti-warning
 
-	Global::DEBUG(2) << "graph creation" << current_time << endl;
+	Global::DEBUG(1) << "graph creation" << current_time << endl;
 	while(!decisions.empty() && decisions.top().time >= current_time)
 	{
 		Decision_var dec = decisions.top();
@@ -104,6 +103,11 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 		Global::DEBUG(3) << "loop " << x_fils << endl;
 
 		vector<int> clause = c.get_lit_fixed();
+		for(int i:clause)
+		{
+			Global::DEBUG(3) << i << " ";
+		}
+		Global::DEBUG(3) << endl;
 		for(int i:clause)
 		{
 			int x_pere = abs(i);

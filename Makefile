@@ -5,13 +5,13 @@ LIBLEX=-lfl
 YACC=bison
 
 EXEC=./bin/resol ./bin/graph ./bin/generator
-FOLDER=./src/parser ./src/tseitin ./src/resol
+FOLDER=./src/parser_smt ./src/tseitin ./src/resol
 
 
 TSEITIN=./src/tseitin/tseitin.cpp
 RESOL=$(wildcard ./src/resol/*.cpp)
-NAME=./src/parser/formula_input
-PARSER=$(NAME).tab.cpp $(NAME).yy.c $(NAME).cpp ./src/parser/parser.cpp
+NAME=./src/parser_smt/formula_input
+PARSER=$(NAME).tab.cpp $(NAME).yy.c $(NAME).cpp ./src/parser_smt/parser.cpp
 
 .PHONY : all $(FOLDER) gprof debug regression clean mrproper
 

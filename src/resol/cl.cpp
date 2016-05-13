@@ -240,7 +240,7 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 		string neg_string = (s != 0 && f.variable_assignment(s) == FALSE) ? "¬" : "";
 
 		string t = (f.renaming.is_input_variable(s)) ? "" : "t";
-		int vertex_label = (f.renaming.is_input_variable(s)) ? f.renaming.inverse_translate_litteral(s) : (s - f.renaming.number_of_input_variables());
+		Real_Value vertex_label = (f.renaming.is_input_variable(s)) ? f.renaming.inverse_translate_litteral(s) : (s - f.renaming.number_of_input_variables());
 
 		string conflict_related_node_style = (color[s] == PURPLE || color[s] == YELLOW || color[s] == NEW_CLAUSE) ? ",color=tomato1,penwidth=2" : "";
 
@@ -314,13 +314,16 @@ void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependanc
 	}
 	for(unsigned int k = 0; k < dependance.size(); k++)
 	{
+		if(!dependance[i][k])
+			continue;
+
 		bool obl = true;
 		for(int j: la[i])
 		{
 			if(obligation[j][k] == false && dependance[j][0])
 				obl = false;
 		}
-		if(obl && dependance[i][k])
+		if(obl)
 			obligation[i][k] = true;
 	}
 

@@ -1,6 +1,6 @@
 #include "tseitin.hpp"
 
-#include "../parser/formula_input.hpp"
+#include "../parser_smt/formula_input.hpp"
 #include "../resol/formula.hpp"
 
 #include <iostream>
@@ -18,7 +18,7 @@ Formula tseitin(Formula_input& f_input)
 	if (Global::option.debug >= 1)
 	{
 		Global::DEBUG(1) << "Mapping of the input formula variables is: " << endl;
-		for (pair<int, unsigned int> _ : renaming)
+		for (pair<Real_Value, unsigned int> _ : renaming)
 		{
 			Global::DEBUG(1) << "(" << _.first << " -> " << _.second << ")" << " ";
 		}
@@ -26,7 +26,8 @@ Formula tseitin(Formula_input& f_input)
 	}
 
 	/* TSEITIN */
-	f_input.tseitin_x = renaming.new_variable();
+	if(f_input.tseitin_x == 0)
+		f_input.tseitin_x = renaming.new_variable();
 
 	stack<Formula_input*> jobs;
 	jobs.push(&f_input);
@@ -40,16 +41,8 @@ Formula tseitin(Formula_input& f_input)
 		f_top->tseitin_one_step(jobs, clauses, renaming);
 	}
 
-	if (Global::option.debug >= 1)
-	{
-		Global::DEBUG(1) << "Tseitin added the following variables to the mapping : " << endl;
-		for (pair<int, unsigned int> _ : renaming)
-		{
-			//if (_.second >= Formula_input::nb_input_variables)
-				Global::DEBUG(1) << "(" << _.first << " -> " << _.second << ")" << " ";
-		}
-		Global::DEBUG(1) << endl << endl;
-	}
+	if(renaming.number_of_input_variables() + 1 <= renaming.number_of_variables() - 1)
+	Global::DEBUG(1) << "Tseitin added the following variables from " << renaming.number_of_input_variables() + 1 << " to " << renaming.number_of_variables() - 1 << " to the mapping : " << endl << endl;
 
 	clauses.push_back(list<int>({f_input.tseitin_x}));
 

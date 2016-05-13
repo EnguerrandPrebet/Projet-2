@@ -223,16 +223,18 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions)
 			{
 				action = NEW;
 				int l = c.get_first_litteral();
-				Global::DEBUG(1) << "Unitaire avec : " << l << endl;
+				Global::DEBUG(1) << "Unitaire avec : " << l;
 
 				unsigned int x = abs(l);
 				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 				{
 					time_of_assign[x] = decisions.top().time;
-					Global::DEBUG(1) << "à la date " << time_of_assign[x] << endl;
+					Global::DEBUG(1) << " à la date " << time_of_assign[x] << endl;
 					update_var(l);
 					decisions.push({l, decisions.top().time, *it, INFER});
 				}
+				else
+					Global::DEBUG(1) << endl;
 				break;
 			}
 
@@ -255,14 +257,16 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
 		Res act_aux = c->propagation_unitary_wl(assignment, x);
 		if(act_aux == NEW)
 		{
-			Global::DEBUG(1) << "Unitaire avec : " << x << endl;
+			Global::DEBUG(1) << "Unitaire avec : " << x;
 			if(assignment[abs(x)] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
 			{
 				time_of_assign[abs(x)] = decisions.top().time;
-				Global::DEBUG(1) << "à la date " << time_of_assign[abs(x)] << endl;
+				Global::DEBUG(1) << " à la date " << time_of_assign[abs(x)] << endl;
 				update_var(x);
 				decisions.push({x, decisions.top().time, *c, INFER});
 			}
+			else
+				Global::DEBUG(1) << endl;
 			act = NEW;
 		}
 		else if(act_aux == ERROR)
@@ -382,9 +386,9 @@ void Formula::print_formula(bool true_name) const
 
 void Formula::print_assignment() const
 {
-	for (const pair<int, unsigned int> _ : renaming)
+	for (const pair<Real_Value, unsigned int> _ : renaming)
 	{
-		int x = _.first;
+		Real_Value x = _.first;
 
 		unsigned int mapped_x = _.second;
 
@@ -395,7 +399,7 @@ void Formula::print_assignment() const
 				break;
 
 			case FALSE:
-				Global::DEBUG() << (-x);
+				Global::DEBUG() << -1 * x;
 				break;
 
 			case UNKNOWN:

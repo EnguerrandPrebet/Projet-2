@@ -1,7 +1,7 @@
 #ifndef FORMULA_IO_HPP
 #define FORMULA_IO_HPP
 
-#include "../parser/formula_input.hpp"
+#include "../parser_smt/formula_input.hpp"
 #include "formula.hpp"
 
 #include <iostream>

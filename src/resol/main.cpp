@@ -66,9 +66,13 @@ string retrieve_cmd_arguments(int argc, char* argv[]) // retourne le nom du fich
 			else if (argument == "-tseitin" || argument == "tseitin" || argument == "t")
 			{
 				Global::option.tseitin = true;
-
 				if (argument == "tseitin")
 					Global::WARNING() << "-tseitin is obsolete, please use --tseitin or -t instead" << endl;
+			}
+			else if (argument == "smt")
+			{
+				Global::option.smt = true;
+				Global::option.tseitin = true;
 			}
 			else if (argument == "-help" || argument == "h")
 			{
@@ -130,7 +134,6 @@ string retrieve_cmd_arguments(int argc, char* argv[]) // retourne le nom du fich
 int main(int argc, char* argv[])
 {
 	string file_name = retrieve_cmd_arguments(argc, argv);
-
 	if(Global::option.cnf_found == false && Global::option.tseitin == false)
 	{
 		Global::ERROR() << "expected input file (.cnf or .for)" << endl;

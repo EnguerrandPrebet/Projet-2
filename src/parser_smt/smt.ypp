@@ -6,11 +6,11 @@ using namespace std;
 #include "formula_input.hpp" 
 
 // stuff from flex that bison needs to know about:
-extern "C" int yylex();
+extern "C" int smtlex();
 
 void yyerror(const char *s);
 
-Formula_input *res = NULL;
+Formula_input *res_smt = NULL;
 %}
 
 // Bison fundamentally works by asking flex to get the next token, which it
@@ -44,7 +44,7 @@ Formula_input *res = NULL;
 
 %%
 // this is the actual grammar that bison will parse
-input: formula_completed  { res = $1; }
+input: formula_completed  { res_smt = $1; }
 	;
 
 formula_completed:

@@ -24,7 +24,7 @@ public:
 	null_buffer* rdbuf() const { return (null_buffer*) this; }
 };
 
-std::ostream& Global::MSG()
+ostream& Global::MSG()
 {
 	return msg_stream;
 }
@@ -46,14 +46,14 @@ ostream& Global::DEBUG(unsigned int required)
 		return cnull;
 }
 
-std::ostream& Global::WARNING()
+ostream& Global::WARNING()
 {
 	warning_stream << "Warning: ";
 
 	return warning_stream;
 }
 
-std::ostream& Global::ERROR()
+ostream& Global::ERROR()
 {
 	error_stream << "Error: ";
 

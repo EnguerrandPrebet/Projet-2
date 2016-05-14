@@ -5,6 +5,10 @@
 
 using namespace std;
 
+template <typename T> int sign(const T& val) {
+	return (T(0) < val) - (val < T(0));
+}
+
 int sign(Eq eq)
 {
 	return (eq.equal) - (!eq.equal);
@@ -115,7 +119,6 @@ bool operator<(Real_Value const& rv1, Real_Value const& rv2)
 Real_Value abs(Real_Value rv)
 {
 	Real_Value output = rv;
-
 	if(rv.isint)
 		output.val.l = abs(output.val.l);
 	else
@@ -127,10 +130,10 @@ Real_Value abs(Real_Value rv)
 int sign(Real_Value rv)
 {
 	int output;
-	if(rv.isint)
-		output = sign(rv.val.l);
-	else
-		output = sign(rv.val.eq);
 
+	if(rv.isint)
+		output = sign((int)rv.val.l);
+	else
+		output = sign((Eq)rv.val.eq);
 	return output;
 }

@@ -110,6 +110,7 @@ Formula treat_tseitin(const string& filename)
 {
 	errno = 0;
 	int fd = open(filename.c_str(), O_RDONLY);
+
 	if (errno != 0)
 	{
 		Global::ERROR() << strerror(errno) << endl;
@@ -125,7 +126,11 @@ Formula treat_tseitin(const string& filename)
 		exit(1);
 	}
 
-	Formula f = tseitin(*parser());
+	Formula f;
+	if (Global::option.smt)
+		f = tseitin(*parser_smt());
+	else
+		f = tseitin(*parser_std());
 
 	close(fd);
 

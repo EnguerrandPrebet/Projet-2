@@ -15,7 +15,9 @@ FVar_input::FVar_input(unsigned int v1, unsigned int v2, bool equal) :
 {
 }
 
-FVar_input::FVar_input(int l) : rv(l);
+FVar_input::FVar_input(int l) : rv(l)
+{
+}
 
 std::string FVar_input::to_string() const
 {

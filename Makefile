@@ -10,8 +10,9 @@ FOLDER=./src/parser_smt ./src/tseitin ./src/resol
 
 TSEITIN=./src/tseitin/tseitin.cpp
 RESOL=$(wildcard ./src/resol/*.cpp)
-NAME=./src/parser_smt/formula_input
-PARSER=$(NAME).tab.cpp $(NAME).yy.c $(NAME).cpp ./src/parser_smt/parser.cpp
+NAME=./src/parser/formula_input
+NAME2=./src/parser_smt/std
+PARSER=$(NAME).tab.cpp $(NAME).yy.c ./src/parser/formula_input.cpp ./src/parser/parser.cpp
 
 .PHONY : all $(FOLDER) gprof debug regression clean mrproper
 
@@ -41,8 +42,7 @@ clang:
 	clang++ $(CPPFLAGS) -O2 -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 
 $(NAME).yy.c :  $(NAME).l
-	$(LEX)  -o $@ $^
-
+	$(LEX) -o $@ $^ 
 $(NAME).tab.cpp : $(NAME).ypp
 	$(YACC) --report=all -o $@ -d $^
 
@@ -51,6 +51,7 @@ regression: debug
 
 clean:
 	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output
+	rm -f $(NAME2).yy.c $(NAME2).tab.cpp $(NAME2).tab.hpp $(NAME2).output
 	rm -f -r ./dep/ ./obj/
 
 rebuild: mrproper all

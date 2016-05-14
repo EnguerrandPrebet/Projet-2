@@ -4,8 +4,8 @@
 
 using namespace std;
 
-int sign(const int& val) {
-	return (0 < val) - (val < 0);
+template <typename T> int sign(const T& val) {
+	return (T(0) < val) - (val < T(0));
 }
 
 Renaming::Renaming() :

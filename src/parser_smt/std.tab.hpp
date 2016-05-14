@@ -30,14 +30,14 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_FORMULA_INPUT_TAB_HPP_INCLUDED
-# define YY_YY_FORMULA_INPUT_TAB_HPP_INCLUDED
+#ifndef YY_STDD_STD_TAB_HPP_INCLUDED
+# define YY_STDD_STD_TAB_HPP_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
 #endif
 #if YYDEBUG
-extern int yydebug;
+extern int stdddebug;
 #endif
 
 /* Token type.  */
@@ -45,19 +45,18 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    TK_EQUAL = 258,
-    TK_INEQUAL = 259,
-    TK_AND = 260,
-    TK_NEWLINE = 261,
-    TK_OR = 262,
-    TK_XOR = 263,
-    TK_IMPLY = 264,
-    TK_EQUIV = 265,
-    TK_NEGATE = 266,
-    TK_END = 267,
-    TK_LPAREN = 268,
-    TK_RPAREN = 269,
-    TK_VAR = 270
+    TK_MINUS = 258,
+    TK_AND = 259,
+    TK_NEWLINE = 260,
+    TK_OR = 261,
+    TK_XOR = 262,
+    TK_IMPLY = 263,
+    TK_EQUIV = 264,
+    TK_NEGATE = 265,
+    TK_END = 266,
+    TK_LPAREN = 267,
+    TK_RPAREN = 268,
+    TK_VAR = 269
   };
 #endif
 
@@ -66,20 +65,20 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 21 "formula_input.ypp" /* yacc.c:1909  */
+#line 21 "std.ypp" /* yacc.c:1909  */
 
-    unsigned int ival;
+    int ival;
     class Formula_input *f;
 
-#line 75 "formula_input.tab.hpp" /* yacc.c:1909  */
+#line 74 "std.tab.hpp" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
 
-extern YYSTYPE yylval;
+extern YYSTYPE stddlval;
 
-int yyparse (void);
+int stddparse (void);
 
-#endif /* !YY_YY_FORMULA_INPUT_TAB_HPP_INCLUDED  */
+#endif /* !YY_STDD_STD_TAB_HPP_INCLUDED  */

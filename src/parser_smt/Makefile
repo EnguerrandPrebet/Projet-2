@@ -5,13 +5,13 @@ LEX=flex
 LIBLEX=-lfl
 YACC=bison
 
-NAME=formula_input
-CFILES=./$(NAME).tab.cpp ./$(NAME).cpp ./parser.cpp
+
+CFILES=./smt.tab.cpp ./std.tab.cpp ./formula_input.cpp ./parser_smt.cpp ./parser_std.cpp
 OFILES=$(subst ./,./../../obj/,$(CFILES:.cpp=.o))
 
 .PHONY: all create_folder
 
-all : create_folder $(OFILES) ./../../obj/$(NAME).yy.o
+all : create_folder $(OFILES) ./../../obj/smt.yy.o ./../../obj/std.yy.o
 
 include $(wildcard ../../dep/parser/*.d)
 
@@ -21,14 +21,20 @@ create_folder:
 $(OFILES) : ./../../obj/%.o : %.cpp ../../dep/parser/%.d
 	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $< $(LIBLEX)
 
-./../../obj/$(NAME).yy.o : $(NAME).yy.c
+./../../obj/%.yy.o : %.yy.c
 	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $^ $(LIBLEX)
 
-$(NAME).yy.c :  $(NAME).l
-	$(LEX)  -o $@ $^
+smt.yy.c :  smt.l
+	$(LEX) --prefix=smt -o $@ $^
 	
-$(NAME).tab.cpp : $(NAME).ypp
-	$(YACC) --report=all -o $@ -d $^
+smt.tab.cpp : smt.ypp
+	$(YACC) --name-prefix=smt --report=all -o $@ -d $^
+
+std.yy.c :  std.l
+	$(LEX) --prefix=stdd -o $@ $^
+	
+std.tab.cpp : std.ypp
+	$(YACC) --name-prefix=stdd --report=all -o $@ -d $^
 
 ../../dep/parser/%.d: %.cpp
 	$(CXX) $(CPPFLAGS) -MM -MD -MT ../../obj/$*.o -o $@ $<

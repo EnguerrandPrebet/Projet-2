@@ -3,30 +3,30 @@
 #include <iostream>
 
 #include "formula_input.hpp"
-#include "formula_input.tab.hpp"
+#include "std.tab.hpp"
 #include "../resol/global.hpp"
 
 using namespace std;
 
-extern FILE *yyin;
-extern FILE *yyout;
-extern int yyparse(void);
+extern FILE *stddin;
+extern FILE *stddout;
+extern int stddparse(void);
 
-extern Formula_input *res;
+extern Formula_input *res_std;
 
-Formula_input* parser()
+Formula_input* parser_std()
 {
 	// parse through the input until there is no more:
 	do
 	{
-		yyparse();
+		stddparse();
 
 		Global::DEBUG(1) << "Post-parser" << endl;
-		Global::DEBUG(1) << res->to_string() << endl << endl;
+		Global::DEBUG(1) << res_std->to_string() << endl << endl;
 
-	} while (!feof(yyin));
+	} while (!feof(stddin));
 
-	return res;
+	return res_std;
 }
 
 void yyerror(const char *s)

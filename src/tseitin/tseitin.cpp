@@ -42,7 +42,7 @@ Formula tseitin(Formula_input& f_input)
 	}
 
 	if(renaming.number_of_input_variables() + 1 <= renaming.number_of_variables() - 1)
-	Global::DEBUG(1) << "Tseitin added the following variables from " << renaming.number_of_input_variables() + 1 << " to " << renaming.number_of_variables() - 1 << " to the mapping : " << endl << endl;
+	Global::DEBUG(1) << "Tseitin added the variables from " << renaming.number_of_input_variables() + 1 << " to " << renaming.number_of_variables() - 1 << " to the mapping !" << endl;
 
 	clauses.push_back(list<int>({f_input.tseitin_x}));
 

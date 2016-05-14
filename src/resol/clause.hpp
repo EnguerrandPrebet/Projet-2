@@ -5,12 +5,10 @@
 #include <list>
 #include <stack>
 
-enum State{TRUE, FALSE, UNKNOWN};
+enum State{FALSE = 0, TRUE = 1, UNKNOWN}; // pour une conversion facile
 
 enum Res {NEW, NOTHING, ERROR, SUCCESS};
 enum Choice {INFER, GUESS};
-
-
 
 
 class Clause
@@ -20,11 +18,15 @@ class Clause
 		Clause(const std::list<int>&);
 
 		//Get
-		std::stack<int>& get_stack() {return stack_delete;};
-		int get_first_litteral() const {return literals_dyn.front();};
-		unsigned int size() const {return literals_dyn.size();};
-		std::list<int>& get_vars() {return literals_dyn;};
-		const std::list<int>& get_vars() const {return literals_dyn;};
+		std::stack<int>& get_stack();
+		int get_first_litteral() const;
+
+		// dans le cas wl on doit donner assignment
+		unsigned int size(const std::vector<State>& assignment = std::vector<State>()) const; // nombre de variables UNKNOWN dans la clause
+
+		std::list<int> get_vars_dyn() const;
+		// dans le cas wl on doit donner assignment
+		std::list<int> get_vars(const std::vector<State>& assignment = std::vector<State>()) const;
 
 		//DPLL
 		void print() const;
@@ -51,13 +53,8 @@ class Clause
 		std::stack<int> stack_delete;
 };
 
-struct Decision_var
+struct Decision
 {
-	//! c'était ça le problème :
-	//! http://stackoverflow.com/questions/24751567/error-when-initializing-a-struct-with-a-brace-enclosed-initializer-list
-	//! et
-	//! http://stackoverflow.com/questions/18184096/c11-struct-initialization-compilation-error
-	//? à supprimer après lecture !!!!
 	int var;
 	int time;
 	Clause reason;

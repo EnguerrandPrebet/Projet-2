@@ -15,7 +15,7 @@ State dpll(Formula& f)
 {
 	pretreatment(f);
 
-	stack<Decision_var> decisions;
+	stack<Decision> decisions;
 
 	bool sat_unknown = true;
 
@@ -42,6 +42,13 @@ State dpll(Formula& f)
 			case NOTHING:
 			{
 				int l = get_next_assignment(f); // l = var & (true | false)
+
+				if (l == WL_SIGNAL_SAT) // wl : on s'est rendu compte que la formule est satisfaite
+				{
+					sat_unknown = false;
+					break;
+				}
+
 				Global::DEBUG(1) << "x :" << l << endl;
 				f.update_var(l); // met à jour assignment et vars_alive
 
@@ -63,7 +70,7 @@ State dpll(Formula& f)
 	return f.check_satisfiability();
 }
 
-bool backtrack(Formula& f, stack<Decision_var>& decisions)
+bool backtrack(Formula& f, stack<Decision>& decisions)
 {
 	int time_back = decisions.top().time - 1; //Peut être réduit par le clause learning
 	Clause clause_learned;
@@ -76,7 +83,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions)
 	vector<bool> be_cancelled(f.nb_variables()+1, false); //Variables à annuler
 	while(!decisions.empty() && (decisions.top().choice == INFER || decisions.top().time - 1 > time_back))
 	{
-		Decision_var dec = decisions.top();
+		Decision dec = decisions.top();
 		decisions.pop();
 		Global::DEBUG(1) << "Forget " << ((dec.choice == INFER)?"infer":"guess") << " " << dec.var << endl;
 		be_cancelled[abs(dec.var)] = true;
@@ -88,7 +95,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions)
 		return false;
 	}
 
-	Decision_var change_of_mind = decisions.top();
+	Decision change_of_mind = decisions.top();
 	decisions.pop();
 	Global::DEBUG(1) << "Forget guess " << change_of_mind.var << endl;
 	be_cancelled[abs(change_of_mind.var)] = true;
@@ -115,10 +122,10 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions)
 
 void pretreatment(Formula& f)
 {
-	f.remove_tautology();
+	f.pretreatment_remove_tautology();
 }
 
-Res update(Formula& f, stack<Decision_var>& decisions)
+Res update(Formula& f, stack<Decision>& decisions)
 {
 	Global::DEBUG(1) << endl << "Update time !" << endl;
 	f.apply_modification(decisions.top().time);//On met à jour les clauses ici

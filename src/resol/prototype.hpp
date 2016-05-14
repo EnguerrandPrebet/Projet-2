@@ -5,11 +5,11 @@
 
 State dpll(Formula&);
 
-bool backtrack(Formula&, std::stack<Decision_var>& decisions);
+bool backtrack(Formula&, std::stack<Decision>& decisions);
 
 void pretreatment(Formula&);
 
-Res update(Formula&, std::stack<Decision_var>& decisions);
+Res update(Formula&, std::stack<Decision>& decisions);
 
 int get_next_assignment(const Formula& f);
 

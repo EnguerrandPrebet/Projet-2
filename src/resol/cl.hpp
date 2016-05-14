@@ -3,6 +3,6 @@
 
 #include "formula.hpp"
 
-int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& clause_learned);
+int clause_learning(Formula& f, const stack<Decision>& decisions, Clause& clause_learned);
 
 #endif //CL_HPP

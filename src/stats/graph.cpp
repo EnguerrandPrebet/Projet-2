@@ -12,18 +12,20 @@ int main(int argc,char* argv[])
 		int minutes;
 		double seconds;
 
-		int cases = 1;
+		double cases = 1;
 		file_out << "cases	std	wl	rand	moms dlis" << endl;
 		while(file_in >> minutes >> seconds)
 		{
-			file_out << cases << " ";
-			for(int i = 0; i < 4; i++)
+			for(double i = -2; i < 2; i++)
 			{
-				seconds += 60*minutes;
+				seconds += 60*minutes;	
+				
+				file_out << cases+ i/8 << " ";
 				file_out << seconds << " ";
 				file_in >> minutes >> seconds;
 			}
 			seconds += 60*minutes;
+			file_out << cases+ 2./8. << " ";
 			file_out << seconds << endl;
 			cases++;
 		}

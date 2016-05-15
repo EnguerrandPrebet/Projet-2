@@ -1,0 +1,4 @@
+digraph "Conflict Graph" {
+	0 [label="0",label="CONFLICT",style=filled, fillcolor=tomato1,color=tomato1,penwidth=2];
+
+}

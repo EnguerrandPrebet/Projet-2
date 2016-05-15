@@ -1,6 +1,8 @@
 #!/bin/bash
 TIMEFORMAT=%R
-RESOL_OP="-moms"
+SIZE=$1
+shift
+RESOL_OP=$*
 N1=10
 N2=300
 N_INCR=10
@@ -11,12 +13,12 @@ NB_ESSAIS=10
 rm -f stats.txt out.txt
 for ((n=N1;n<=N2;n+=N_INCR)); do
 	for ((m=M1;m<=M2;m+=M_INCR)); do
-		./generator $n $m $m "" $NB_ESSAIS
+		./bin/generator $n $m $SIZE "./gen" $NB_ESSAIS
 		sum=0
 		for ((i=0;i<NB_ESSAIS;i++)); do
 			filename="$i"
 			filename+=".cnf"
-			duration="$((time (./resol $RESOL_OP $filename >> out.txt)) 2>&1)"
+			duration="$((time (./bin/resol $RESOL_OP $filename >> out.txt)) 2>&1)"
 			calcul=$sum
 			calcul+="+"
 			calcul+=$duration

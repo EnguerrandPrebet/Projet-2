@@ -54,9 +54,9 @@ int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, in
 void merge(vector< list<int> >& la, const vector< list<int> >& la_old);
 void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color);
 
-int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int uip);
+int generate_new_clause(Formula& f, const vector< list<int> >& la_old, vector<Color>& color_v, int uip);
 
-int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& clause_learned)
+int clause_learning(Formula& f, const stack<Decision_var>& decisions)
 {
 	//0 représente le conflit
 	vector< list<int> > la(f.nb_variables()+1); //graphe des sommets bleus
@@ -74,7 +74,7 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions, Clause& cl
 
 	int time_back;
 
-	time_back = generate_new_clause(f, clause_learned, la_old, color_v, uip); ///Ajoute la clause à f
+	time_back = generate_new_clause(f, la_old, color_v, uip); ///Ajoute la clause à f
 
 	merge(la, la_old); //Rajoute les aretes de la_old à l'endroit et les ajoute dans la
 	if(Global::option.cl_interactive)
@@ -397,7 +397,7 @@ void merge(vector< list<int> >& la, const vector< list<int> >& la_old)
 	}
 }
 
-int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<int> >& la_old, vector<Color>& color_v, int uip)
+int generate_new_clause(Formula& f, const vector< list<int> >& la_old, vector<Color>& color_v, int uip)
 {
 	vector<int> clause; //On a besoin de trier les éléments dans la méthode d'où un vector (pour utiliser sort de algorithm)
 
@@ -416,5 +416,5 @@ int generate_new_clause(Formula& f, Clause& clause_learned, const vector< list<i
 		}
 	}
 
-	return f.add_learned_clause(clause,uip, clause_learned);
+	return f.add_learned_clause(clause,uip);
 }

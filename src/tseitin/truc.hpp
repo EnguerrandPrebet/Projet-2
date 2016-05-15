@@ -1,5 +1,8 @@
-#include <iostream>
+#ifndef TRUC_HPP
+#define TRUC_HPP
 
+#include <iostream>
+#include <algorithm>
 
 struct Eq
 {
@@ -21,10 +24,9 @@ public:
 	Real_Value(int l);
 	Real_Value(Eq eq);
 
-	/*//Get et Set
-	int g(int);//Les paramètres sont là pour différentier les fonctions
-	Eq g(Eq);
-	void s(int l);
+	//Get et Set
+	Eq g();
+	/*void s(int l);
 	void s(Eq eq);*/
 	bool is_int();
 
@@ -36,7 +38,10 @@ private:
 friend std::ostream& operator<<(std::ostream &flux, Real_Value const& rv);
 friend bool operator<(Real_Value const& rv1, Real_Value const& rv2);
 
+friend unsigned int max(unsigned int i, Real_Value rv);
 friend Real_Value operator*(int sign, Real_Value rv);
 friend Real_Value abs(Real_Value rv);
 friend int sign(Real_Value rv);
 };
+
+#endif // TRUC_HPP

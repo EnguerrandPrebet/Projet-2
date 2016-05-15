@@ -17,6 +17,8 @@ State dpll(Formula& f)
 
 	stack<Decision_var> decisions;
 
+	Theory theory(f.renaming.get_hi_smt());
+
 	bool sat_unknown = true;
 
 	decisions.push({0, 0, Clause(), INFER}); //Pour initialiser le temps tant qu'on ne met pas time en global (besoin
@@ -25,14 +27,14 @@ State dpll(Formula& f)
 		Res action_result;
 		do // NEW : nouvelle déduction, NOTHING : rien, ERROR : Non satisfiable, SUCCESS : On a gagné !
 		{
-			action_result = update(f, decisions);
+			action_result = update(f, decisions, theory);
 		} while (action_result == NEW);
 
 		switch (action_result)
 		{
 			case ERROR:
 				Global::DEBUG(1) << "Backtrack" << endl;
-				sat_unknown = backtrack(f, decisions);
+				sat_unknown = backtrack(f, decisions, theory);
 				break;
 
 			case SUCCESS:
@@ -43,7 +45,7 @@ State dpll(Formula& f)
 			{
 				int l = get_next_assignment(f); // l = var & (true | false)
 				Global::DEBUG(1) << "x :" << l << " at " << decisions.top().time+1 << endl;
-				f.update_var(l); // met à jour assignment et vars_alive
+				f.update_var(l, theory); // met à jour assignment et vars_alive
 
 				decisions.push({l, decisions.top().time+1, Clause(), GUESS});
 
@@ -63,15 +65,15 @@ State dpll(Formula& f)
 	return f.check_satisfiability();
 }
 
-bool backtrack(Formula& f, stack<Decision_var>& decisions)
+bool backtrack(Formula& f, stack<Decision_var>& decisions, Theory& theory)
 {
 	int time_back = decisions.top().time - 1; //Peut être réduit par le clause learning
-	Clause clause_learned;
 
 	if(Global::option.cl)
 	{
-		time_back = clause_learning(f, decisions, clause_learned);
+		time_back = clause_learning(f, decisions);
 	}
+	decisions.pop(); //On enlève "infer 0" utilisé dans le CL
 
 	vector<bool> be_cancelled(f.nb_variables()+1, false); //Variables à annuler
 	while(!decisions.empty() && (decisions.top().choice == INFER || decisions.top().time - 1 > time_back))
@@ -79,6 +81,10 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions)
 		Decision_var dec = decisions.top();
 		decisions.pop();
 		Global::DEBUG(1) << "Forget " << ((dec.choice == INFER)?"infer":"guess") << " " << dec.var << endl;
+
+		if(Global::option.smt)
+				theory.backtrack(f.renaming.inverse_translate_litteral(dec.var));
+
 		be_cancelled[abs(dec.var)] = true;
 	}
 
@@ -91,6 +97,8 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions)
 	Decision_var change_of_mind = decisions.top();
 	decisions.pop();
 	Global::DEBUG(1) << "Forget guess " << change_of_mind.var << endl;
+	if(Global::option.smt)
+				theory.backtrack(f.renaming.inverse_translate_litteral(change_of_mind.var));
 	be_cancelled[abs(change_of_mind.var)] = true;
 	f.revive(be_cancelled);
 
@@ -101,10 +109,10 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions)
 		change_of_mind.var *= -1;
 		decisions.top();
 		change_of_mind.time = time_back;
-		change_of_mind.reason = clause_learned;
+		change_of_mind.reason = Clause();
 
 		decisions.push(change_of_mind);
-		f.update_var(change_of_mind.var);
+		f.update_var(change_of_mind.var, theory);
 	}
 
 	Global::DEBUG(1) << "Back to time " << time_back << endl;
@@ -118,7 +126,7 @@ void pretreatment(Formula& f)
 	f.remove_tautology();
 }
 
-Res update(Formula& f, stack<Decision_var>& decisions)
+Res update(Formula& f, stack<Decision_var>& decisions, Theory& theory)
 {
 	Global::DEBUG(1) << endl << "Update time !" << endl;
 	f.apply_modification(decisions.top().time);//On met à jour les clauses ici
@@ -130,9 +138,9 @@ Res update(Formula& f, stack<Decision_var>& decisions)
 
 	Res act;
 	if(Global::option.watched_litterals == true)
-		act = f.propagation_unitary_wl(decisions);
+		act = f.propagation_unitary_wl(decisions, theory);
 	else
-		act = f.propagation_unitary(decisions);//On teste le résultat des modifications au passage
+		act = f.propagation_unitary(decisions, theory);//On teste le résultat des modifications au passage
 
 	Global::DEBUG(1) << "After unitaire, act = " << act << endl;
 	if(act == ERROR || act == SUCCESS)//Inutile d'aller plus loin
@@ -140,7 +148,7 @@ Res update(Formula& f, stack<Decision_var>& decisions)
 
 	if(!Global::option.watched_litterals && !Global::option.cl)
 	{
-		Res act_aux = f.propagation_unique_polarity(decisions);
+		Res act_aux = f.propagation_unique_polarity(decisions, theory);
 		if(act_aux != NOTHING)
 			act = act_aux;
 	}

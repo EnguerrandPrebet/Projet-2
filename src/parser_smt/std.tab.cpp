@@ -62,6 +62,7 @@
 /* Substitute the variable and function names.  */
 #define yyparse         stddparse
 #define yylex           stddlex
+#define yyerror         stdderror
 #define yydebug         stdddebug
 #define yynerrs         stddnerrs
 
@@ -80,7 +81,7 @@ using namespace std;
 // stuff from flex that bison needs to know about:
 extern "C" int stddlex();
 
-void yyerror(const char *s);
+void stdderror(const char *s);
 
 Formula_input *res_std = NULL;
 

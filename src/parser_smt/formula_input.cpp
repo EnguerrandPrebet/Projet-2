@@ -29,6 +29,8 @@ std::string FVar_input::to_string() const
 void FVar_input::compute_renaming(Renaming& renaming)
 {
 	tseitin_x = renaming.rename_litteral(rv);
+
+	renaming.set_hi_smt(max(renaming.get_hi_smt(),rv)); //Inutile sans théorie
 }
 
 /***********************************/

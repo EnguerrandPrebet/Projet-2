@@ -42,32 +42,12 @@ Real_Value::Real_Value(Eq eq)
 	val.eq = eq;
 	isint = false;
 }
-/*
-int Real_Value::g(int i)
-{
-	return val.l;
-}
 
-Eq Real_Value::g(Eq e)
+Eq Real_Value::g()
 {
 	return val.eq;
 }
 
-bool Real_Value::is_int()
-{
-	return isint;
-}
-
-void Real_Value::s(Eq eq)
-{
-	val.eq = eq;
-}
-
-void Real_Value::s(int l)
-{
-	val.l = l;
-}
-*/
 ostream& operator<<(ostream &flux, Eq const& eq)
 {
 	flux << eq.n1;
@@ -129,11 +109,16 @@ Real_Value abs(Real_Value rv)
 
 int sign(Real_Value rv)
 {
-	int output;
-
 	if(rv.isint)
-		output = sign((int)rv.val.l);
+		return sign(rv.val.l);
 	else
-		output = sign((Eq)rv.val.eq);
-	return output;
+		return sign(rv.val.eq);
+}
+
+unsigned int max(unsigned int i, Real_Value rv)
+{
+	if(rv.isint)
+		return 0; //Inutile
+	else
+		return max(i,max(rv.val.eq.n1,rv.val.eq.n2));
 }

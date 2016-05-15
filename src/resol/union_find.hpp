@@ -21,7 +21,7 @@ public:
 
 	bool equals(unsigned int, unsigned int) const;
 
-	/* annule le dernier appel à merge(i, j) qui a eu une effet */
+	/* annule le dernier appel à merge(i, j) qui a eu une effet */ //!!! NON ! Même celles inutiles doivent être comptées (DPLL ne fait pas la différence, et ne sait pas combien de fois il doit l'appeler sinon)
 	void one_step_back(); // l'appeler seulement si BACKTRACKING est activé
 
 

@@ -69,7 +69,7 @@ string retrieve_cmd_arguments(int argc, char* argv[]) // retourne le nom du fich
 				if (argument == "tseitin")
 					Global::WARNING() << "-tseitin is obsolete, please use --tseitin or -t instead" << endl;
 			}
-			else if (argument == "smt")
+			else if (argument == "smte")
 			{
 				Global::option.smt = true;
 				Global::option.tseitin = true;

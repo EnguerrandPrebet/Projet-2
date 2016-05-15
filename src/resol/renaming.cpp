@@ -10,7 +10,7 @@ template <typename T> int sign(const T& val) {
 
 Renaming::Renaming() :
 	next_available_var(1),
-	nb_input_variables(0)
+	nb_input_variables(0),highest_smt(0)
 {
 	inverse_variables_mapping.push_back(0); // 0 -> 0, inverse_variables_mapping[0] est inutilisé
 }
@@ -68,6 +68,17 @@ unsigned int Renaming::number_of_input_variables() const
 {
 	return nb_input_variables;
 }
+
+void Renaming::set_hi_smt(unsigned int i)
+{
+	highest_smt = i;
+}
+
+unsigned int Renaming::get_hi_smt() const
+{
+	return highest_smt;
+}
+
 
 std::map<Real_Value, unsigned int>::const_iterator Renaming::begin() const
 {

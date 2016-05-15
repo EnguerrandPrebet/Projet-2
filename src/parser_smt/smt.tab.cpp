@@ -62,6 +62,7 @@
 /* Substitute the variable and function names.  */
 #define yyparse         smtparse
 #define yylex           smtlex
+#define yyerror         smterror
 #define yydebug         smtdebug
 #define yynerrs         smtnerrs
 
@@ -80,7 +81,7 @@ using namespace std;
 // stuff from flex that bison needs to know about:
 extern "C" int smtlex();
 
-void yyerror(const char *s);
+void smterror(const char *s);
 
 Formula_input *res_smt = NULL;
 

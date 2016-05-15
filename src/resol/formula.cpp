@@ -110,7 +110,7 @@ int Formula::get_dlis_var() const
 	return max_score->first;
 }
 
-void Formula::update_var(int l)
+void Formula::update_var(int l, Theory& theory)
 {
 	unsigned int x = abs(l);
 
@@ -122,6 +122,26 @@ void Formula::update_var(int l)
 	var_alive.erase(it);
 
 	Global::DEBUG(1) << var_alive.size() << " vars left" << endl;
+
+
+	if(Global::option.smt && renaming.is_input_variable(x))
+	{
+		Real_Value new_rv = renaming.inverse_translate_litteral(l);
+		if(theory.add_connection(new_rv))
+		{
+			vector<Real_Value> smt_clause = theory.learning(new_rv);
+			vector<int> new_clause;
+
+			for(Real_Value rv:smt_clause)
+			{
+				Global::DEBUG(2) << rv << endl;
+				new_clause.push_back(renaming.translate_litteral(rv));
+			}
+
+			add_learned_clause(new_clause,x);
+		}
+
+	}
 }
 
 void Formula::apply_modification(int t)
@@ -204,7 +224,7 @@ void Formula::remove_tautology()
 	set_clauses_alive(new_clauses);
 }
 
-Res Formula::propagation_unitary(stack<Decision_var>& decisions)
+Res Formula::propagation_unitary(stack<Decision_var>& decisions, Theory& theory)
 {
 	Res action = SUCCESS;
 
@@ -230,7 +250,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions)
 				{
 					time_of_assign[x] = decisions.top().time;
 					Global::DEBUG(1) << " à la date " << time_of_assign[x] << endl;
-					update_var(l);
+					update_var(l, theory);
 					decisions.push({l, decisions.top().time, *it, INFER});
 				}
 				else
@@ -247,7 +267,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions)
 	return action;
 }
 
-Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
+Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, Theory& theory)
 {
 	Res act = SUCCESS;
 
@@ -262,7 +282,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
 			{
 				time_of_assign[abs(x)] = decisions.top().time;
 				Global::DEBUG(1) << " à la date " << time_of_assign[abs(x)] << endl;
-				update_var(x);
+				update_var(x, theory);
 				decisions.push({x, decisions.top().time, *c, INFER});
 			}
 			else
@@ -282,7 +302,7 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions)
 	return act;
 }
 
-Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions)
+Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, Theory& theory)
 {
 	vector<int> seen(Formula::nb_variables()+1, 0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
@@ -313,7 +333,7 @@ Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions)
 			Global::DEBUG(1) << "Polarité unique avec : " << x << endl;
 			if(assignment[abs(x)] == UNKNOWN)
 			{
-				update_var(x);
+				update_var(x, theory);
 				decisions.push({x, decisions.top().time, Clause(), INFER});
 			}
 		}
@@ -415,7 +435,7 @@ void Formula::print_assignment() const
 	Global::DEBUG() << endl;
 }
 
-int Formula::add_learned_clause(vector<int>& clause, int uip, Clause& clause_learned)
+int Formula::add_learned_clause(vector<int>& clause, int uip)
 {
 	auto cmp = [this](int i, int j) {return time_of_assign[i] < time_of_assign[j];};
 	sort(clause.begin(),clause.end(), cmp); // le moins récent en premier
@@ -436,7 +456,6 @@ int Formula::add_learned_clause(vector<int>& clause, int uip, Clause& clause_lea
 	signed_clause.push_back(signed_uip);
 
 	Clause new_clause(signed_clause);
-	clause_learned = new_clause;
 
 	clauses_alive.push_back(new_clause);
 

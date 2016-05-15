@@ -15,9 +15,6 @@ void Union_find::merge(unsigned int i, unsigned int j)
 	unsigned int p_i = rep(i);
 	unsigned int p_j = rep(j);
 
-	if (p_i == p_j)
-		return;
-
 	if (weight[p_i] < weight[p_j])
 	{
 		swap(i, j);
@@ -29,6 +26,9 @@ void Union_find::merge(unsigned int i, unsigned int j)
 	{
 		backtrack.push({p_i, p_j, weight[p_j]});
 	}
+
+	if (p_i == p_j)
+		return;
 
 	father[p_j] = p_i;
 	weight[p_i] += weight[p_j];

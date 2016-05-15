@@ -4,9 +4,9 @@
 #Faire les //! et //? restants après que clem a fait ceux concernant le debug
 Uniformiser le debug (un peu de debug parout + messages dans le même style)
 #CL avec WL
-Faire le parseur tseitin
-Faire le SMT avec le UnionFind de clem
-Faire un rapport .txt
+#Faire le parseur tseitin
+#Faire le SMT avec le UnionFind de clem
+#Faire un rapport .txt
 Corriger selon les remarques de clément
 
 Celui qui a le temps fait les slides

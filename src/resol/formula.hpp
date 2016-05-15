@@ -3,6 +3,7 @@
 
 #include "clause.hpp"
 #include "global.hpp"
+#include "theory.hpp"
 
 #include "renaming.hpp"
 
@@ -42,18 +43,18 @@ class Formula
 		void print_assignment() const; // print
 
 		//CL
-		int add_learned_clause(std::vector<int>& new_clause, int uip, Clause& clause_learned); // retour : date du backtrack
+		int add_learned_clause(std::vector<int>& new_clause, int uip); // retour : date du backtrack
 
 		// ? à trier
-		void update_var(int l);
+		void update_var(int l, Theory& theory);
 		State check_satisfiability();
 		void revive(const std::vector<bool>& be_cancelled = std::vector<bool>({false}));
 		void remove_tautology();
 		void apply_modification(int);
-		Res propagation_unitary(std::stack<Decision_var>& decisions);
-		Res propagation_unique_polarity(std::stack<Decision_var>& decisions);
+		Res propagation_unitary(std::stack<Decision_var>& decisions, Theory& theory);
+		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, Theory& theory);
 		//WL
-		Res propagation_unitary_wl(std::stack<Decision_var>& decisions);
+		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, Theory& theory);
 
 	private:
 		std::list<Clause> clauses_alive;

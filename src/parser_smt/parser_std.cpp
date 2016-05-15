@@ -29,10 +29,9 @@ Formula_input* parser_std()
 	return res_std;
 }
 
-void yyerror(const char *s)
+void stdderror(const char *s)
 {
 	Global::ERROR() << "parse error!  Message: " << s << endl;
 
 	exit(0);
 }
-

@@ -28,3 +28,10 @@ Formula_input* parser_smt()
 
 	return res_smt;
 }
+
+void smterror(const char *s)
+{
+	Global::ERROR() << "parse error!  Message: " << s << endl;
+
+	exit(0);
+}

@@ -22,6 +22,9 @@ public:
 	unsigned int number_of_variables() const;
 	unsigned int number_of_input_variables() const;
 
+	void set_hi_smt(unsigned int i);
+	unsigned int get_hi_smt() const;
+
 	std::map<Real_Value, unsigned int>::const_iterator begin() const;
 	std::map<Real_Value, unsigned int>::const_iterator end() const;
 
@@ -30,6 +33,8 @@ private:
 	std::map<Real_Value, unsigned int> variables_mapping;
 	std::vector<Real_Value> inverse_variables_mapping;
 	unsigned int nb_input_variables;
+
+	unsigned int highest_smt;
 };
 
 #endif // RENAMING_HPP

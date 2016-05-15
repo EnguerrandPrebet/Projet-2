@@ -1,8 +1,8 @@
 #include "tseitin.hpp"
 
-#include "../parser_smt/formula_input.hpp"
-#include "../resol/formula.hpp"
-#include "truc.hpp"
+#include "../parser/formula_input.hpp"
+#include "../DPLL/formula.hpp"
+#include "../interface/real_value.hpp"
 
 #include <iostream>
 #include <stack>

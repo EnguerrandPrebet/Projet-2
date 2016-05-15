@@ -1,8 +1,8 @@
 #ifndef DEF_FORMULA_INPUT_HPP
 #define DEF_FORMULA_INPUT_HPP
 
-#include "../resol/formula.hpp"
-#include "../resol/renaming.hpp"
+#include "../DPLL/formula.hpp"
+#include "../interface/renaming.hpp"
 
 #include <string>
 #include <stack>
@@ -31,6 +31,7 @@ public:
 class FVar_input : public Formula_input
 {
 public:
+	FVar_input(unsigned int v1, unsigned int v2, bool equal);
 	FVar_input(int l);
 
 	virtual std::string to_string() const;
@@ -39,7 +40,7 @@ public:
 
 	virtual void tseitin_one_step(std::stack<Formula_input*>& jobs, list<Clause>& out, Renaming&){}
 
-	int input_l;
+	Real_Value rv;
 };
 
 /***********************************/

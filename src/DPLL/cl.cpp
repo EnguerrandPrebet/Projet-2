@@ -2,7 +2,7 @@
 
 #include "formula.hpp"
 #include "global.hpp"
-#include "../tseitin/truc.hpp"
+#include "../interface/real_value.hpp"
 
 #include <iostream> // interface
 #include <queue> // bfs

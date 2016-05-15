@@ -1,8 +1,8 @@
 #include "formula_io.hpp"
 
-#include "../parser_smt/formula_input.hpp"
+#include "../parser/formula_input.hpp"
 #include "../tseitin/tseitin.hpp"
-#include "global.hpp"
+#include "../DPLL/global.hpp"
 
 #include "renaming.hpp"
 

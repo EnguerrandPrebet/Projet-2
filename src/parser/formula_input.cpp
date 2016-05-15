@@ -10,21 +10,27 @@ using namespace std;
 /***********************************/
 /* Variables */
 /***********************************/
-FVar_input::FVar_input(int l) :
-	input_l(l)
+FVar_input::FVar_input(unsigned int v1, unsigned int v2, bool equal) :
+	rv({min(v1,v2),max(v1,v2),equal})
+{
+}
+
+FVar_input::FVar_input(int l) : rv(l)
 {
 }
 
 std::string FVar_input::to_string() const
 {
 	stringstream ss;
-	ss << input_l;
+	ss << rv;
 	return ss.str();
 }
 
 void FVar_input::compute_renaming(Renaming& renaming)
 {
-	tseitin_x = renaming.rename_litteral(input_l);
+	tseitin_x = renaming.rename_litteral(rv);
+
+	renaming.set_hi_smt(max(renaming.get_hi_smt(),rv)); //Inutile sans théorie
 }
 
 /***********************************/

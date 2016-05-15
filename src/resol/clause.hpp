@@ -5,14 +5,15 @@
 #include <list>
 #include <stack>
 
-enum State{TRUE, FALSE, UNKNOWN};
+enum State{FALSE = 0, TRUE = 1, UNKNOWN}; // pour une conversion facile
 
 enum Res {NEW, NOTHING, ERROR, SUCCESS};
 enum Choice {INFER, GUESS};
 
 
-
-
+/* gestion dynamique, stocke une "clause" et permet de savoir si elle est satisfaite,
+ * évolue au cours des assignations, permet de backtracker.
+*/
 class Clause
 {
 	public:
@@ -20,13 +21,17 @@ class Clause
 		Clause(const std::list<int>&);
 
 		//Get
-		std::stack<int>& get_stack() {return stack_delete;};
-		std::vector<int>& get_lit_fixed() {return literals_fixed;};
+		std::stack<int>& get_stack();
+		int get_first_litteral() const;
 
-		int get_first_litteral() const {return literals_dyn.front();};
-		unsigned int size() const {return literals_dyn.size();};
-		std::list<int>& get_vars() {return literals_dyn;};
-		const std::list<int>& get_vars() const {return literals_dyn;};
+		std::vector<int>& get_lit_fixed();
+
+		// dans le cas wl on doit donner assignment
+		unsigned int size(const std::vector<State>& assignment = std::vector<State>()) const; // nombre de variables UNKNOWN dans la clause
+
+		std::list<int> get_vars_dyn() const;
+		// dans le cas wl on doit donner assignment
+		std::list<int> get_vars(const std::vector<State>& assignment = std::vector<State>()) const;
 
 		//CL + WL
 		int time_max(std::vector<int> time_of_assign);
@@ -55,7 +60,7 @@ class Clause
 		std::stack<int> stack_delete;
 };
 
-struct Decision_var
+struct Decision
 {
 	int var;
 	int time;

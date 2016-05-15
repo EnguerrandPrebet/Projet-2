@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <cassert>
+
 using namespace std;
 
 template<typename T> T abs(const T& x)
@@ -30,38 +32,114 @@ Clause::Clause(const list<int>& literals)
 	wl2 = (int)literals_fixed.size() - 1;
 }
 
+std::stack<int>& Clause::get_stack()
+{
+	return stack_delete;
+}
+
+int Clause::get_first_litteral() const
+{
+	return literals_dyn.front();
+}
+
+std::vector<int>& Clause::get_lit_fixed()
+{
+	return literals_fixed;
+}
+
+unsigned int Clause::size(const std::vector<State>& assignment) const
+{
+	if (!Global::option.watched_litterals)
+		return literals_dyn.size();
+	else
+	{
+		assert(assignment.size() != 0);
+
+		unsigned int nb = 0;
+
+		unsigned int i1 = (nothing_before_wl) ? wl1 : 0;
+		unsigned int i2 = (nothing_after_wl)  ? wl2 : (literals_dyn.size() - 1);
+
+		for (unsigned int i = i1; i <= i2; i++)
+		{
+			int l = literals_fixed[i];
+			unsigned int x = abs(l);
+
+			if (assignment[x] == UNKNOWN)
+				nb++;
+			else /* La clause est satisfaite ? */
+			{
+				bool s_l = (l > 0);
+				if ((bool)assignment[x] == s_l)
+					return 0;
+			}
+		}
+
+		return nb;
+	}
+}
+
+std::list<int> Clause::get_vars_dyn() const
+{
+	return literals_dyn;
+}
+
+std::list<int> Clause::get_vars(const std::vector<State>& assignment) const
+{
+	if (!Global::option.watched_litterals)
+	{
+		return literals_dyn;
+	}
+
+	else /* wl */
+	{
+		assert(assignment.size() != 0);
+
+		list<int> literals_dyn_from_fixed;
+
+		unsigned int i1 = (nothing_before_wl) ? wl1 : 0;
+		unsigned int i2 = (nothing_after_wl) ? wl2 : (literals_dyn_from_fixed.size() - 1);
+
+		for (unsigned int i = i1; i <= i2; i++)
+		{
+			int l = literals_fixed[i];
+			unsigned int x = abs(l);
+
+			if (assignment[x] == UNKNOWN)
+				literals_dyn_from_fixed.push_back(l);
+		}
+
+		return literals_dyn_from_fixed;
+	}
+}
+
 State Clause::litteral_status(const vector<State>& assignment, int l) const
 {
 	unsigned int x = abs(l);
-	switch(assignment[x])
+	switch (assignment[x])
 	{
 		case TRUE:
-			if(l > 0)
-				return TRUE;
-			else
-				return FALSE;
+			return (l > 0) ? TRUE : FALSE;
 		case FALSE:
-			if(l < 0)
-				return TRUE;
-			else
-				return FALSE;
-		case UNKNOWN:
+			return (l < 0) ? TRUE : FALSE;
+		default: /* UNKNOWN */
 			return UNKNOWN;
 	}
-	return UNKNOWN;//anti-warning
 }
 
 State Clause::check_satisfiability(const vector<State>& assignment)
 {
-
 	State sol_c = FALSE;
-	for(int x : literals_fixed)
+	for (int l : literals_dyn)
 	{
-		if(litteral_status(assignment,x) == TRUE)
+		if (litteral_status(assignment, l) == TRUE)
 			return TRUE;
-		if(assignment[abs(x)] == UNKNOWN)
+
+		unsigned int x = abs(l);
+		if (assignment[x] == UNKNOWN)
 			sol_c = UNKNOWN;
 	}
+
 	return sol_c;
 }
 
@@ -148,11 +226,12 @@ Res Clause::propagation_unitary_wl(const vector<State>& assignment, int& x)
 {
 	if(wl2 == -1)
 		return ERROR;
+
 	Global::DEBUG(2) << "c pu: " << literals_fixed[wl1] << " " << literals_fixed[wl2] << endl;
 
-	if(wl1 == wl2)
+	if (wl1 == wl2)
 	{
-		if(litteral_status(assignment, literals_fixed[wl2]) == FALSE)
+		if(litteral_status(assignment,	literals_fixed[wl2]) == FALSE)
 			return ERROR;
 		else
 		{

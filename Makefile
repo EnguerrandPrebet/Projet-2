@@ -8,11 +8,11 @@ EXEC=./bin/resol ./bin/graph ./bin/generator
 FOLDER=./src/parser_smt ./src/tseitin ./src/resol
 
 
-TSEITIN=./src/tseitin/tseitin.cpp
+TSEITIN=$(wildcard ./src/tseitin/*.cpp)
 RESOL=$(wildcard ./src/resol/*.cpp)
-NAME=./src/parser/formula_input
-NAME2=./src/parser_smt/std
-PARSER=$(NAME).tab.cpp $(NAME).yy.c ./src/parser/formula_input.cpp ./src/parser/parser.cpp
+SMT=./src/parser_smt/smt
+STD=./src/parser_smt/std
+PARSER=$(STD).tab.cpp $(STD).yy.c $(SMT).tab.cpp $(SMT).yy.c ./src/parser_smt/formula_input.cpp ./src/parser_smt/parser_smt.cpp ./src/parser_smt/parser_std.cpp
 
 .PHONY : all $(FOLDER) gprof debug regression clean mrproper
 
@@ -41,17 +41,22 @@ debug:
 clang:
 	clang++ $(CPPFLAGS) -O2 -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
 
-$(NAME).yy.c :  $(NAME).l
-	$(LEX) -o $@ $^ 
-$(NAME).tab.cpp : $(NAME).ypp
-	$(YACC) --report=all -o $@ -d $^
+$(STD).yy.c :  $(STD).l
+	$(LEX) --prefix=stdd -o $@ $^ 
+$(STD).tab.cpp : $(STD).ypp
+	$(YACC) --name-prefix=stdd --report=all -o $@ -d $^
 
+$(SMT).yy.c :  $(SMT).l
+	$(LEX) --prefix=smt -o $@ $^ 
+$(SMT).tab.cpp : $(SMT).ypp
+	$(YACC) --name-prefix=smt --report=all -o $@ -d $^
+	
 regression: debug
 	cd tests/resol/; ./regression.sh
 
 clean:
-	rm -f $(NAME).yy.c $(NAME).tab.cpp $(NAME).tab.hpp $(NAME).output
-	rm -f $(NAME2).yy.c $(NAME2).tab.cpp $(NAME2).tab.hpp $(NAME2).output
+	rm -f $(STD).yy.c $(STD).tab.cpp $(STD).tab.hpp $(STD).output
+	rm -f $(SMT).yy.c $(SMT).tab.cpp $(SMT).tab.hpp $(SMT).output
 	rm -f -r ./dep/ ./obj/
 
 rebuild: mrproper all

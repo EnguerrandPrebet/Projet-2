@@ -2,6 +2,7 @@
 
 #include "formula.hpp"
 #include "global.hpp"
+#include "../tseitin/truc.hpp"
 
 #include <iostream> // interface
 #include <queue> // bfs
@@ -48,7 +49,7 @@ void interface(const Formula& f, const vector< list<int> >& la, const vector<Col
 	}
 }
 
-int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision_var> decisions);
+int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision> decisions);
 void refine_graphe(int i, vector< list<int> >& la, vector< list<int> >& la_inv, vector< list<int> >& la_old, vector<Color>& color_v);
 int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, int root);
 void merge(vector< list<int> >& la, const vector< list<int> >& la_old);
@@ -56,7 +57,7 @@ void apply_color(int i, const vector< list<int> >& la, const Color& new_color, v
 
 int generate_new_clause(Formula& f, const vector< list<int> >& la_old, vector<Color>& color_v, int uip);
 
-int clause_learning(Formula& f, const stack<Decision_var>& decisions)
+int clause_learning(Formula& f, const stack<Decision>& decisions)
 {
 	//0 représente le conflit
 	vector< list<int> > la(f.nb_variables()+1); //graphe des sommets bleus
@@ -83,9 +84,9 @@ int clause_learning(Formula& f, const stack<Decision_var>& decisions)
 	return time_back;
 }
 
-vector<bool> update_cancel(int n, stack<Decision_var> decisions);
+vector<bool> update_cancel(int n, stack<Decision> decisions);
 
-int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision_var> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
+int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
 	int current_time = decisions.top().time;
 	vector<bool> be_cancelled = update_cancel(la_inv.size(), decisions);//Pour détecter les sommets bleus
@@ -95,7 +96,7 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 	Global::DEBUG(1) << "graph creation" << current_time << endl;
 	while(!decisions.empty() && decisions.top().time >= current_time)
 	{
-		Decision_var dec = decisions.top();
+		Decision dec = decisions.top();
 		decisions.pop();
 
 		Clause c = dec.reason;
@@ -158,7 +159,7 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 	return x_fils;
 }
 
-vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une copie
+vector<bool> update_cancel(int n, stack<Decision> decisions) //Toujours une copie
 {
 	int current_time = decisions.top().time;
 
@@ -166,7 +167,7 @@ vector<bool> update_cancel(int n, stack<Decision_var> decisions) //Toujours une 
 
 	while(!decisions.empty() && decisions.top().time >= current_time)
 	{
-		Decision_var dec = decisions.top();
+		Decision dec = decisions.top();
 		decisions.pop();
 
 		be_cancelled[abs(dec.var)] = true;

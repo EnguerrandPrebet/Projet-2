@@ -69,28 +69,36 @@ int Formula::get_moms_var() const
 {
 	/* On trouve la taille minimale des clauses */
 	unsigned int min_clause_size = UINT_MAX;
+
 	for (const Clause& clause : clauses_alive)
-		min_clause_size = min(min_clause_size, clause.size());
+	{
+		unsigned int clause_size = clause.size(assignment);
+		if (clause_size != 0) // wl
+			min_clause_size = min(min_clause_size, clause_size);
+	}
+
+	if (min_clause_size == UINT_MAX)
+		return WL_SIGNAL_SAT;
 
 	/* On cherche le littéral qui apparaît le plus souvent dans ces clauses */
-	int max_x = 1; // initialisation sans intérêt, pour enlever le warning
+	int max_l = 1; // initialisation sans intérêt, pour enlever le warning
 	unsigned int max_freq = 0;
 
 	map<int, unsigned int> frequencies;
 	for (const Clause& clause : clauses_alive)
-		if (clause.size() == min_clause_size)
-			for (int x : clause.get_vars())
+		if (clause.size(assignment) == min_clause_size)
+			for (int l : clause.get_vars(assignment))
 			{
-				unsigned int new_freq_x = (++frequencies[x]); // si frequencies[x] n'est pas présent, il est initialisé à 0
+				unsigned int new_freq_l = (++frequencies[l]); // si frequencies[x] n'est pas présent, il est initialisé à 0
 
-				if (new_freq_x > max_freq)
+				if (new_freq_l > max_freq)
 				{
-					max_x = x;
-					max_freq = new_freq_x;
+					max_l = l;
+					max_freq = new_freq_l;
 				}
 			}
 
-	return max_x;
+	return max_l;
 }
 
 int Formula::get_dlis_var() const
@@ -99,7 +107,7 @@ int Formula::get_dlis_var() const
 	map<int, unsigned int> variables_score;
 
 	for (const Clause& clause : clauses_alive)
-		for (int l : clause.get_vars()) // chaque littéral doit apparaître de façon unique dans une clause
+		for (int l : clause.get_vars(assignment)) // chaque littéral doit apparaître de façon unique dans une clause
 			variables_score[l]++; // 'l' satisfait 'clause'
 			/* remarque : si variables_score[l] n'existe pas encore il est initialisé à 0 */
 
@@ -176,7 +184,7 @@ State Formula::check_satisfiability()
 
 	State result = TRUE;
 	/* On vérifie que toutes les clauses sont satisfaites */
-	for(Clause& c : clauses_alive)
+	for (Clause& c : clauses_alive)
 		switch (c.check_satisfiability(assignment))
 		{
 		case TRUE:
@@ -186,33 +194,35 @@ State Formula::check_satisfiability()
 			return FALSE;
 
 		case UNKNOWN:
-			result = UNKNOWN; //On renvoie UNKNOWN seulement si aucune clause n'est fausse
+			result = UNKNOWN; // on renvoie UNKNOWN seulement si aucune clause n'est fausse
 		}
 
 	return result;
 }
 
-void Formula::remove_tautology()
+void Formula::pretreatment_remove_tautology()
 {
 	list<Clause> new_clauses({});
-	for(Clause& c : clauses_alive)
+	for (Clause& c : clauses_alive)
 	{
 		c.check_satisfiability(assignment);
-		map<int,bool> truc({}); //true : x, false : x bar
+		map<int,bool> truc; //true : x, false : x bar
 		bool tauto = false;
-		for(auto j = c.get_vars().begin(); j != c.get_vars().end() && !tauto; j++)
+		for (int l : c.get_vars_dyn())
 		{
-			if(truc.find(abs(*j)) != truc.end() && truc[abs(*j)] == (*j<0)) // l'opposé est présent
+			int x = abs(l);
+
+			if (truc.find(x) != truc.end() && truc[x] == (l < 0)) // l'opposé est présent
 			{
 				tauto = true;
-				//break
+				break;
 			}
 			else
 			{
-				truc[abs(*j)] = (*j>0);
+				truc[x] = (l > 0);
 			}
 		}
-		if(!tauto)
+		if (!tauto)
 		{
 			new_clauses.push_back(c);
 		}
@@ -221,10 +231,11 @@ void Formula::remove_tautology()
 			Global::DEBUG(1) << "Tautologie found" << endl;
 		}
 	}
+
 	set_clauses_alive(new_clauses);
 }
 
-Res Formula::propagation_unitary(stack<Decision_var>& decisions, Theory& theory)
+Res Formula::propagation_unitary(stack<Decision>& decisions, Theory& theory)
 {
 	Res action = SUCCESS;
 
@@ -232,7 +243,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, Theory& theory)
 	{
 		const Clause& c = *it;
 
-		switch(c.size())
+		switch (c.size())
 		{
 			case 0:
 			decisions.push({0, decisions.top().time, *it, INFER});//On push la clause vide pour l'avoir dans le clause learning
@@ -246,7 +257,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, Theory& theory)
 				Global::DEBUG(1) << "Unitaire avec : " << l;
 
 				unsigned int x = abs(l);
-				if(assignment[x] == UNKNOWN) //Si une autre déduction de ce parcours ne l'a pas modifié
+				if(assignment[x] == UNKNOWN) // si une autre déduction de ce parcours ne l'a pas modifié
 				{
 					time_of_assign[x] = decisions.top().time;
 					Global::DEBUG(1) << " à la date " << time_of_assign[x] << endl;
@@ -258,7 +269,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, Theory& theory)
 				break;
 			}
 
-			default: // c.size() >= 2
+			default: /* c.size() >= 2 */
 				if(action != NEW)
 					action = NOTHING;
 		}
@@ -267,7 +278,7 @@ Res Formula::propagation_unitary(stack<Decision_var>& decisions, Theory& theory)
 	return action;
 }
 
-Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, Theory& theory)
+Res Formula::propagation_unitary_wl(stack<Decision>& decisions, Theory& theory)
 {
 	Res act = SUCCESS;
 
@@ -302,21 +313,23 @@ Res Formula::propagation_unitary_wl(stack<Decision_var>& decisions, Theory& theo
 	return act;
 }
 
-Res Formula::propagation_unique_polarity(stack<Decision_var>& decisions, Theory& theory)
+Res Formula::propagation_unique_polarity(stack<Decision>& decisions, Theory& theory)
 {
 	vector<int> seen(Formula::nb_variables()+1, 0); //0 : Nothing spotted, 1 : x spotted, -1 : x bar spotted, 2 : both spotted
 
-	for(auto c = clauses_alive.begin(); c != clauses_alive.end(); c++)
+	for (const Clause& c : clauses_alive)
 	{
-		for(auto j = c->get_vars().begin(); j!=c->get_vars().end(); j++)
+		for (int l : c.get_vars())
 		{
-			if (!seen[abs(*j)])
+			unsigned int x = abs(l);
+
+			if (!seen[x])
 			{
-				seen[abs(*j)] = (*j)/(abs(*j)); // +/- 1
+				seen[x] = l/x; // +/- 1
 			}
-			else if ((seen[abs(*j)] < 0) != ((*j) < 0)) //Different signs
+			else if ((seen[x] < 0) != (l < 0)) //Different signs
 			{
-				seen[abs(*j)] = 2;
+				seen[x] = 2;
 			}
 		}
 	}
@@ -394,9 +407,9 @@ void Formula::print_formula(bool true_name) const
 	Global::DEBUG() << endl << "Check :" << endl;
 	for (const Clause& clause : clauses_alive)
 	{
-		for(auto it = clause.get_vars().begin(); it != clause.get_vars().end(); it++)
+		for(int l : clause.get_vars(assignment))
 		{
-			Global::DEBUG() << ((true_name) ? renaming.translate_litteral(*it) : *it) << ' ';
+			Global::DEBUG() << ((true_name) ? renaming.translate_litteral(l) : l) << ' ';
 		}
 		Global::DEBUG() << endl;
 	}
@@ -415,24 +428,24 @@ void Formula::print_assignment() const
 		switch (assignment[mapped_x])
 		{
 			case TRUE:
-				Global::DEBUG() << x;
+				Global::MSG() << x;
 				break;
 
 			case FALSE:
-				Global::DEBUG() << -1 * x;
+				Global::MSG() << (-1)*x;
 				break;
 
 			case UNKNOWN:
 				if(Global::option.debug >= 1)
-					Global::DEBUG() << "?";
-				Global::DEBUG() << x; // affectation arbitraire
+					Global::MSG() << "?";
+				Global::MSG() << x; // affectation arbitraire
 				break;
 		}
 
-		Global::DEBUG() << ' ';
+		Global::MSG() << ' ';
 	}
 
-	Global::DEBUG() << endl;
+	Global::MSG() << endl;
 }
 
 int Formula::add_learned_clause(vector<int>& clause, int uip)

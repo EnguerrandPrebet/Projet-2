@@ -35,8 +35,8 @@ private:
 	bool isint;
 
 
-friend std::ostream& operator<<(std::ostream &flux, Real_Value const& rv);
-friend bool operator<(Real_Value const& rv1, Real_Value const& rv2);
+friend std::ostream& operator<<(std::ostream &, Real_Value const&);
+friend bool operator<(Real_Value const&, Real_Value const&);
 
 friend unsigned int max(unsigned int i, Real_Value rv);
 friend Real_Value operator*(int sign, Real_Value rv);

@@ -1,6 +1,6 @@
 #include "formula.hpp"
 #include "clause.hpp"
-#include "prototype.hpp"
+#include "dpll.hpp"
 #include "formula_io.hpp"
 #include "global.hpp"
 
@@ -39,7 +39,75 @@ const static char HELP_OUTPUT[] =
 "\n"
 "Input file name must ends with .cnf or .for.\n";
 
-string retrieve_cmd_arguments(int argc, char* argv[]) // retourne le nom du fichier à ouvrir
+string retrieve_cmd_arguments(int argc, char* argv[]); // retourne le nom du fichier à ouvrir
+
+int main(int argc, char* argv[])
+{
+	string file_name = retrieve_cmd_arguments(argc, argv);
+
+	if(Global::option.cnf_found == false && Global::option.tseitin == false)
+	{
+		Global::ERROR() << "expected input file (.cnf or .for)" << endl;
+		return 0;
+	}
+
+	ifstream file(file_name, fstream::in);
+	if (!file)
+	{
+		Global::ERROR() << "cannot open file: " << file_name << endl;
+		return 1;
+	}
+
+	Formula f;
+	if (Global::option.cnf_found)
+		f = treat_cnf(file);
+
+	else if (Global::option.tseitin)
+		f = treat_tseitin(file_name);
+
+	else
+	{
+		Global::ERROR() << "no file specified" << endl;
+		return 0;
+	}
+
+	if(Global::option.cnf_found)
+	{
+		Global::DEBUG(3) << "Input read, f is ";
+
+		if (Global::option.debug >= 3)
+			f.print_formula(true);
+
+		Global::DEBUG(3) << "Above, litterals were sorted in a different way in clauses" << endl;
+	}
+
+	Global::DEBUG(3) << "And now renamed :";
+
+	if (Global::option.debug >= 3)
+		f.print_formula(false);
+
+	switch (dpll(f))
+	{
+		case TRUE:
+			Global::MSG() << "s SATISFIABLE" << endl;
+			f.print_assignment();
+			break;
+
+		case FALSE:
+			Global::MSG() << "s UNSATISFIABLE" << endl;
+			break;
+
+		case UNKNOWN:
+			Global::MSG() << "s ???" << endl;
+	}
+
+
+	Global::DEBUG(1) << "End of main" << endl;
+
+	return 0;
+}
+
+string retrieve_cmd_arguments(int argc, char* argv[])
 {
 	string file_name;
 	for(int i = 1; i < argc; i++)
@@ -129,69 +197,4 @@ string retrieve_cmd_arguments(int argc, char* argv[]) // retourne le nom du fich
 	}
 
 	return file_name;
-}
-
-int main(int argc, char* argv[])
-{
-	string file_name = retrieve_cmd_arguments(argc, argv);
-	if(Global::option.cnf_found == false && Global::option.tseitin == false)
-	{
-		Global::ERROR() << "expected input file (.cnf or .for)" << endl;
-		return 0;
-	}
-
-	ifstream file(file_name, fstream::in);
-	if (!file)
-	{
-		Global::ERROR() << "cannot open file: " << file_name << endl;
-		return 1;
-	}
-
-	Formula f;
-	if (Global::option.cnf_found)
-		f = treat_cnf(file);
-
-	else if (Global::option.tseitin)
-		f = treat_tseitin(file_name);
-
-	else
-	{
-		Global::ERROR() << "no file specified" << endl;
-		return 0;
-	}
-
-	if(Global::option.cnf_found)
-	{
-		Global::DEBUG(3) << "Input read, f is ";
-
-		if (Global::option.debug >= 3)
-			f.print_formula(true);
-
-		Global::DEBUG(3) << "Above, litterals were sorted in a different way in clauses" << endl;
-	}
-
-	Global::DEBUG(3) << "And now renamed :";
-
-	if (Global::option.debug >= 3)
-		f.print_formula(false);
-
-	switch(dpll(f))
-	{
-		case TRUE:
-			Global::MSG() << "s SATISFIABLE" << endl;
-			f.print_assignment();
-			break;
-
-		case FALSE:
-			Global::MSG() << "s UNSATISFIABLE" << endl;
-			break;
-
-		case UNKNOWN:
-			Global::MSG() << "s ???" << endl;
-	}
-
-
-	Global::DEBUG(1) << "End of main" << endl;
-
-	return 0;
 }

@@ -1,4 +1,4 @@
-#include "prototype.hpp"
+#include "dpll.hpp"
 
 #include "formula.hpp"
 #include "cl.hpp"
@@ -11,11 +11,20 @@
 
 using namespace std;
 
+bool backtrack(Formula&, std::stack<Decision>& decisions);
+
+void pretreatment(Formula&);
+
+Res update(Formula&, std::stack<Decision>& decisions);
+
+int get_next_assignment(const Formula& f);
+
+
 State dpll(Formula& f)
 {
 	pretreatment(f);
 
-	stack<Decision_var> decisions;
+	stack<Decision> decisions;
 
 	Theory theory(f.renaming.get_hi_smt());
 
@@ -44,7 +53,15 @@ State dpll(Formula& f)
 			case NOTHING:
 			{
 				int l = get_next_assignment(f); // l = var & (true | false)
+
+				if (l == WL_SIGNAL_SAT) // wl : on s'est rendu compte que la formule est satisfaite
+				{
+					sat_unknown = false;
+					break;
+				}
+
 				Global::DEBUG(1) << "x :" << l << " at " << decisions.top().time+1 << endl;
+
 				f.update_var(l, theory); // met à jour assignment et vars_alive
 
 				decisions.push({l, decisions.top().time+1, Clause(), GUESS});
@@ -65,7 +82,7 @@ State dpll(Formula& f)
 	return f.check_satisfiability();
 }
 
-bool backtrack(Formula& f, stack<Decision_var>& decisions, Theory& theory)
+bool backtrack(Formula& f, stack<Decision>& decisions, Theory& theory)
 {
 	int time_back = decisions.top().time - 1; //Peut être réduit par le clause learning
 
@@ -78,7 +95,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, Theory& theory)
 	vector<bool> be_cancelled(f.nb_variables()+1, false); //Variables à annuler
 	while(!decisions.empty() && (decisions.top().choice == INFER || decisions.top().time - 1 > time_back))
 	{
-		Decision_var dec = decisions.top();
+		Decision dec = decisions.top();
 		decisions.pop();
 		Global::DEBUG(1) << "Forget " << ((dec.choice == INFER)?"infer":"guess") << " " << dec.var << endl;
 
@@ -94,7 +111,7 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, Theory& theory)
 		return false;
 	}
 
-	Decision_var change_of_mind = decisions.top();
+	Decision change_of_mind = decisions.top();
 	decisions.pop();
 	Global::DEBUG(1) << "Forget guess " << change_of_mind.var << endl;
 	if(Global::option.smt)
@@ -123,10 +140,10 @@ bool backtrack(Formula& f, stack<Decision_var>& decisions, Theory& theory)
 
 void pretreatment(Formula& f)
 {
-	f.remove_tautology();
+	f.pretreatment_remove_tautology();
 }
 
-Res update(Formula& f, stack<Decision_var>& decisions, Theory& theory)
+Res update(Formula& f, stack<Decision>& decisions, Theory& theory)
 {
 	Global::DEBUG(1) << endl << "Update time !" << endl;
 	f.apply_modification(decisions.top().time);//On met à jour les clauses ici
@@ -170,7 +187,7 @@ int get_next_assignment(const Formula& f)
 		case DLIS:
 			return f.get_dlis_var();
 
-		default: // NONE
+		default: /* NONE */
 			return f.get_first_var();
 	}
 }

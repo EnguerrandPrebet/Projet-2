@@ -13,6 +13,8 @@
 #include <map>
 #include <vector>
 
+#define WL_SIGNAL_SAT 0 // code retour pour les heuristiques
+
 using namespace std;
 
 class Formula
@@ -49,12 +51,13 @@ class Formula
 		void update_var(int l, Theory& theory);
 		State check_satisfiability();
 		void revive(const std::vector<bool>& be_cancelled = std::vector<bool>({false}));
-		void remove_tautology();
+		void pretreatment_remove_tautology();
 		void apply_modification(int);
-		Res propagation_unitary(std::stack<Decision_var>& decisions, Theory& theory);
-		Res propagation_unique_polarity(std::stack<Decision_var>& decisions, Theory& theory);
+		Res propagation_unitary(std::stack<Decision>& decisions, Theory& theory);
+		Res propagation_unique_polarity(std::stack<Decision>& decisions, Theory& theory);
 		//WL
-		Res propagation_unitary_wl(std::stack<Decision_var>& decisions, Theory& theory);
+		Res propagation_unitary_wl(std::stack<Decision>& decisions, Theory& theory);
+
 
 	private:
 		std::list<Clause> clauses_alive;

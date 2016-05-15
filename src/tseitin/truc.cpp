@@ -48,26 +48,26 @@ Eq Real_Value::g()
 	return val.eq;
 }
 
-ostream& operator<<(ostream &flux, Eq const& eq)
+ostream& operator<<(ostream &os, Eq const& eq)
 {
-	flux << eq.n1;
+	os << eq.n1;
 	if(eq.equal)
-		flux << " = ";
+		os << " = ";
 	else
-		flux << " != ";
-	flux << eq.n2;
+		os << " != ";
+	os << eq.n2;
 
-	return flux;
+	return os;
 }
 
-ostream& operator<<(ostream &flux, Real_Value const& rv)
+ostream& operator<<(ostream &os, Real_Value const& rv)
 {
 	if(rv.isint)
-		flux << rv.val.l;
+		os << rv.val.l;
 	else
-		flux << rv.val.eq;
+		os << rv.val.eq;
 
-	return flux;
+	return os;
 }
 
 Real_Value operator*(int sign, Real_Value rv)

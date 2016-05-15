@@ -6,7 +6,7 @@ using namespace std;
 
 #include "smt.tab.hpp"
 %}
-
+%option noyywrap
 %%
 [ \t]         	;
 [1-9][0-9]*	{ smtlval.ival = strtoul(yytext,NULL,0); return TK_VAR; }

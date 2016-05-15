@@ -6,7 +6,7 @@ using namespace std;
 
 #include "std.tab.hpp"
 %}
-
+%option noyywrap
 %%
 [ \t]         	;
 [1-9][0-9]*	{ stddlval.ival = atoi(yytext); return TK_VAR; }

@@ -2,6 +2,7 @@
 
 #include "formula.hpp"
 #include "global.hpp"
+#include "../tseitin/truc.hpp"
 
 #include <iostream> // interface
 #include <queue> // bfs

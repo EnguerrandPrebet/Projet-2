@@ -2,6 +2,7 @@
 
 #include "../parser_smt/formula_input.hpp"
 #include "../resol/formula.hpp"
+#include "truc.hpp"
 
 #include <iostream>
 #include <stack>

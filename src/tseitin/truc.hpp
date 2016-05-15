@@ -1,3 +1,6 @@
+#ifndef TRUC_HPP
+#define TRUC_HPP
+
 #include <iostream>
 
 
@@ -33,10 +36,12 @@ private:
 	bool isint;
 
 
-friend std::ostream& operator<<(std::ostream &flux, Real_Value const& rv);
-friend bool operator<(Real_Value const& rv1, Real_Value const& rv2);
+friend std::ostream& operator<<(std::ostream &, Real_Value const&);
+friend bool operator<(Real_Value const&, Real_Value const&);
 
 friend Real_Value operator*(int sign, Real_Value rv);
 friend Real_Value abs(Real_Value rv);
 friend int sign(Real_Value rv);
 };
+
+#endif // TRUC_HPP

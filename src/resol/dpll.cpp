@@ -1,4 +1,4 @@
-#include "prototype.hpp"
+#include "dpll.hpp"
 
 #include "formula.hpp"
 #include "cl.hpp"
@@ -10,6 +10,15 @@
 #include <stack>
 
 using namespace std;
+
+bool backtrack(Formula&, std::stack<Decision>& decisions);
+
+void pretreatment(Formula&);
+
+Res update(Formula&, std::stack<Decision>& decisions);
+
+int get_next_assignment(const Formula& f);
+
 
 State dpll(Formula& f)
 {

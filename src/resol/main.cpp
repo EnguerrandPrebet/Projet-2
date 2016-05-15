@@ -1,6 +1,6 @@
 #include "formula.hpp"
 #include "clause.hpp"
-#include "prototype.hpp"
+#include "dpll.hpp"
 #include "formula_io.hpp"
 #include "global.hpp"
 

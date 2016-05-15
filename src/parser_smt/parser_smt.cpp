@@ -28,3 +28,10 @@ Formula_input* parser_smt()
 
 	return res_smt;
 }
+
+void stdderror(const char *s) // hack : le vrai nom devrait être yyerror, mais on a un autre yyerror dans le projet
+{ //! il faudrait s'assurer que c'est bien celui là qui est appelé
+	Global::ERROR() << "parse error!  Message: " << s << endl;
+
+	exit(0);
+}

@@ -4,7 +4,7 @@
 #	backtrack optionnel (pour la version en ligne)
 #Regarder initialisation de DecisionVar //!
 #renommer Decision_var
-renommer prototype en dpll
+#renommer prototype en dpll
 Faire heuristiques pour clause learning
 renommer les couleurs
 #Afficher les graphes 2D (bof pour l'instant)

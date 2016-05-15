@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Union_find::Union_find(UF::type t, unsigned int n) : type(t), weight(n, 0), father(n)
+Union_find::Union_find(UF::type t, unsigned int n) : type(t), weight(n, 1), father(n)
 {
 	for (unsigned int i = 0; i < n; i++)
 		father[i] = i;

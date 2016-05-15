@@ -1,6 +1,6 @@
 #include "formula_io.hpp"
 
-#include "../parser/formula_input.hpp"
+#include "../parser_smt/formula_input.hpp"
 #include "../tseitin/tseitin.hpp"
 #include "global.hpp"
 
@@ -22,10 +22,6 @@ bool is_commentary(const string& s)
 bool is_end_of_clause(int x)
 {
 	return x == 0;
-}
-
-template <typename T> int sign(T val) {
-	return (T(0) < val) - (val < T(0));
 }
 
 Formula treat_cnf(istream& is)
@@ -114,6 +110,7 @@ Formula treat_tseitin(const string& filename)
 {
 	errno = 0;
 	int fd = open(filename.c_str(), O_RDONLY);
+
 	if (errno != 0)
 	{
 		Global::ERROR() << strerror(errno) << endl;
@@ -129,7 +126,11 @@ Formula treat_tseitin(const string& filename)
 		exit(1);
 	}
 
-	Formula f = tseitin(*parser());
+	Formula f;
+	if (Global::option.smt)
+		f = tseitin(*parser_smt());
+	else
+		f = tseitin(*parser_std());
 
 	close(fd);
 

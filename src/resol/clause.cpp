@@ -42,6 +42,11 @@ int Clause::get_first_litteral() const
 	return literals_dyn.front();
 }
 
+std::vector<int>& Clause::get_lit_fixed()
+{
+	return literals_fixed;
+}
+
 unsigned int Clause::size(const std::vector<State>& assignment) const
 {
 	if (!Global::option.watched_litterals)
@@ -124,8 +129,6 @@ State Clause::litteral_status(const vector<State>& assignment, int l) const
 
 State Clause::check_satisfiability(const vector<State>& assignment)
 {
-	get_up_all(); // non wl : pour obtenir la clause initiale
-
 	State sol_c = FALSE;
 	for (int l : literals_dyn)
 	{
@@ -221,8 +224,9 @@ int Clause::apply_modification_wl(const vector<State>& assignment)
 
 Res Clause::propagation_unitary_wl(const vector<State>& assignment, int& x)
 {
-	if (wl1 == -1)
+	if(wl2 == -1)
 		return ERROR;
+
 	Global::DEBUG(2) << "c pu: " << literals_fixed[wl1] << " " << literals_fixed[wl2] << endl;
 
 	if (wl1 == wl2)
@@ -237,6 +241,21 @@ Res Clause::propagation_unitary_wl(const vector<State>& assignment, int& x)
 	}
 	return NOTHING;
 }
+
+int Clause::time_max(std::vector<int> time_of_assign)
+{
+	int maxi = 0;
+	for(int i:literals_fixed)
+	{
+		Global::DEBUG(2) << i << " " << time_of_assign[abs(i)] << endl;
+		int x = abs(i);
+		if(time_of_assign[x] > maxi)
+			maxi = time_of_assign[x];
+	}
+	Global::DEBUG(2) << maxi << endl;
+	return maxi;
+}
+
 void Clause::get_up(const vector<bool>& be_cancelled)
 {
 	while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
@@ -259,13 +278,4 @@ void Clause::print() const
 	for(int i : literals_dyn)
 		Global::DEBUG() << " " << i;
 	Global::DEBUG() << endl;
-}
-
-void Clause::get_up_all()
-{
-	while (!stack_delete.empty())
-	{
-		literals_dyn.push_back(stack_delete.top());
-		stack_delete.pop();
-	}
 }

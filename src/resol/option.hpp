@@ -12,6 +12,7 @@ enum Heuristique {NONE, RAND, MOMS, DLIS};
 struct Option
 {
 	bool tseitin = false;
+	bool smt = false;
 
 	unsigned int debug = NO_DEBUG;
 

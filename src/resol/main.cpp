@@ -134,9 +134,13 @@ string retrieve_cmd_arguments(int argc, char* argv[])
 			else if (argument == "-tseitin" || argument == "tseitin" || argument == "t")
 			{
 				Global::option.tseitin = true;
-
 				if (argument == "tseitin")
 					Global::WARNING() << "-tseitin is obsolete, please use --tseitin or -t instead" << endl;
+			}
+			else if (argument == "smt")
+			{
+				Global::option.smt = true;
+				Global::option.tseitin = true;
 			}
 			else if (argument == "-help" || argument == "h")
 			{

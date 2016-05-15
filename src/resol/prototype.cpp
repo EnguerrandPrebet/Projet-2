@@ -49,7 +49,8 @@ State dpll(Formula& f)
 					break;
 				}
 
-				Global::DEBUG(1) << "x :" << l << endl;
+				Global::DEBUG(1) << "x :" << l << " at " << decisions.top().time+1 << endl;
+
 				f.update_var(l); // met à jour assignment et vars_alive
 
 				decisions.push({l, decisions.top().time+1, Clause(), GUESS});
@@ -157,6 +158,7 @@ Res update(Formula& f, stack<Decision>& decisions)
 
 int get_next_assignment(const Formula& f)
 {
+	Global::DEBUG(2) << Global::option.heuristique << endl;
 	switch (Global::option.heuristique)
 	{
 		case RAND:
@@ -168,7 +170,7 @@ int get_next_assignment(const Formula& f)
 		case DLIS:
 			return f.get_dlis_var();
 
-		default: // NONE
+		default: /* NONE */
 			return f.get_first_var();
 	}
 }

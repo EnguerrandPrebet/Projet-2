@@ -88,11 +88,11 @@ vector<bool> update_cancel(int n, stack<Decision> decisions);
 int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Decision> decisions) /**Pas de copie du stack pour pas niquer le backtrack**/
 {
 	int current_time = decisions.top().time;
-
 	vector<bool> be_cancelled = update_cancel(la_inv.size(), decisions);//Pour détecter les sommets bleus
 
 	int x_fils = 0; //On le définit maintenant car à la fin de la boucle, x_fils == pari //initialisation anti-warning
 
+	Global::DEBUG(1) << "graph creation" << current_time << endl;
 	while(!decisions.empty() && decisions.top().time >= current_time)
 	{
 		Decision dec = decisions.top();
@@ -100,6 +100,34 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 
 		Clause c = dec.reason;
 		x_fils = abs(dec.var);
+		Global::DEBUG(3) << "loop " << x_fils << endl;
+
+		vector<int> clause = c.get_lit_fixed();
+		for(int i:clause)
+		{
+			Global::DEBUG(3) << i << " ";
+		}
+		Global::DEBUG(3) << endl;
+		for(int i:clause)
+		{
+			int x_pere = abs(i);
+			if(x_fils == x_pere)
+				continue;
+			if(be_cancelled[x_pere])
+			{
+				la_inv[x_fils].push_back(x_pere);
+				Global::DEBUG(3) << x_fils << " " << x_pere << endl;
+				color_v[x_pere] = PRE_BLUE;
+				color_v[x_fils] = PRE_BLUE;
+			}
+			else
+			{
+				la_inv[x_fils].push_back(x_pere);
+				color_v[x_pere] = PRE_WHITE;
+			}
+
+		}
+		/*
 		stack<int> stack_delete = c.get_stack();
 
 		while(!stack_delete.empty() && be_cancelled[abs(stack_delete.top())])
@@ -124,6 +152,7 @@ int create_graphe(vector< list<int> >& la_inv, vector<Color>& color_v, stack<Dec
 			la_inv[x_fils].push_back(x_pere);
 			color_v[x_pere] = PRE_WHITE;
 		}
+		*/
 	}
 
 	return x_fils;
@@ -211,7 +240,7 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 		string neg_string = (s != 0 && f.variable_assignment(s) == FALSE) ? "¬" : "";
 
 		string t = (f.renaming.is_input_variable(s)) ? "" : "t";
-		int vertex_label = (f.renaming.is_input_variable(s)) ? f.renaming.inverse_translate_litteral(s) : (s - f.renaming.number_of_input_variables());
+		Real_Value vertex_label = (f.renaming.is_input_variable(s)) ? f.renaming.inverse_translate_litteral(s) : (s - f.renaming.number_of_input_variables());
 
 		string conflict_related_node_style = (color[s] == PURPLE || color[s] == YELLOW || color[s] == NEW_CLAUSE) ? ",color=tomato1,penwidth=2" : "";
 
@@ -285,13 +314,16 @@ void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependanc
 	}
 	for(unsigned int k = 0; k < dependance.size(); k++)
 	{
+		if(!dependance[i][k])
+			continue;
+
 		bool obl = true;
 		for(int j: la[i])
 		{
 			if(obligation[j][k] == false && dependance[j][0])
 				obl = false;
 		}
-		if(obl && dependance[i][k])
+		if(obl)
 			obligation[i][k] = true;
 	}
 

@@ -11,6 +11,9 @@ enum Res {NEW, NOTHING, ERROR, SUCCESS};
 enum Choice {INFER, GUESS};
 
 
+/* gestion dynamique, stocke une "clause" et permet de savoir si elle est satisfaite,
+ * évolue au cours des assignations, permet de backtracker.
+*/
 class Clause
 {
 	public:
@@ -21,6 +24,8 @@ class Clause
 		std::stack<int>& get_stack();
 		int get_first_litteral() const;
 
+		std::vector<int>& get_lit_fixed();
+
 		// dans le cas wl on doit donner assignment
 		unsigned int size(const std::vector<State>& assignment = std::vector<State>()) const; // nombre de variables UNKNOWN dans la clause
 
@@ -28,13 +33,15 @@ class Clause
 		// dans le cas wl on doit donner assignment
 		std::list<int> get_vars(const std::vector<State>& assignment = std::vector<State>()) const;
 
+		//CL + WL
+		int time_max(std::vector<int> time_of_assign);
+
 		//DPLL
 		void print() const;
 		State check_satisfiability(const std::vector<State>& assignment);
 
 		void get_up(const std::vector<bool>& be_cancelled);
 		void get_up_wl();
-		void get_up_all();
 
 		State litteral_status(const std::vector<State>& assignment, int l) const;
 		int apply_modification(const std::vector<State>& assignment); //Renvoie true si la clause est validé par les modifs

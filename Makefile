@@ -9,6 +9,7 @@ FOLDER=./src/parser ./src/tseitin ./src/DPLL ./src/interface
 
 
 TSEITIN=$(wildcard ./src/tseitin/*.cpp)
+INTERFACE=$(wildcard ./src/interface/*.cpp)
 DPLL=$(wildcard ./src/DPLL/*.cpp)
 SMT=./src/parser/smt
 STD=./src/parser/std
@@ -33,13 +34,13 @@ $(FOLDER): create_folder
 	$(CXX) $(CPPFLAGS) -o $@ $^
 
 gprof:
-	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $(TSEITIN) $(DPLL) $(PARSER) $(LIBLEX)
+	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $(TSEITIN) $(DPLL) $(INTERFACE) $(PARSER) $(LIBLEX)
 
 debug:
-	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $(TSEITIN) $(DPLL) $(PARSER) $(LIBLEX)
+	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $(TSEITIN) $(DPLL) $(INTERFACE) $(PARSER) $(LIBLEX)
 
 clang:
-	clang++ $(CPPFLAGS) -O2 -o ./bin/resol $(TSEITIN) $(DPLL) $(PARSER) $(LIBLEX)
+	clang++ $(CPPFLAGS) -O2 -o ./bin/resol $(TSEITIN) $(DPLL) $(INTERFACE) $(PARSER) $(LIBLEX)
 
 $(STD).yy.c :  $(STD).l
 	$(LEX) --prefix=stdd -o $@ $^ 

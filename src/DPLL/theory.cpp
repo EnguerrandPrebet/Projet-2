@@ -85,7 +85,7 @@ vector<Real_Value> Theory::learning(Real_Value rv)
 	while(i != new_co.n1)
 	{
 		unsigned int aux = pere[i];
-		output.push_back((Eq){min(i,aux),max(i,aux),true});
+		output.push_back(Eq({min(i,aux),max(i,aux),true}));
 
 		Global::DEBUG(1) << " " << i << " = " << aux << endl;
 		i = aux;

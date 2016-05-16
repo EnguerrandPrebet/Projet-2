@@ -7,7 +7,7 @@
 #define MAX_DEBUG 3
 #define NO_DEBUG 0
 
-enum Heuristique {NONE, RAND, MOMS, DLIS};
+enum Heuristique {NONE, RAND, MOMS, DLIS, VSIDS};
 
 struct Option
 {

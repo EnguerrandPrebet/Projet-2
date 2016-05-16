@@ -11,7 +11,7 @@ do
 	echo "TESTING : $folder"
 	for file in "$folder"/*
 	do
-		res=$(./../../bin/resol $file $*  | head -1 | cut -c3-)
+		res=$(/../bin/resol $file $*  | head -1 | cut -c3-)
 		if [ "$res" != "$expected" ]
 			then echo "$file, expected: $expected"
 		fi

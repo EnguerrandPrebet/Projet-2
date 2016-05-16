@@ -16,13 +16,13 @@ do
 					sol="SATISFIABLE"
 					if [ "$(basename $FILE)" == "smt.for" ]
 					then
-						res=$(./../../bin/resol -smte $options1 $option2 $option3 $FILE $*  | head -1 | cut -c3-)
+						res=$(../bin/resol -smte $options1 $option2 $option3 $FILE $*  | head -1 | cut -c3-)
 					else
-						res=$(./../../bin/resol -t $options1 $option2 $option3 $FILE $*  | head -1 | cut -c3-)				
+						res=$(../bin/resol -t $options1 $option2 $option3 $FILE $*  | head -1 | cut -c3-)				
 					fi
 				else
 					sol=$(head -1 "$FILE" | cut -c2-)
-					res=$(./../../bin/resol $options1 $option2 $option3 $FILE $*  | head -1 | cut -c3-)
+					res=$(../bin/resol $options1 $option2 $option3 $FILE $*  | head -1 | cut -c3-)
 				fi
 				
 				text=$(head -2 "$FILE" | tail -1 | cut -c2-)

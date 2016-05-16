@@ -277,7 +277,7 @@ void show_graph(const Formula& f, const vector< list<int> >& la, const vector<Co
 }
 
 void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependance, vector< vector<bool> >& obligation);
-int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
+int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> >& obligation);
 bool isuip(int challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation);
 
 int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, int root)
@@ -286,7 +286,7 @@ int get_uip(const vector< list<int> >& la, const vector< list<int> >& la_inv, in
 	dfs(root,la,dependance,obligation);
 
 
-	int uip = bfs(0,la_inv,dependance,obligation);
+	int uip = bfs(0,la_inv,obligation);
 
 	return uip;
 }
@@ -330,9 +330,9 @@ void dfs(int i, const vector< list<int> >& la, vector< vector<bool> >& dependanc
 
 }
 
-int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
+int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> >& obligation)
 {
-	vector<bool> isSeen(dependance.size(),false);
+	vector<bool> isSeen(obligation.size(),false);
 	isSeen[root] = true;
 	queue<int> q;
 	for(int i:la_inv[root])
@@ -346,7 +346,7 @@ int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> 
 		int challenger = q.front();
 		isSeen[challenger] = true;
 		q.pop();
-		if(isuip(challenger,dependance,obligation))
+		if(obligation[root][challenger])
 			return challenger;
 
 		for(int i:la_inv[challenger])
@@ -360,17 +360,6 @@ int bfs(int root, const vector< list<int> >& la_inv, const vector< vector<bool> 
 	}
 
 	return 0;
-}
-
-bool isuip(int challenger, const vector< vector<bool> >& dependance, const vector< vector<bool> >& obligation)
-{
-	for(unsigned int i = 0; i < dependance.size(); i++)
-	{
-		//On vérifie que i est un ancêtre du conflit (pas une déduction qui ne mènent nul part, et que challenger est soit un ancêtre de i, soit i est obligé de passer par challenger pour aller à 0
-		if(dependance[i][0] && !((dependance[i][challenger] && obligation[i][challenger]) || dependance[challenger][i]))
-			return false;
-	}
-	return true;
 }
 
 void apply_color(int i, const vector< list<int> >& la, const Color& new_color, vector<Color>& color)

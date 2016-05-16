@@ -1,5 +1,8 @@
 reset
 
+set term pdfcairo
+set output "stats.pdf"
+
 set title "Comparaison de DPLL avec rien, littéraux surveillés et les heuristiques"
 set xlabel "1.cnf	2.cnf	3.cnf	4.cnf	5.cnf	6.cnf	7.cnf	20-91	50-218"
 set ylabel "Temps d'execution"

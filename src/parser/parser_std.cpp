@@ -4,7 +4,7 @@
 
 #include "formula_input.hpp"
 #include "std.tab.hpp"
-#include "../resol/global.hpp"
+#include "../DPLL/global.hpp"
 
 using namespace std;
 

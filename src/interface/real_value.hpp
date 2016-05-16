@@ -24,11 +24,7 @@ public:
 	Real_Value(int l);
 	Real_Value(Eq eq);
 
-	//Get et Set
 	Eq g();
-	/*void s(int l);
-	void s(Eq eq);*/
-	bool is_int();
 
 private:
 	union Value val;

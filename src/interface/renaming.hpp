@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-#include "../tseitin/truc.hpp"
+#include "real_value.hpp"
 
 class Renaming
 {

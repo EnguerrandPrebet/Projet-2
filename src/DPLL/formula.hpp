@@ -5,7 +5,7 @@
 #include "global.hpp"
 #include "theory.hpp"
 
-#include "renaming.hpp"
+#include "../interface/renaming.hpp"
 
 #include <ostream>
 #include <stack>

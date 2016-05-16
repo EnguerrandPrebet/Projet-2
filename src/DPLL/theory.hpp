@@ -5,7 +5,7 @@
 #include <list>
 #include <queue>
 
-#include "../tseitin/truc.hpp"
+#include "../interface/real_value.hpp"
 #include "union_find.hpp"
 #include "global.hpp"
 

@@ -5,14 +5,14 @@ LIBLEX=-lfl
 YACC=bison
 
 EXEC=./bin/resol ./bin/graph ./bin/generator
-FOLDER=./src/parser_smt ./src/tseitin ./src/resol
+FOLDER=./src/parser ./src/tseitin ./src/DPLL ./src/interface
 
 
 TSEITIN=$(wildcard ./src/tseitin/*.cpp)
-RESOL=$(wildcard ./src/resol/*.cpp)
-SMT=./src/parser_smt/smt
-STD=./src/parser_smt/std
-PARSER=$(STD).tab.cpp $(STD).yy.c $(SMT).tab.cpp $(SMT).yy.c ./src/parser_smt/formula_input.cpp ./src/parser_smt/parser_smt.cpp ./src/parser_smt/parser_std.cpp
+DPLL=$(wildcard ./src/DPLL/*.cpp)
+SMT=./src/parser/smt
+STD=./src/parser/std
+PARSER=$(STD).tab.cpp $(STD).yy.c $(SMT).tab.cpp $(SMT).yy.c ./src/parser/formula_input.cpp ./src/parser/parser_smt.cpp ./src/parser/parser_std.cpp
 
 .PHONY : all $(FOLDER) gprof debug regression clean mrproper
 
@@ -33,13 +33,13 @@ $(FOLDER): create_folder
 	$(CXX) $(CPPFLAGS) -o $@ $^
 
 gprof:
-	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
+	$(CXX) $(CPPFLAGS) -pg -o ./bin/resol $(TSEITIN) $(DPLL) $(PARSER) $(LIBLEX)
 
 debug:
-	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
+	$(CXX) $(CPPFLAGS) -g -o ./bin/resol $(TSEITIN) $(DPLL) $(PARSER) $(LIBLEX)
 
 clang:
-	clang++ $(CPPFLAGS) -O2 -o ./bin/resol $(TSEITIN) $(RESOL) $(PARSER) $(LIBLEX)
+	clang++ $(CPPFLAGS) -O2 -o ./bin/resol $(TSEITIN) $(DPLL) $(PARSER) $(LIBLEX)
 
 $(STD).yy.c :  $(STD).l
 	$(LEX) --prefix=stdd -o $@ $^ 

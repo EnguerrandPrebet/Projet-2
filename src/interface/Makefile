@@ -8,13 +8,13 @@ OFILES=$(subst ./,./../../obj/,$(CFILES:.cpp=.o))
 
 all : create_folder $(OFILES)
 
-include $(wildcard ../../dep/resol/*.d)
+include $(wildcard ../../dep/interface/*.d)
 
 create_folder:
-	mkdir -p ../../dep/resol
+	mkdir -p ../../dep/interface
 	
-$(OFILES): ./../../obj/%.o : %.cpp ../../dep/resol/%.d
+$(OFILES): ./../../obj/%.o : %.cpp ../../dep/interface/%.d
 	$(CXX) -O2 $(CPPFLAGS) -c -o $@ $<
 	
-../../dep/resol/%.d: %.cpp
+../../dep/interface/%.d: %.cpp
 	$(CXX) $(CPPFLAGS) -MM -MD -MT ../../obj/$*.o -o $@ $<

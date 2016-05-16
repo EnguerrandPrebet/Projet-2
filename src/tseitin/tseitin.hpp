@@ -1,8 +1,8 @@
 #ifndef TSEITIN_HPP
 #define TSEITIN_HPP
 
-#include "../parser_smt/formula_input.hpp"
-#include "../resol/formula.hpp"
+#include "../parser/formula_input.hpp"
+#include "../DPLL/formula.hpp"
 
 #include <iostream>
 

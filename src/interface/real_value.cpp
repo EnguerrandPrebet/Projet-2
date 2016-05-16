@@ -1,4 +1,4 @@
-#include "truc.hpp"
+#include "real_value.hpp"
 
 #include <iostream>
 
@@ -9,6 +9,7 @@ template <typename T> int sign(const T& val) {
 	return (T(0) < val) - (val < T(0));
 }
 
+//Eq
 int sign(Eq eq)
 {
 	return (eq.equal) - (!eq.equal);
@@ -31,6 +32,7 @@ bool operator<(Eq const& eq1, Eq const& eq2)
 		return (eq1.n2 < eq2.n2);
 }
 
+//Real_Value
 Real_Value::Real_Value(int l)
 {
 	val.l = l;

@@ -1,7 +1,7 @@
 #include "formula.hpp"
 #include "clause.hpp"
 #include "dpll.hpp"
-#include "formula_io.hpp"
+#include "../interface/formula_io.hpp"
 #include "global.hpp"
 
 #include <iostream>

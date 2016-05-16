@@ -23,6 +23,7 @@ do
 				else
 					sol=$(head -1 "$FILE" | cut -c2-)
 					res=$(../bin/resol $options1 $option2 $option3 $FILE $*  | head -1 | cut -c3-)
+
 				fi
 				
 				text=$(head -2 "$FILE" | tail -1 | cut -c2-)
@@ -33,6 +34,33 @@ do
 		done
 	done
 done
+
+for option2 in "${options2[@]}"
+	do
+	for FILE in regression/*
+	do
+		if [ "${FILE: -1}" == "r" ]
+		then
+			sol="SATISFIABLE"
+			if [ "$(basename $FILE)" == "smt.for" ]
+			then
+				res=$(./../bin/resol -smte  $option2  $FILE $*  | head -1 | cut -c3-)
+			else
+				res=$(./../bin/resol -t -cl -vsids $option2 $FILE $*  | head -1 | cut -c3-)				
+			fi
+		else
+			sol=$(head -1 "$FILE" | cut -c2-)
+			res=$(./../bin/resol -cl -vsids $option2 $FILE $*  | head -1 | cut -c3-)
+		fi
+	
+		text=$(head -2 "$FILE" | tail -1 | cut -c2-)
+		if [ "$res" != "$sol" ]
+		then	echo "[-cl $option2 -vsids] $(basename $FILE), expected: $sol, \"$text\""				
+		fi
+	done
+done
+
+
 
 read -p "Press [Enter] key to start more regressions (may take a while)..."
 echo""

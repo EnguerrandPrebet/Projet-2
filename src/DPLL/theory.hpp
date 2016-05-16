@@ -13,9 +13,10 @@ class Theory
 {
 public:
 	Theory(unsigned int n);
-	bool add_connection(Real_Value& rv);
-	std::vector<Real_Value> learning(Real_Value rv);
-	void backtrack(Real_Value rv);
+
+	bool add_connection(Real_Value&);
+	std::vector<Real_Value> learning(Real_Value);
+	void backtrack(Real_Value);
 
 private:
 	Union_find uf;

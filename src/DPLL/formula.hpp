@@ -40,6 +40,8 @@ class Formula
 		int get_moms_var() const;
 		int get_dlis_var() const;
 
+		int get_vsids_var() const;
+
 		// Debug
 		void print_formula(bool true_name = false) const; // check
 		void print_assignment() const; // print
@@ -66,8 +68,10 @@ class Formula
 		std::vector<State> assignment; //  [NULL, x_1, ..., x_n] donc taille (n + 1)
 		std::vector<int> time_of_assign; //CL
 
+		/* <VSIDS */
+		std::vector<float> vsids_literal_score; // x -> x,  (-x) -> n+x
+		/* VSIDS> */
 
-		//std::vector< std::list<int> > reason_of_assignment; // clause learning useless
 
 		std::list<unsigned int> var_alive;
 };

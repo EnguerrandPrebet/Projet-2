@@ -178,16 +178,19 @@ int get_next_assignment(const Formula& f)
 	Global::DEBUG(2) << Global::option.heuristique << endl;
 	switch (Global::option.heuristique)
 	{
-		case RAND:
-			return f.get_random_var();
+	case RAND:
+		return f.get_random_var();
 
-		case MOMS:
-			return f.get_moms_var();
+	case MOMS:
+		return f.get_moms_var();
 
-		case DLIS:
-			return f.get_dlis_var();
+	case DLIS:
+		return f.get_dlis_var();
 
-		default: /* NONE */
-			return f.get_first_var();
+	case VSIDS:
+		return f.get_vsids_var();
+
+	default: /* NONE */
+		return f.get_first_var();
 	}
 }

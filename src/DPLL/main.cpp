@@ -27,7 +27,7 @@ const static char HELP_OUTPUT[] =
 "  -d[N]  --debug       print trace of the SAT resolution\n"
 "  -h  --help           print help and exit\n"
 "  -wl                  activate watched litterals\n"
-"  -rand -moms -dlis    use heuristique\n"
+"  -rand -moms -dlis -vsids    use heuristique\n"
 "\n"
 "N is an integer between 0 (by default, no output) and " XSTR(MAX_DEBUG) " setting the debug level\n"
 "	(notice : debug level is incremental)\n"
@@ -171,6 +171,10 @@ string retrieve_cmd_arguments(int argc, char* argv[])
 			else if (argument == "dlis")
 			{
 				Global::option.heuristique = DLIS;
+			}
+			else if (argument == "vsids")
+			{
+				Global::option.heuristique = VSIDS;
 			}
 			else
 				Global::WARNING() << "unrecognized command line option: " << argv[i] << endl;

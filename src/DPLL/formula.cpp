@@ -7,6 +7,9 @@
 #include <climits> // pour initialisation des min / max
 #include <cassert> // pour s'assurer que la formule ne contient pas de clause UNKNOWN
 
+#define VSIDS_DECAY_FACTOR 2
+#define VSIDS_ACTIVITY_INCREASE_ADD 1
+
 using namespace std;
 
 Formula::Formula()
@@ -27,6 +30,9 @@ Formula::Formula(const Renaming& input_renaming)
 	time_of_assign = vector<int>(n, -1);
 
 	tab_stack_delete = vector< list<Clause> >(n + 1);
+
+	if (Global::option.heuristique == VSIDS)
+		vsids_literal_score = vector<float>(2*n + 1, 0.0); // 0 inutilisé + n fois x + n fois (-x)
 }
 
 int Formula::get_first_var() const
@@ -104,18 +110,73 @@ int Formula::get_moms_var() const
 int Formula::get_dlis_var() const
 {
 	/* On cherche l'assignation qui rend le plus de clauses valides */
-	map<int, unsigned int> variables_score;
+	map<int, unsigned int> literals_score;
 
 	for (const Clause& clause : clauses_alive)
 		for (int l : clause.get_vars(assignment)) // chaque littéral doit apparaître de façon unique dans une clause
-			variables_score[l]++; // 'l' satisfait 'clause'
+			literals_score[l]++; // 'l' satisfait 'clause'
 			/* remarque : si variables_score[l] n'existe pas encore il est initialisé à 0 */
 
 	/* On récupère le littéral de meilleur score */
-	const auto& max_score = max_element(variables_score.begin(), variables_score.end(),
-													[](const pair<int, unsigned int>& p1, const pair<int, unsigned int>& p2)
-													 { return p1.second < p2.second; });
-	return max_score->first;
+	auto cmp =[](const pair<int, unsigned int>& p1, const pair<int, unsigned int>& p2) { return p1.second < p2.second; };
+	const auto& max_score = max_element(literals_score.begin(), literals_score.end(), cmp);
+
+	int max_score_l = max_score->first;
+
+	return max_score_l;
+}
+
+int Formula::get_vsids_var() const
+{
+	int best_l = 0;
+	unsigned int best_i = 0; // anti warning
+
+	/* Pour chaque (x, -x) non assigné on cherche celui qui maximise le score vsids */
+	unsigned int n = nb_variables();
+	for (unsigned int x = 1; x <= n; x++)
+	{
+		if (assignment[x] == UNKNOWN)
+		{
+			unsigned int i = x;
+			unsigned int j = n + x;
+
+			/* initialisation non effectuée */
+			if (best_l == 0)
+			{
+				// x est meilleur que (-x)
+				if (vsids_literal_score[i] > vsids_literal_score[j])
+				{
+				best_l = x;
+				best_i = i;
+				}
+				else // (-x) est meilleur que x
+				{
+					best_l = (-x);
+					best_i = j;
+				}
+			}
+
+			/* initialisation effectuée */
+			else
+			{
+				// x est meilleur que best_l
+				if (vsids_literal_score[i] > vsids_literal_score[best_i])
+				{
+					best_l = x;
+					best_i = i;
+				}
+				// (-x) est meilleur que best_l
+				else if (vsids_literal_score[j] > vsids_literal_score[best_i])
+				{
+					best_l = (-x);
+					best_i = j;
+				}
+				// else aucune amélioration
+			}
+		}
+	}
+
+	return best_l;
 }
 
 void Formula::update_var(int l, Theory& theory)
@@ -469,6 +530,25 @@ int Formula::add_learned_clause(vector<int>& clause, int uip)
 	signed_clause.push_back(signed_uip);
 
 	Clause new_clause(signed_clause);
+
+	if (Global::option.heuristique == VSIDS)
+	{
+		/* diminution d'activité des variables */
+		for (float& score : vsids_literal_score)
+			score /= VSIDS_DECAY_FACTOR;
+
+
+		/* la clause apprise augmente l'activitée */
+		for (int l : new_clause.get_vars_dyn())
+		{
+			unsigned int x = abs(l);
+
+			unsigned int offset = (l > 0) ? 0 : nb_variables();
+			unsigned int i = x + offset;
+
+			vsids_literal_score[i] += VSIDS_ACTIVITY_INCREASE_ADD;
+		}
+	}
 
 	clauses_alive.push_back(new_clause);
 

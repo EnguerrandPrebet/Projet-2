@@ -24,10 +24,14 @@ const static char HELP_OUTPUT[] =
 "Utilisation: resol [OPTION]... [FILE(.cnf|.for)]\n"
 "\n"
 "  -t  --tseitin        use tseitin transform to accept user-friendly .for file\n"
+"  -smte                use SAT modulo equality theory"
 "  -d[N]  --debug       print trace of the SAT resolution\n"
 "  -h  --help           print help and exit\n"
 "  -wl                  activate watched litterals\n"
-"  -rand -moms -dlis -vsids    use heuristique\n"
+"  -cl                  activate clause learning\n"
+"  -cl-interac          activate clause learning and enable conflict graph visualization\n"
+"  -rand -moms -dlis    use heuristic\n"
+"  -vsids               clause learning only heuristic\n"
 "\n"
 "N is an integer between 0 (by default, no output) and " XSTR(MAX_DEBUG) " setting the debug level\n"
 "	(notice : debug level is incremental)\n"
@@ -82,6 +86,12 @@ int main(int argc, char* argv[])
 	}
 
 	Global::DEBUG(3) << "And now renamed :";
+
+	if (Global::option.heuristic == VSIDS && !Global::option.cl)
+	{
+		Global::option.cl = true;
+		Global::WARNING() << "Heuristic -vsids requires option -cl, automatically enabled now" << endl;
+	}
 
 	if (Global::option.debug >= 3)
 		f.print_formula(false);
@@ -162,19 +172,19 @@ string retrieve_cmd_arguments(int argc, char* argv[])
 			}
 			else if (argument == "rand")
 			{
-				Global::option.heuristique = RAND;
+				Global::option.heuristic = RAND;
 			}
 			else if (argument == "moms")
 			{
-				Global::option.heuristique = MOMS;
+				Global::option.heuristic = MOMS;
 			}
 			else if (argument == "dlis")
 			{
-				Global::option.heuristique = DLIS;
+				Global::option.heuristic = DLIS;
 			}
 			else if (argument == "vsids")
 			{
-				Global::option.heuristique = VSIDS;
+				Global::option.heuristic = VSIDS;
 			}
 			else
 				Global::WARNING() << "unrecognized command line option: " << argv[i] << endl;

@@ -175,8 +175,8 @@ Res update(Formula& f, stack<Decision>& decisions, Theory& theory)
 
 int get_next_assignment(const Formula& f)
 {
-	Global::DEBUG(2) << Global::option.heuristique << endl;
-	switch (Global::option.heuristique)
+	Global::DEBUG(2) << Global::option.heuristic << endl;
+	switch (Global::option.heuristic)
 	{
 	case RAND:
 		return f.get_random_var();

@@ -31,7 +31,7 @@ Formula::Formula(const Renaming& input_renaming)
 
 	tab_stack_delete = vector< list<Clause> >(n + 1);
 
-	if (Global::option.heuristique == VSIDS)
+	if (Global::option.heuristic == VSIDS)
 		vsids_literal_score = vector<float>(2*n + 1, 0.0); // 0 inutilisé + n fois x + n fois (-x)
 }
 
@@ -531,7 +531,7 @@ int Formula::add_learned_clause(vector<int>& clause, int uip)
 
 	Clause new_clause(signed_clause);
 
-	if (Global::option.heuristique == VSIDS)
+	if (Global::option.heuristic == VSIDS)
 	{
 		/* diminution d'activité des variables */
 		for (float& score : vsids_literal_score)

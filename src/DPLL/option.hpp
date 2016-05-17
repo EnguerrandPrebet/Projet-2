@@ -7,7 +7,7 @@
 #define MAX_DEBUG 3
 #define NO_DEBUG 0
 
-enum Heuristique {NONE, RAND, MOMS, DLIS, VSIDS};
+enum Heuristic {NONE, RAND, MOMS, DLIS, VSIDS};
 
 struct Option
 {
@@ -21,7 +21,7 @@ struct Option
 
 	bool watched_litterals = false;
 
-	Heuristique heuristique = NONE;
+	Heuristic heuristic = NONE;
 
 	bool cl_interactive = false;
 	bool cl = false;
